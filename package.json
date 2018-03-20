@@ -1,0 +1,29 @@
+{
+  "name": "zealotry",
+  "version": "0.0.0",
+  "description": "A multiplayer action pvp game.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simon-kyger/zealotry.git"
+  },
+  "keywords": [
+    "game",
+    "pvp",
+    "javascript"
+  ],
+  "author": "Simon Kyger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simon-kyger/zealotry/issues"
+  },
+  "homepage": "https://github.com/simon-kyger/zealotry#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "path": "^0.12.7",
+    "socket.io": "^2.0.4"
+  }
+}
