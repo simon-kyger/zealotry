@@ -2,9 +2,9 @@ import SpriteSheet from './SpriteSheet.js';
 import {loadimage, loadmap} from './loaders.js';
 const socket = io();
 
-socket.on(`helloworld`, (data)=>load(data));
+socket.on(`helloworld`, (data)=>init(data));
 
-const load = data => {
+const init = data => {
 	console.log(data);
 	const canvas = document.createElement(`canvas`);
 	document.body.style.margin = 0;
@@ -32,21 +32,17 @@ const drawbackground = (background, ctx, sprites) => {
 	});
 }
 
-const main = () => {
-	loadimage(`/sprites/backgroundtiles.png`).then(image=>{
-		const ctx = document.querySelector(`#main`).getContext(`2d`);
-		ctx.imageSmoothingEnabled = false;
-		ctx.scale(4,4);
-		const sprites = new SpriteSheet(image, 16, 16);
-		sprites.define(`grass1`, 3, 0);
-		sprites.define(`tree1`, 9, 25);
-		sprites.define(`tree2`, 9, 26);
-		sprites.define(`tree3`, 9, 27);
-		sprites.define(`tree4`, 9, 28);
-		loadmap(`test`).then(map=>{
-			map.backgrounds.forEach(background=>{
-				drawbackground(background, ctx, sprites);
-			});
-		});
-	});
+const main = async() => {
+	const image = await loadimage(`/sprites/backgroundtiles.png`);
+	const ctx = document.querySelector(`#main`).getContext(`2d`);
+	ctx.imageSmoothingEnabled = false;
+	ctx.scale(4,4);
+	const sprites = new SpriteSheet(image, 16, 16);
+	sprites.define(`grass1`, 3, 0);
+	sprites.define(`tree1`, 9, 25);
+	sprites.define(`tree2`, 9, 26);
+	sprites.define(`tree3`, 9, 27);
+	sprites.define(`tree4`, 9, 28);
+	const map = await loadmap(`test`);
+	map.backgrounds.forEach(background=>drawbackground(background, ctx, sprites));
 }
