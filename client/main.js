@@ -32,6 +32,8 @@ const drawbackground = (background, ctx, sprites) => {
 	});
 }
 
+const delay = () => new Promise(resolve=> setTimeout(resolve, 100));
+
 const main = async() => {
 	const image = await loadimage(`/sprites/backgroundtiles.png`);
 	const ctx = document.querySelector(`#main`).getContext(`2d`);
@@ -43,6 +45,13 @@ const main = async() => {
 	sprites.define(`tree2`, 9, 26);
 	sprites.define(`tree3`, 9, 27);
 	sprites.define(`tree4`, 9, 28);
-	const map = await loadmap(`test`);
-	map.backgrounds.forEach(background=>drawbackground(background, ctx, sprites));
+	const {backgrounds:backgrounds} = await loadmap(`test`);
+	// map.backgrounds.forEach(async background=>{
+	// 	drawbackground(background, ctx, sprites)
+	// 	await sleep(1000);
+	// });
+	for (let background of backgrounds){
+		await delay();
+		drawbackground(background, ctx, sprites);
+	}
 }
