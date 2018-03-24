@@ -1,0 +1,17 @@
+{
+    "players": [
+        {
+            "name": "Locke",
+            "xoff": 0,
+            "yoff": 0,
+            "width": 16,
+            "height": 32,
+            "ranges": [
+                [
+                    7, 8,
+                    2, 3
+                ]
+            ]
+        }
+    ]
+}

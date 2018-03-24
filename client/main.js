@@ -1,4 +1,4 @@
-import {loadimage, loadmap} from './loaders.js';
+import {loadimage, loadjson} from './loaders.js';
 import {render} from './render.js';
 const socket = io();
 
@@ -21,13 +21,19 @@ const init = data => {
 	});
 	main();
 }
-const delay = () => new Promise(resolve=> setTimeout(resolve, 100));
 
 const main = async() => {
-	const image = await loadimage(`/sprites/backgroundtiles.png`);
+	//load images
+	const backgroundSpritesheet = await loadimage(`/sprites/backgroundtiles.png`);
+	const playerSpritesheet = await loadimage(`/sprites/players.gif`);
+	//load data
+	const {backgrounds:backgrounds, foregrounds:foregrounds} = await loadjson(`testmap`);
+	const {players:players} = await loadjson(`players`);
+	//construct rendering
 	const ctx = document.querySelector(`#main`).getContext(`2d`);
 	ctx.imageSmoothingEnabled = false;
 	ctx.scale(4,4);
-	const {backgrounds:backgrounds} = await loadmap(`test`);
-	render(ctx, image, backgrounds);
+	await render(ctx, backgroundSpritesheet, backgrounds);
+	await render(ctx, playerSpritesheet, players);
+	await render(ctx, backgroundSpritesheet, foregrounds);
 }

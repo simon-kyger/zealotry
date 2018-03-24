@@ -4,17 +4,23 @@
             "tile": "grass1",
             "xoff": 2,
             "yoff": 0,
+            "width": 16,
+            "height": 16,
             "ranges": [
                 [
                     0, 14,
                     0, 14
                 ]
             ]
-        },
+        }
+    ],
+    "foregrounds": [
         {
             "tile": "tree1",
             "xoff": 9,
             "yoff": 25,
+            "width": 16,
+            "height": 16,
             "ranges": [
                 [
                     0, 1,
@@ -30,6 +36,8 @@
             "tile": "tree2",
             "xoff": 9,
             "yoff": 26,
+            "width": 16,
+            "height": 16,
             "ranges": [
                 [
                     0, 1,
@@ -45,6 +53,8 @@
             "tile": "tree3",
             "xoff": 9,
             "yoff": 27,
+            "width": 16,
+            "height": 16,
             "ranges": [
                 [
                     0, 1,
@@ -60,6 +70,8 @@
             "tile": "tree4",
             "xoff": 9,
             "yoff": 28,
+            "width": 16,
+            "height": 16,
             "ranges": [
                 [
                     0, 1,
