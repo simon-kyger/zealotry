@@ -2,15 +2,19 @@
     "backgrounds": [
         {
             "tile": "grass1",
+            "xoff": 2,
+            "yoff": 0,
             "ranges": [
                 [
-                    0, 25,
+                    0, 14,
                     0, 14
                 ]
             ]
         },
         {
             "tile": "tree1",
+            "xoff": 9,
+            "yoff": 25,
             "ranges": [
                 [
                     0, 1,
@@ -24,6 +28,8 @@
         },
         {
             "tile": "tree2",
+            "xoff": 9,
+            "yoff": 26,
             "ranges": [
                 [
                     0, 1,
@@ -37,6 +43,8 @@
         },
         {
             "tile": "tree3",
+            "xoff": 9,
+            "yoff": 27,
             "ranges": [
                 [
                     0, 1,
@@ -50,6 +58,8 @@
         },
         {
             "tile": "tree4",
+            "xoff": 9,
+            "yoff": 28,
             "ranges": [
                 [
                     0, 1,

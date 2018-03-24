@@ -1,5 +1,5 @@
-import SpriteSheet from './SpriteSheet.js';
 import {loadimage, loadmap} from './loaders.js';
+import {render} from './render.js';
 const socket = io();
 
 socket.on(`helloworld`, (data)=>init(data));
@@ -21,17 +21,6 @@ const init = data => {
 	});
 	main();
 }
-
-const drawbackground = (background, ctx, sprites) => {
-	background.ranges.forEach(([x1, x2, y1, y2])=>{
-		for (let x = x1; x < x2; ++x){
-			for(let y = y1; y < y2; ++y){
-				sprites.drawTile(background.tile, ctx, x, y);
-			}			
-		}
-	});
-}
-
 const delay = () => new Promise(resolve=> setTimeout(resolve, 100));
 
 const main = async() => {
@@ -39,19 +28,6 @@ const main = async() => {
 	const ctx = document.querySelector(`#main`).getContext(`2d`);
 	ctx.imageSmoothingEnabled = false;
 	ctx.scale(4,4);
-	const sprites = new SpriteSheet(image, 16, 16);
-	sprites.define(`grass1`, 3, 0);
-	sprites.define(`tree1`, 9, 25);
-	sprites.define(`tree2`, 9, 26);
-	sprites.define(`tree3`, 9, 27);
-	sprites.define(`tree4`, 9, 28);
 	const {backgrounds:backgrounds} = await loadmap(`test`);
-	// map.backgrounds.forEach(async background=>{
-	// 	drawbackground(background, ctx, sprites)
-	// 	await sleep(1000);
-	// });
-	for (let background of backgrounds){
-		await delay();
-		drawbackground(background, ctx, sprites);
-	}
+	render(ctx, image, backgrounds);
 }

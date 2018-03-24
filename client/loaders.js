@@ -6,6 +6,4 @@ export const loadimage = url => {
 	});
 }
 
-export const loadmap = name => {
-    return fetch(`/maps/${name}.json`).then(r=> r.json());
-}
+export const loadmap = name => fetch(`/maps/${name}.json`).then(r=> r.json());

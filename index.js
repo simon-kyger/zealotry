@@ -5,7 +5,7 @@ const path = require('path');
 
 const app = express();
 const server = http.Server(app);
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 80;
 const io = socketio(server);
 
 app.use("/", express.static(path.join(__dirname, '/client')));
