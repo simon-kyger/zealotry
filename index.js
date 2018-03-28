@@ -1,7 +1,7 @@
-const express = require('express');
-const socketio = require('socket.io');
-const http = require('http');
-const path = require('path');
+import express from 'express';
+import socketio from 'socket.io';
+import http from 'http';
+import path from 'path';
 
 const app = express();
 const server = http.Server(app);
@@ -21,4 +21,5 @@ io.sockets.on('connection', socket =>{
 function init(socket){
 	const msg = `we're connected`;
 	socket.emit('helloworld', msg);
+	socket.emit('spencersmom', 'i <3 spencers mom');
 } 

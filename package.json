@@ -4,7 +4,12 @@
   "description": "A multiplayer action pvp game.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon --exec \"babel-node index.js\"",
+    "build": "babel index.js -d serverbuild",
+    "exe": "node ./serverbuild/index.js",
+    "prestart": "npm run build",
+    "start": "npm run exe",
+    "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev"
   },
   "repository": {
     "type": "git",
@@ -22,6 +27,9 @@
   },
   "homepage": "https://github.com/simon-kyger/zealotry#readme",
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
     "express": "^4.16.3",
     "path": "^0.12.7",
     "socket.io": "^2.0.4"
