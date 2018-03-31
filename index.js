@@ -16,10 +16,13 @@ console.log(`Server listening on port: ${port}`);
 
 io.sockets.on('connection', socket =>{
 	init(socket);
+	socket.on('pingers', ()=>{
+		console.log('got pingers');
+		socket.emit('pingers', 'pingers');
+	});
 });
 
-function init(socket){
+const init = socket => {
 	const msg = `we're connected`;
 	socket.emit('helloworld', msg);
-	socket.emit('spencersmom', 'i <3 spencers mom');
 } 
