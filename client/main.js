@@ -12,7 +12,7 @@ const loginpage = (down) => {
 	div.style.width = `100%`;
 	div.style.height = `100%`;
 	div.style.color = 'white';
-	div.innerHTML = `<div id='login' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
+	div.innerHTML = `<main id='login' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
 						<div style='font-size: 100'>zealotry.io</div>
 						<img src="kefka.gif" style='width:100; height:100'>
 						<div style='display: flex;'>
@@ -24,15 +24,15 @@ const loginpage = (down) => {
 								<div style="padding-top:10; text-shadow: 0px 0px 8px rgba(255,255,255,.8)">
 									<input id="password" placeholder="Password" type="password" style="height: 40; width: 250; background-color:black; color: white;"></input>
 								</div>
-								<div>	
+								<div style="padding-top:10">	
 									<a id="loginlink" href="#" style='text-decoration: none;'>Login</a>
 									<a id="registerlink" href="#" style='text-decoration: none;'>Register</a>
 								</div>
-								<div id="status">${ down ? `Status: Down for maintenance.` : "Status: Up"}</div>
+								<div id="status" style="padding-top:10">${ down ? `Status: Down for maintenance.` : "Status: Up"}</div>
 							</form>
 							<div style='flex:1;'></div>
 						</div>
-					</div>
+					</main>
 	`;
 	document.body.appendChild(div);
 	document.getElementById("password").addEventListener("keyup", function(event) {
@@ -75,12 +75,30 @@ socket.on("usercreated", data => {
 socket.on('badcreds', data=>{
 	document.getElementById('status').innerHTML = data.msg;
 })
-socket.on("loginsuccess", data => loadaccountcharacters(data));
+socket.on("loginsuccess", data => loadaccountcharacterspage(data));
 
-const loadaccountcharacters = data => {
+const loadaccountcharacterspage = data => {
 	let div = document.getElementById('main');
-	div.innerHTML = `<div>CharacterScreen</div>
+	div.innerHTML = `<main id='accountcharacters' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
+						<div>Characters:</div>
+						<button id='create'>Create</button>
+					</main>
 	`;
+	document.getElementById('create').addEventListener('click', e=>{
+		createcharacterpage(data);
+	});
+}
+
+const createcharacterpage = data => {
+	let div = document.getElementById('main');
+	div.innerHTML = `<main id='accountcharacters' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
+						<div>we are creating characters here</div>
+						<button id='back'>Back</button>
+					</main>
+	`;
+	document.getElementById('back').addEventListener('click', e=>{
+		loadaccountcharacterspage(data);
+	})
 }
 
 const loadgame = data => {

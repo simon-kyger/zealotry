@@ -30,12 +30,22 @@ mongo.connect(dburl, (err, database)=>{
 		init(socket);
 		socket.on('register', data => register(socket, db, data));
 		socket.on('login', data=> login(socket, db, data));
+		socket.on('disconnect', ()=> disconnect(socket));
 	});
 });
 
 const init = socket => {
 	const msg = `we're connected`;
 	socket.emit('helloworld', msg);
+}
+
+const disconnect = socket => {
+	for (let user in sessions){
+		if (socket == sessions[user]){
+			delete sessions[user];
+			break;
+		}
+	}
 }
 
 const register = (socket, db, data) => {
@@ -130,7 +140,7 @@ const login = (socket, db, data) => {
 				sessions[res.username] = socket;
 				socket.emit('loginsuccess', {
 					username: res.username,
-					characters: res.characters
+					characters: res.characters || null
 				});
 			}
 			else {
