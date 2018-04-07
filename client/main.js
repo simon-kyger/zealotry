@@ -66,20 +66,15 @@ const loginpage = (down) => {
 	})
 }
 
-socket.on("welcomeheader", data => {
-	document.getElementById("loginheadert").innerHTML = data.msg;
-});
 socket.on("usercreated", data => {
 	document.getElementById("status").innerHTML = data.msg;
 });
-socket.on('badcreds', data=>{
-	document.getElementById('status').innerHTML = data.msg;
-})
 socket.on("loginsuccess", data => loadaccountcharacterspage(data));
 
 const loadaccountcharacterspage = data => {
 	let div = document.getElementById('main');
 	div.innerHTML = `<main id='accountcharacters' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
+						<div>Welcome back ${data.username}</div>
 						<div>Characters:</div>
 						<button id='create'>Create</button>
 					</main>
