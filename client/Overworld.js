@@ -16,21 +16,40 @@ class Overworld extends Phaser.Scene {
         this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0);
         
         //player character data
-        const player = 'locke';
-        const config = {
-            key: 'move',
+        const player = 'relm';
+        this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
+        this.player.facing = 'down';
+        
+        let config = [{
+            key: 'movedown',
             frames: this.anims.generateFrameNames('players', {
                 start: 0,
-                end: 1,
+                end: 2,
                 prefix: `${player}/`
             }),
-            frameRate: 10,
+            frameRate: 8,
             repeat: -1
-        };
-        this.anims.create(config);
-        this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
+        },{
+            key: 'moveup',
+            frames: this.anims.generateFrameNames('players', {
+                start: 3,
+                end: 5,
+                prefix: `${player}/`
+            }),
+            frameRate: 8,
+            repeat: -1
+        },{
+            key: 'moveleft',
+            frames: this.anims.generateFrameNames('players', {
+                start: 6,
+                end: 8,
+                prefix: `${player}/`
+            }),
+            frameRate: 8,
+            repeat: -1
+        }];
+        config.forEach(anim=> this.anims.create(anim));
         this.player.fixedToCamera = true;
-        this.player.anims.play('move');
         
         
         //camera
@@ -48,5 +67,33 @@ class Overworld extends Phaser.Scene {
 
     update(time, delta){
         this.controls.update(delta);
+        if (this.cursors.left.isDown){
+            this.player.flipX = false;
+            if (this.player.facing != 'left'){
+                this.player.anims.play('moveleft');
+                this.player.facing = 'left';
+            }
+        } else if (this.cursors.right.isDown){
+            this.player.flipX = true;
+            if (this.player.facing != 'right'){
+                this.player.anims.play('moveleft');
+                this.player.facing = 'right';
+            }
+        } else if (this.cursors.down.isDown){
+            if (this.player.facing != 'down'){
+                this.player.anims.play('movedown');
+                this.player.facing = 'down';
+            }
+        } else if (this.cursors.up.isDown){
+            if (this.player.facing != 'up'){
+                this.player.anims.play('moveup');
+                this.player.facing = 'up';
+            }
+        } else {
+            this.player.anims.stop();
+            this.player.anims.currentFrame = 0;
+            this.player.facing = 'idle';
+        }
     }
+
 }
