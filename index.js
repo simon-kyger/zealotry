@@ -2,6 +2,8 @@ import express from 'express';
 import socketio from 'socket.io';
 import http from 'http';
 import path from 'path';
+import {mongoclient} from 'mongodb';
+import bcrypt from 'bcryptjs';
 
 const app = express();
 const server = http.Server(app);
@@ -16,13 +18,14 @@ console.log(`Server listening on port: ${port}`);
 
 io.sockets.on('connection', socket =>{
 	init(socket);
-	socket.on('pingers', ()=>{
-		console.log('got pingers');
-		socket.emit('pingers', 'pingers');
-	});
+	//socket.on('register', register());
 });
 
 const init = socket => {
 	const msg = `we're connected`;
 	socket.emit('helloworld', msg);
-} 
+}
+
+const register = socket => {
+
+}

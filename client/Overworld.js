@@ -20,34 +20,38 @@ class Overworld extends Phaser.Scene {
         this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
         this.player.facing = 'down';
         
-        let config = [{
-            key: 'movedown',
-            frames: this.anims.generateFrameNames('players', {
-                start: 0,
-                end: 2,
-                prefix: `${player}/`
-            }),
-            frameRate: 8,
-            repeat: -1
-        },{
-            key: 'moveup',
-            frames: this.anims.generateFrameNames('players', {
-                start: 3,
-                end: 5,
-                prefix: `${player}/`
-            }),
-            frameRate: 8,
-            repeat: -1
-        },{
-            key: 'moveleft',
-            frames: this.anims.generateFrameNames('players', {
-                start: 6,
-                end: 8,
-                prefix: `${player}/`
-            }),
-            frameRate: 8,
-            repeat: -1
-        }];
+        let config = [
+            {
+                key: 'movedown',
+                frames: this.anims.generateFrameNames('players', {
+                    start: 0,
+                    end: 2,
+                    prefix: `${player}/`
+                }),
+                frameRate: 8,
+                repeat: -1
+            },
+            {
+                key: 'moveup',
+                frames: this.anims.generateFrameNames('players', {
+                    start: 3,
+                    end: 5,
+                    prefix: `${player}/`
+                }),
+                frameRate: 8,
+                repeat: -1
+            },
+            {
+                key: 'moveleft',
+                frames: this.anims.generateFrameNames('players', {
+                    start: 6,
+                    end: 8,
+                    prefix: `${player}/`
+                }),
+                frameRate: 8,
+                repeat: -1
+            }
+        ];
         config.forEach(anim=> this.anims.create(anim));
         this.player.fixedToCamera = true;
         
@@ -60,7 +64,7 @@ class Overworld extends Phaser.Scene {
             right: this.cursors.right,
             up: this.cursors.up,
             down: this.cursors.down,
-            speed: .25
+            speed: .2
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
     }
