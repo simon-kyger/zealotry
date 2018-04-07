@@ -7,6 +7,7 @@ socket.on(`helloworld`, (data)=>{
 
 const loginpage = (down) => {
 	let div = document.createElement("div");
+	div.id = 'main';
 	div.innerHTML = "";
 	div.style.width = `100%`;
 	div.style.height = `100%`;
@@ -74,7 +75,13 @@ socket.on("usercreated", data => {
 socket.on('badcreds', data=>{
 	document.getElementById('status').innerHTML = data.msg;
 })
-socket.on("loginsuccess", data => loadgame(data));
+socket.on("loginsuccess", data => loadaccountcharacters(data));
+
+const loadaccountcharacters = data => {
+	let div = document.getElementById('main');
+	div.innerHTML = `<div>CharacterScreen</div>
+	`;
+}
 
 const loadgame = data => {
 	const config = {
