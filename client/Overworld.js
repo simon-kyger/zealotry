@@ -4,9 +4,9 @@ class Overworld extends Phaser.Scene {
     }
 
     preload(){
-        this.load.tilemapTiledJSON('map', 'data/zealotrymap.json');
-        this.load.image('backgroundtiles', 'img/backgroundtiles.png');
-        this.load.spritesheet('players', 'img/players.gif', {frameWidth: 24, frameHeight: 32});
+        this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
+        this.load.image('backgroundtiles', 'assets/backgroundtiles.png');
+        this.load.atlas('players', 'assets/players.png', 'assets/players.json');
     }
 
     create(){
@@ -16,17 +16,19 @@ class Overworld extends Phaser.Scene {
         this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0);
         
         //player character data
+        const player = 'locke';
         const config = {
             key: 'move',
-            frames: this.anims.generateFrameNumbers('players', {
-                start: 6,
-                end: 7,
+            frames: this.anims.generateFrameNames('players', {
+                start: 0,
+                end: 1,
+                prefix: `${player}/`
             }),
             frameRate: 10,
             repeat: -1
         };
         this.anims.create(config);
-        this.player = this.add.sprite(300, 150, 'players').setScrollFactor(0);
+        this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
         this.player.fixedToCamera = true;
         this.player.anims.play('move');
         
