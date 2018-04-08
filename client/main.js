@@ -12,23 +12,23 @@ const loginpage = (down) => {
 	div.style.width = `100%`;
 	div.style.height = `100%`;
 	div.style.color = 'white';
-	div.innerHTML = `<main id='login' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
+	div.innerHTML = `<main id='login' align='center' class='zdef'>
 						<div style='font-size: 100'>zealotry.io</div>
 						<img src="kefka.gif" style='width:100; height:100'>
 						<div style='display: flex;'>
 							<div style='flex:1;'></div>
 							<form style='font-size: 30; flex:1'>
-								<div style="text-shadow: 0px 0px 8px rgba(255,255,255,.8)">
-									<input id="username" placeholder="Username" style="height: 40; width: 250; background-color:black; color: white;"></input>
+								<div>
+									<input id="username" placeholder="Username"></input>
 								</div>
-								<div style="padding-top:10; text-shadow: 0px 0px 8px rgba(255,255,255,.8)">
-									<input id="password" placeholder="Password" type="password" style="height: 40; width: 250; background-color:black; color: white;"></input>
+								<div>
+									<input id="password" placeholder="Password" type="password"></input>
 								</div>
 								<div style="padding-top:10">	
 									<a id="loginlink" href="#" style='text-decoration: none;'>Login</a>
 									<a id="registerlink" href="#" style='text-decoration: none;'>Register</a>
 								</div>
-								<div id="status" style="padding-top:10">${ down ? `Status: Down for maintenance.` : "Status: Up"}</div>
+								<div class="status" style="padding-top:10">${ down ? `Status: Down for maintenance.` : "Status: Up"}</div>
 							</form>
 							<div style='flex:1;'></div>
 						</div>
@@ -67,34 +67,113 @@ const loginpage = (down) => {
 }
 
 socket.on("usercreated", data => {
-	document.getElementById("status").innerHTML = data.msg;
+	document.querySelector('.status').innerHTML = data.msg;
 });
 socket.on("loginsuccess", data => loadaccountcharacterspage(data));
 
 const loadaccountcharacterspage = data => {
 	let div = document.getElementById('main');
-	div.innerHTML = `<main id='accountcharacters' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
+	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
 						<div>Welcome back ${data.username}</div>
 						<div>Characters:</div>
-						<button id='create'>Create</button>
+						<button class='create'>Create</button>
 					</main>
 	`;
-	document.getElementById('create').addEventListener('click', e=>{
+	document.querySelector('.create').addEventListener('click', e=>{
 		createcharacterpage(data);
 	});
 }
 
 const createcharacterpage = data => {
 	let div = document.getElementById('main');
-	div.innerHTML = `<main id='accountcharacters' align='center' style='padding-top: 100px; font-family: Segoe UI; font-weight: 100; background-color: rgba(0,0,0,.4);box-shadow: 0px 0px 150px 20px rgba(0,0,0,.5)'>
-						<div>we are creating characters here</div>
-						<button id='back'>Back</button>
+	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
+						<div style='font-size: 50'>Create Character</div>
+						<div style='padding-top:50;'>
+							<div class='charblock'>
+								<button class='char' value='Rogues are sickheads'>Rogue</button>
+								<img src='assets/locke/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Knight</button>
+								<img src='assets/edgar/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Cleric</button>
+								<img src='assets/celes/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Berserker</button>
+								<img src='assets/sabin/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Thief</button>
+								<img src='assets/setzer/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Ninja</button>
+								<img src='assets/shadow/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Warrior</button>
+								<img src='assets/leo/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Bard</button>
+								<img src='assets/relm/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>White Mage</button>
+								<img src='assets/terramonster/0.png' class='charheight'>
+							</div>
+							<div class='charblock'>
+								<button class='char'>Black Mage</button>
+								<img src='assets/kefka/0.png' class='charheight'>
+							</div>
+						</div>
+						<div class='intermediate' style='padding-top: 50px'></div>
+						<div style='padding-top:50px;'>
+							<span>
+								<input class="newcharacter" placeholder="Name"></input>
+							</span>
+							<button class='create'>Create</button>
+							<button class='back'>Back</button>
+						</div>
 					</main>
 	`;
-	document.getElementById('back').addEventListener('click', e=>{
+	document.querySelectorAll('.char').forEach(char=>{
+		char.addEventListener('click', e=>{
+			let int = document.querySelector('.intermediate');
+			int.value = e.target.innerHTML;
+			int.innerHTML = `${e.target.innerHTML}: ${e.target.value}`;
+		});
+	});
+	document.querySelector('.back').addEventListener('click', e=>{
 		loadaccountcharacterspage(data);
-	})
+	});
+	document.querySelector('.create').addEventListener('click', e=>{
+		let int = document.querySelector('.intermediate');
+		let charname = document.querySelector('.newcharacter');
+		if (int.value && charname.value){
+			let char = int.value;
+			let name = charname.value;
+			socket.emit('createchar', {
+				char: char,
+				name: name
+			});
+		} else {
+			int.innerHTML = 'Select valid character and input valid name.';
+			int.value = '';
+		}
+	});
 }
+
+socket.on('createcharsuccess', data=>{
+	loadaccountcharacterspage(data);
+});
+
+socket.on('failcreate', data=>{
+	document.querySelector('.intermediate').innerHTML = data;
+});
 
 const loadgame = data => {
 	const config = {
