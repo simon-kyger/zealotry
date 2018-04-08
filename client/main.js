@@ -90,44 +90,44 @@ const createcharacterpage = data => {
 						<div style='font-size: 50'>Create Character</div>
 						<div style='padding-top:50;'>
 							<div class='charblock'>
-								<button class='char' value='Rogues are sickheads'>Rogue</button>
-								<img src='assets/locke/0.png' class='charheight'>
+								<button class='btnchar' value='Rogues are sickheads'>Rogue</button>
+								<img src='assets/locke/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Knight</button>
-								<img src='assets/edgar/0.png' class='charheight'>
+								<button class='btnchar'>Knight</button>
+								<img src='assets/edgar/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Cleric</button>
-								<img src='assets/celes/0.png' class='charheight'>
+								<button class='btnchar'>Cleric</button>
+								<img src='assets/celes/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Berserker</button>
-								<img src='assets/sabin/0.png' class='charheight'>
+								<button class='btnchar'>Berserker</button>
+								<img src='assets/sabin/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Thief</button>
-								<img src='assets/setzer/0.png' class='charheight'>
+								<button class='btnchar'>Thief</button>
+								<img src='assets/setzer/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Ninja</button>
-								<img src='assets/shadow/0.png' class='charheight'>
+								<button class='btnchar'>Ninja</button>
+								<img src='assets/shadow/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Warrior</button>
-								<img src='assets/leo/0.png' class='charheight'>
+								<button class='btnchar'>Warrior</button>
+								<img src='assets/leo/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Bard</button>
-								<img src='assets/relm/0.png' class='charheight'>
+								<button class='btnchar'>Bard</button>
+								<img src='assets/relm/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>White Mage</button>
-								<img src='assets/terramonster/0.png' class='charheight'>
+								<button class='btnchar'>White Mage</button>
+								<img src='assets/terramonster/0.png' class='imgchar'>
 							</div>
 							<div class='charblock'>
-								<button class='char'>Black Mage</button>
-								<img src='assets/kefka/0.png' class='charheight'>
+								<button class='btnchar'>Black Mage</button>
+								<img src='assets/kefka/0.png' class='imgchar'>
 							</div>
 						</div>
 						<div class='intermediate' style='padding-top: 50px'></div>
@@ -140,7 +140,7 @@ const createcharacterpage = data => {
 						</div>
 					</main>
 	`;
-	document.querySelectorAll('.char').forEach(char=>{
+	document.querySelectorAll('.btnchar').forEach(char=>{
 		char.addEventListener('click', e=>{
 			let int = document.querySelector('.intermediate');
 			int.value = e.target.innerHTML;
