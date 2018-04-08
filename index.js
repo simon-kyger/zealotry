@@ -31,8 +31,12 @@ mongo.connect(dburl, (err, database)=>{
 		socket.on('register', data => register(socket, db, data));
 		socket.on('login', data=> login(socket, db, data));
 		socket.on('disconnect', ()=> disconnect(socket));
+		socket.on('createchar', data=>createchar(socket, db, data));
+		socket.on('playgamewithchar', data=>playgamewithchar(socket, db, data));
 	});
 });
+
+const getusername = socket => Object.keys(sessions).find(key => sessions[key] === socket)
 
 const init = socket => {
 	const msg = `we're connected`;
@@ -46,6 +50,63 @@ const disconnect = socket => {
 			break;
 		}
 	}
+}
+
+const playgamewithchar = (socket, db, data)=> {
+	if (!data){
+		socket.emit('failcreate', {
+			msg: `Reload client because something dreadful happened`
+		});
+		return;
+	}
+	let users = db.collection('users');
+	let query = sanitize(data);
+	let username = getusername(socket);
+	users.findOne({username: username}).then(res=>{
+		if (!res){
+			socket.emit('failcreate', {msg: `DB is having issues try again later.`});
+			return;
+		}
+		if (!res.characters.find(character=> character.name===data)){
+			socket.emit('failcreate', {msg: `This character doesnt belong to your account.`});
+			return;
+		}
+		let char = res.characters.find(character=> character.name===data);
+		socket.emit('playgame', char);
+	})
+}
+
+const createchar = (socket, db, data)=>{
+	if (!data.class || !data.name){
+		socket.emit('failcreate', {
+			msg: `Invalid data`
+		});
+		return;
+	}
+	let users = db.collection('users');
+	let query = sanitize(data);
+	let username = getusername(socket);
+	users.find({"characters.name": data.name}).count().then(res=>{
+		if (res){
+			socket.emit('failcreate', {
+				msg: `Character already exists with that name.`
+			});
+			return;
+		}
+		users.update({username: username},  
+			{ 
+				$push: { 
+					characters: {
+						name: data.name, 
+						class: data.class
+					}
+				}
+			}
+		)
+		users.findOne({username: username}).then(res=>{
+			socket.emit('createcharsuccess', res);
+		})
+	});
 }
 
 const register = (socket, db, data) => {
@@ -80,7 +141,7 @@ const register = (socket, db, data) => {
 				});
 				return;
 			}
-			users.insert({ username: query.username, password: hash}, (err, user) => {
+			users.insert({ username: query.username, password: hash, characters: []}, (err, user) => {
 				if (err) {
 					socket.emit('usercreated', {
 						msg: `DB is having issues. Please contact admin.`

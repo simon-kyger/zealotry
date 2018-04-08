@@ -1,6 +1,7 @@
 class Overworld extends Phaser.Scene {
-    constructor(){
+    constructor(args){
         super({key: "Overworld"});
+        this.playerdata = args;
     }
 
     preload(){
@@ -16,7 +17,19 @@ class Overworld extends Phaser.Scene {
         this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0);
         
         //player character data
-        const player = 'relm';
+        const mp = {
+            'Rogue': 'locke',
+            'Knight': 'edgar',
+            'Cleric': 'celes',
+            'Berserker': 'sabin',
+            'Thief': 'setzer',
+            'Ninja': 'shadow',
+            'Warrior': 'leo',
+            'Bard': 'relm',
+            'White Mage': 'terramonster',
+            'Black Mage': 'kefka'
+        }
+        let player = mp[this.playerdata.class];
         this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
         this.player.facing = 'down';
         
@@ -70,6 +83,9 @@ class Overworld extends Phaser.Scene {
     }
 
     update(time, delta){
+        socket.on('chardata', data=>{
+            this.create(data);
+        });
         this.controls.update(delta);
         if (this.cursors.left.isDown){
             this.player.flipX = false;
@@ -99,5 +115,4 @@ class Overworld extends Phaser.Scene {
             this.player.facing = 'idle';
         }
     }
-
 }

@@ -73,14 +73,29 @@ socket.on("loginsuccess", data => loadaccountcharacterspage(data));
 
 const loadaccountcharacterspage = data => {
 	let div = document.getElementById('main');
+	let chars = '';
+	if (data.characters){
+		data.characters.forEach(i=> {
+			chars+=`<div class='charblock'>
+						<button class='btnchar' value='${i.name}'>${i.name} the ${i.class}</button>
+					</div>`
+		})
+	}
 	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
 						<div>Welcome back ${data.username}</div>
 						<div>Characters:</div>
+						${chars}
+						<div class='intermediate'></div>
 						<button class='create'>Create</button>
 					</main>
 	`;
 	document.querySelector('.create').addEventListener('click', e=>{
 		createcharacterpage(data);
+	});
+	document.querySelectorAll('.btnchar').forEach(char=>{
+		char.addEventListener('click', e=>{
+			socket.emit('playgamewithchar', e.target.value);
+		});
 	});
 }
 
@@ -154,11 +169,9 @@ const createcharacterpage = data => {
 		let int = document.querySelector('.intermediate');
 		let charname = document.querySelector('.newcharacter');
 		if (int.value && charname.value){
-			let char = int.value;
-			let name = charname.value;
 			socket.emit('createchar', {
-				char: char,
-				name: name
+				class: int.value,
+				name: charname.value,
 			});
 		} else {
 			int.innerHTML = 'Select valid character and input valid name.';
@@ -172,7 +185,12 @@ socket.on('createcharsuccess', data=>{
 });
 
 socket.on('failcreate', data=>{
-	document.querySelector('.intermediate').innerHTML = data;
+	document.querySelector('.intermediate').innerHTML = data.msg;
+});
+
+socket.on('playgame', data=>{
+	document.getElementById('main').parentElement.removeChild(document.getElementById('main'));
+	loadgame(data);
 });
 
 const loadgame = data => {
@@ -182,8 +200,7 @@ const loadgame = data => {
 		height: 600,
 		physics: {},
 		pixelArt: true,
-		scene: [Overworld]
+		scene: [new Overworld(data)],
 	}
-
 	const game = new Phaser.Game(config);
 }
