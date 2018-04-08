@@ -1,7 +1,7 @@
 class Overworld extends Phaser.Scene {
     constructor(args){
         super({key: "Overworld"});
-        this.playerdata = args;
+        this.serverdata = args;
     }
 
     preload(){
@@ -17,6 +17,7 @@ class Overworld extends Phaser.Scene {
         this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0);
         
         //player character data
+        console.log(this.serverdata);
         const mp = {
             'Rogue': 'locke',
             'Knight': 'edgar',
@@ -29,7 +30,7 @@ class Overworld extends Phaser.Scene {
             'White Mage': 'terramonster',
             'Black Mage': 'kefka'
         }
-        let player = mp[this.playerdata.class];
+        let player = mp[this.serverdata.char.class];
         this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
         this.player.facing = 'down';
         

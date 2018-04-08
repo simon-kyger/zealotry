@@ -94,7 +94,7 @@ const loadaccountcharacterspage = data => {
 	});
 	document.querySelectorAll('.btnchar').forEach(char=>{
 		char.addEventListener('click', e=>{
-			socket.emit('playgamewithchar', e.target.value);
+			socket.emit('playgame', e.target.value);
 		});
 	});
 }

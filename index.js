@@ -14,6 +14,7 @@ const dbport = process.env.DBPORT || 27017;
 const dbname = process.env.DBNAME || `zealotrydb`;
 const dburl = process.env.MONGODB_URI || `mongodb://localhost:${dbport}`;
 let sessions = {};
+let players = [];
 
 app.use("/", express.static(path.join(__dirname, '/client')));
 app.get('/', (req, res)=> path.join(__dirname, './client/index.html'));
@@ -32,11 +33,12 @@ mongo.connect(dburl, (err, database)=>{
 		socket.on('login', data=> login(socket, db, data));
 		socket.on('disconnect', ()=> disconnect(socket));
 		socket.on('createchar', data=>createchar(socket, db, data));
-		socket.on('playgamewithchar', data=>playgamewithchar(socket, db, data));
+		socket.on('playgame', data=>playgame(socket, db, data));
 	});
 });
 
 const getusername = socket => Object.keys(sessions).find(key => sessions[key] === socket)
+const findplayerbysocket = socket => players.find(player=> player.name === socket.character.name)
 
 const init = socket => {
 	const msg = `we're connected`;
@@ -44,6 +46,8 @@ const init = socket => {
 }
 
 const disconnect = socket => {
+	let player = findplayerbysocket(socket);
+	if (player) players.splice(players.indexOf(player), 1);
 	for (let user in sessions){
 		if (socket == sessions[user]){
 			delete sessions[user];
@@ -52,7 +56,7 @@ const disconnect = socket => {
 	}
 }
 
-const playgamewithchar = (socket, db, data)=> {
+const playgame = (socket, db, data)=> {
 	if (!data){
 		socket.emit('failcreate', {
 			msg: `Reload client because something dreadful happened`
@@ -72,7 +76,12 @@ const playgamewithchar = (socket, db, data)=> {
 			return;
 		}
 		let char = res.characters.find(character=> character.name===data);
-		socket.emit('playgame', char);
+		socket.character = char;
+		players.push(char);
+		socket.emit('playgame', {
+			char,
+			players
+		});
 	})
 }
 
