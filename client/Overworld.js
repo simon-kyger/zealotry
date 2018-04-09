@@ -81,6 +81,7 @@ class Overworld extends Phaser.Scene {
             speed: .2
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
     }
 
     update(time, delta){
