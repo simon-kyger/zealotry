@@ -28,7 +28,7 @@ const loginpage = (down) => {
 									<a id="loginlink" href="#" style='text-decoration: none;'>Login</a>
 									<a id="registerlink" href="#" style='text-decoration: none;'>Register</a>
 								</div>
-								<div class="status" style="padding-top:10">${ down ? `Status: Down for maintenance.` : "Status: Up"}</div>
+								<div class="intermediate" style="padding-top:10">${ down ? `Status: Down for maintenance.` : "Status: Up"}</div>
 							</form>
 							<div style='flex:1;'></div>
 						</div>
@@ -45,6 +45,7 @@ const loginpage = (down) => {
 	document.getElementById("loginlink").addEventListener("click", e => {
 		e.preventDefault();
 		if (socket.connected){
+			document.querySelector('.intermediate').innerHTML = 'Connecting to server...';
 			const username = document.getElementById("username").value;
 			const password = document.getElementById("password").value;
 			socket.emit("login", {
@@ -54,8 +55,9 @@ const loginpage = (down) => {
 		}
 	})
 	document.getElementById("registerlink").addEventListener("click", e => {
+		e.preventDefault();
 		if (socket.connected){
-			e.preventDefault();
+			document.querySelector('.intermediate').innerHTML = 'Connecting to server...';
 			const username = document.getElementById("username").value;
 			const password = document.getElementById("password").value;
 			socket.emit("register", {
@@ -67,7 +69,7 @@ const loginpage = (down) => {
 }
 
 socket.on("usercreated", data => {
-	document.querySelector('.status').innerHTML = data.msg;
+	document.querySelector('.intermediate').innerHTML = data.msg;
 });
 socket.on("loginsuccess", data => loadaccountcharacterspage(data));
 
@@ -85,7 +87,7 @@ const loadaccountcharacterspage = data => {
 						<div>Welcome back ${data.username}</div>
 						<div>Characters:</div>
 						${chars}
-						<div class='intermediate'></div>
+						<div class='intermediate' style='padding-top: 50px'></div>
 						<button class='create'>Create</button>
 					</main>
 	`;
@@ -94,6 +96,7 @@ const loadaccountcharacterspage = data => {
 	});
 	document.querySelectorAll('.btnchar').forEach(char=>{
 		char.addEventListener('click', e=>{
+			document.querySelector('.intermediate').innerHTML = 'Connecting to server...';
 			socket.emit('playgame', e.target.value);
 		});
 	});
@@ -168,6 +171,7 @@ const createcharacterpage = data => {
 	document.querySelector('.create').addEventListener('click', e=>{
 		let int = document.querySelector('.intermediate');
 		let charname = document.querySelector('.newcharacter');
+		int.innerHTML = 'Creating character...';
 		if (int.value && charname.value){
 			socket.emit('createchar', {
 				class: int.value,

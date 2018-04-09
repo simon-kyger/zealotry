@@ -62,6 +62,9 @@ const disconnect = socket => {
 }
 
 const playgame = (socket, db, data)=> {
+	socket.emit('failcreate', {
+		msg: `Entering game...`
+	});
 	if (!data){
 		socket.emit('failcreate', {
 			msg: `Reload client because something dreadful happened`
