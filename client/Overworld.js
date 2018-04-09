@@ -1,9 +1,8 @@
 class Overworld extends Phaser.Scene {
     constructor(args){
         super({key: "Overworld"});
-        this.serverdata = args;
-        this.players = [];
-        this.player = this.serverdata.player;
+        this.player = args.player;
+        this.players = args.players;
     }
 
     preload(){
@@ -20,7 +19,6 @@ class Overworld extends Phaser.Scene {
         
         //player character data
         //need to make net requests for other players here and configure createplayer to attach camera only for this player
-        console.log(this.serverdata);
         this.createplayer();
     }
     createplayer(){
@@ -36,7 +34,7 @@ class Overworld extends Phaser.Scene {
             'White Mage': 'terramonster',
             'Black Mage': 'kefka'
         }
-        let player = mp[this.serverdata.player.class];
+        let player = mp[this.player.class];
         this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
         this.player.facing = 'down';
         
