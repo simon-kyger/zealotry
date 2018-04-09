@@ -76,6 +76,7 @@ const playgame = (socket, db, data)=> {
 			socket.emit('failcreate', {msg: `DB is having issues try again later.`});
 			return;
 		}
+		//check if player is a result of the accounts characters
 		if (!res.characters.find(character=> character.name===data)){
 			socket.emit('failcreate', {msg: `This character doesnt belong to your account.`});
 			return;
@@ -91,6 +92,9 @@ const playgame = (socket, db, data)=> {
 }
 
 const createchar = (socket, db, data)=>{
+	socket.emit('failcreate', {
+		msg: `Creating character...`
+	});
 	if (!data.class || !data.name){
 		socket.emit('failcreate', {
 			msg: `Invalid data`
@@ -124,6 +128,9 @@ const createchar = (socket, db, data)=>{
 }
 
 const register = (socket, db, data) => {
+	socket.emit('usercreated', {
+		msg: `Creating account...`
+	});
 	if (!data.username) {
 		socket.emit('usercreated', {
 			msg: `Enter a new username to register.`
@@ -171,6 +178,9 @@ const register = (socket, db, data) => {
 }
 
 const login = (socket, db, data) => {
+	socket.emit('usercreated', {
+		msg: `Logging in...`
+	});
 	if (!data.username) {
 		socket.emit('usercreated', {
 			msg: `Enter a valid username.`
@@ -195,9 +205,6 @@ const login = (socket, db, data) => {
 			});
 			return;
 		}
-		socket.emit('usercreated', {
-			msg: `Logging in...`
-		});
 
 		const a = query.username + query.password;
 		const h = res.password;
