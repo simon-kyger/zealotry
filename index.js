@@ -34,6 +34,7 @@ mongo.connect(dburl, (err, database)=>{
 		socket.on('disconnect', ()=> disconnect(socket));
 		socket.on('createchar', data=>createchar(socket, db, data));
 		socket.on('playgame', data=>playgame(socket, db, data));
+		socket.on('move', data=> move(socket, data));
 	});
 });
 
@@ -43,6 +44,10 @@ const findplayerbysocket = socket => players.find(player=> player.name === socke
 const init = socket => {
 	const msg = `we're connected`;
 	socket.emit('helloworld', msg);
+}
+
+const move = (socket, data)=> {
+	console.log(data);
 }
 
 const disconnect = socket => {
