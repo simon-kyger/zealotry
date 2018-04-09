@@ -80,12 +80,12 @@ const playgame = (socket, db, data)=> {
 			socket.emit('failcreate', {msg: `This character doesnt belong to your account.`});
 			return;
 		}
-		let char = res.characters.find(character=> character.name===data);
-		socket.character = char;
-		players.push(char);
+		let player = res.characters.find(character=> character.name===data);
+		socket.character = player;
+		players.push(player);
 		socket.emit('playgame', {
-			char,
-			players
+			player: player,
+			players: players
 		});
 	})
 }
