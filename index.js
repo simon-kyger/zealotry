@@ -46,8 +46,37 @@ const init = socket => {
 	socket.emit('helloworld', msg);
 }
 
+const mapconstraints = {
+	left: 0,
+	top: 0,
+	right: 16000,
+	bottom: 16000
+}
+
 const move = (socket, data)=> {
-	console.log(data);
+	let player = findplayerbysocket(socket);
+	if (!player) return;
+	if (data.dir == 'left') {
+		player.pos.x-= player.speed;
+	} else if (data.dir == 'right'){
+		player.pos.x+= player.speed;
+	}
+	if (data.dir == 'up'){
+		player.pos.y-= player.speed;
+	} else if (data.dir == 'down'){
+		player.pos.y+= player.speed;
+	}
+
+	if (player.pos.x < mapconstraints.left)
+		player.pos.x = mapconstraints.left;
+	if (player.pos.x > mapconstraints.right)
+		player.pos.x = mapconstraints.right;
+	if (player.pos.y < mapconstraints.top)
+		player.pos.y = mapconstraints.top;
+	if (player.pos.y > mapconstraints.bottom)
+		player.pos.y = mapconstraints.bottom;
+
+	io.sockets.emit('move', player);
 }
 
 const disconnect = socket => {
@@ -119,7 +148,13 @@ const createchar = (socket, db, data)=>{
 				$push: { 
 					characters: {
 						name: data.name, 
-						class: data.class
+						class: data.class,
+						pos: {
+							x: 0,
+							y: 0
+						},
+						dir: 'down',
+						speed: 1
 					}
 				}
 			}
