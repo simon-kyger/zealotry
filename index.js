@@ -20,12 +20,12 @@ app.use("/", express.static(path.join(__dirname, '/client')));
 app.get('/', (req, res)=> path.join(__dirname, './client/index.html'));
 
 server.listen(port);
-console.log(`Server listening on port: ${port}`);
+console.log(`${new Date().toLocaleString()}: Server listening on port: ${port}`);
 
 mongo.connect(dburl, (err, database)=>{
 	if (err) throw err;
 
-	console.log(`Mongodb is listening.`);
+	console.log(`${new Date().toLocaleString()}: Mongodb is listening.`);
 	let db = database.db(dbname);
 	io.sockets.on('connection', socket =>{
 		init(socket);
@@ -54,7 +54,7 @@ const mapconstraints = {
 }
 
 const move = (socket, data)=> {
-	let player = findplayerbysocket(socket);
+	let player = findplayerbysocket(socket) || null;
 	if (!player) return;
 	if (data.dir == 'left') {
 		player.pos.x-= player.speed;
@@ -75,12 +75,10 @@ const move = (socket, data)=> {
 		player.pos.y = mapconstraints.top;
 	if (player.pos.y > mapconstraints.bottom)
 		player.pos.y = mapconstraints.bottom;
-
-	io.sockets.emit('move', player);
 }
 
 const disconnect = socket => {
-	let player = findplayerbysocket(socket);
+	let player = findplayerbysocket(socket) || null;
 	if (player) players.splice(players.indexOf(player), 1);
 	for (let user in sessions){
 		if (socket == sessions[user]){
@@ -271,3 +269,7 @@ const login = (socket, db, data) => {
 		})
 	})
 }
+
+setInterval(()=>{
+	io.sockets.emit('update', players);
+}, 50);

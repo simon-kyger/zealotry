@@ -23,6 +23,20 @@ class Overworld extends Phaser.Scene {
         //player character data
         //need to make net requests for other players here and configure createplayer to attach camera only for this player
         this.createplayer();
+        this.player.fixedToCamera = true;
+
+        //camera
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.controlConfig = {
+            camera: this.cameras.main,
+            left: this.cursors.left,
+            right: this.cursors.right,
+            up: this.cursors.up,
+            down: this.cursors.down,
+            speed: .2
+        }
+        this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
     }
     createplayer(data){
         const mp = {
@@ -74,21 +88,6 @@ class Overworld extends Phaser.Scene {
             }
         ];
         config.forEach(anim=> this.anims.create(anim));
-        this.player.fixedToCamera = true;
-        
-        
-        //camera
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.controlConfig = {
-            camera: this.cameras.main,
-            left: this.cursors.left,
-            right: this.cursors.right,
-            up: this.cursors.up,
-            down: this.cursors.down,
-            speed: .2
-        }
-        this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
-        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
     }
     phys(delta){
         this.controls.update(delta);
@@ -109,14 +108,7 @@ class Overworld extends Phaser.Scene {
             this.removeplayer(data);
         });
         socket.on('update', data=> {
-            data.forEach(player=>{
-                if (player.name == this.player.name){
-                    this.cameras.main.scrollX = data.pos.x;
-                    this.cameras.main.scrollY = data.pos.y;
-                } else {
-                    //update other players;
-                }
-            })
+            this.players = data;
         });
     }
 
