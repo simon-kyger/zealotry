@@ -56,6 +56,7 @@ const mapconstraints = {
 const move = (socket, data)=> {
 	let player = findplayerbysocket(socket) || null;
 	if (!player) return;
+	player.speed = 10;
 	if (data.dir == 'left') {
 		player.pos.x-= player.speed;
 	} else if (data.dir == 'right'){
@@ -75,6 +76,8 @@ const move = (socket, data)=> {
 		player.pos.y = mapconstraints.top;
 	if (player.pos.y > mapconstraints.bottom)
 		player.pos.y = mapconstraints.bottom;
+
+	io.sockets.emit('move', players);
 }
 
 const disconnect = socket => {
@@ -269,7 +272,3 @@ const login = (socket, db, data) => {
 		})
 	})
 }
-
-setInterval(()=>{
-	io.sockets.emit('update', players);
-}, 50);

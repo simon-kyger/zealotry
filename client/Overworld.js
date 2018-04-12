@@ -52,7 +52,7 @@ class Overworld extends Phaser.Scene {
             'Black Mage': 'kefka'
         }
         let player = mp[this.player.class];
-        this.player = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
+        this.player.sprite = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
         this.player.facing = 'down';
         
         let config = [
@@ -107,37 +107,44 @@ class Overworld extends Phaser.Scene {
         socket.on('removeplayer', data=>{
             this.removeplayer(data);
         });
-        socket.on('update', data=> {
-            this.players = data;
+        socket.on('move', data=> {
+            data.forEach(player=>{
+                if (player.name == this.player.name){
+                    this.cameras.main.scrollX = player.pos.x;
+                    this.cameras.main.scrollY = player.pos.y;
+                } else {
+                    //update other players;
+                }
+            })
         });
     }
 
     render(){
         if (this.cursors.left.isDown){
-            this.player.flipX = false;
+            this.player.sprite.flipX = false;
             if (this.player.facing != 'left'){
-                this.player.anims.play('moveleft');
+                this.player.sprite.anims.play('moveleft');
                 this.player.facing = 'left';
             }
         } else if (this.cursors.right.isDown){
-            this.player.flipX = true;
+            this.player.sprite.flipX = true;
             if (this.player.facing != 'right'){
-                this.player.anims.play('moveleft');
+                this.player.sprite.anims.play('moveleft');
                 this.player.facing = 'right';
             }
         } else if (this.cursors.down.isDown){
             if (this.player.facing != 'down'){
-                this.player.anims.play('movedown');
+                this.player.sprite.anims.play('movedown');
                 this.player.facing = 'down';
             }
         } else if (this.cursors.up.isDown){
             if (this.player.facing != 'up'){
-                this.player.anims.play('moveup');
+                this.player.sprite.anims.play('moveup');
                 this.player.facing = 'up';
             }
         } else if (this.cursors.right.isUp || this.cursors.left.isUp || this.cursors.up.isUp || this.cursors.down.isUp){
-            this.player.anims.stop();
-            this.player.anims.currentFrame = 0;
+            this.player.sprite.anims.stop();
+            this.player.sprite.anims.currentFrame = 0;
             if (this.player.facing != 'idle'){
                 this.player.facing = 'idle';
             }
@@ -145,10 +152,9 @@ class Overworld extends Phaser.Scene {
     }
 
     update(timestamp, elapsed){
-        if (elapsed > 1000) elapsed = this.frameduration;
         this.lag += elapsed;
         while(this.lag >= this.frameduration){
-            this.phys(elapsed);
+            this.phys(this.frameduration);
             this.lag -= this.frameduration;
         }
         this.render(this.lag/this.frameduration);
