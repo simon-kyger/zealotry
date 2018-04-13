@@ -185,6 +185,7 @@ const createcharacterpage = data => {
 }
 
 socket.on('createcharsuccess', data=>{
+	console.log(data);
 	loadaccountcharacterspage(data);
 });
 

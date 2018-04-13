@@ -153,11 +153,17 @@ const createchar = (socket, db, data)=>{
 						speed: 4
 					}
 				}
+			},
+			(err, res)=>{
+				if (err){
+					console.log(err);
+					return;
+				}
+				users.findOne({username: username}).then(res=>{
+					socket.emit('createcharsuccess', res);
+				})
 			}
 		)
-		users.findOne({username: username}).then(res=>{
-			socket.emit('createcharsuccess', res);
-		})
 	});
 }
 
