@@ -3,9 +3,6 @@ class Overworld extends Phaser.Scene {
         super({key: "Overworld"});
         this.player = args.player;
         this.players = args.players;
-        this.lag = 0;
-        this.fps = 60;
-        this.frameduration = 1/ this.fps;
     }
 
     preload(){
@@ -116,7 +113,7 @@ class Overworld extends Phaser.Scene {
                 if (player.pos.y > mapconstraints.bottom)
                     player.pos.y = mapconstraints.bottom;
             });
-        }, 100/tickrate); //twice as fast as server tick rate
+        }, 100/tickrate); //tickrate is how much faster this will be than server tickrate to induce more fluidity or snapping the character to its correct position
     }
     mp(){
         return {
