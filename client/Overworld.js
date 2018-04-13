@@ -5,7 +5,7 @@ class Overworld extends Phaser.Scene {
         this.players = args.players;
         this.lag = 0;
         this.fps = 60;
-        this.frameduration = 1000/ this.fps;
+        this.frameduration = 1/ this.fps;
     }
 
     preload(){
@@ -15,6 +15,7 @@ class Overworld extends Phaser.Scene {
     }
 
     create(){
+        this.createanims();
         //map data
         this.map = this.make.tilemap({key: 'map'});
         this.tileset = this.map.addTilesetImage('backgroundtiles');
@@ -22,7 +23,10 @@ class Overworld extends Phaser.Scene {
         
         //player character data
         //need to make net requests for other players here and configure createplayer to attach camera only for this player
-        this.createplayer();
+
+        this.players.forEach(player=>{
+            this.createplayer(player);
+        })
         this.player.fixedToCamera = true;
 
         //camera
@@ -37,9 +41,85 @@ class Overworld extends Phaser.Scene {
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+        this.input.keyboard.on('keydown', e=>{            
+            if (e.key == 'ArrowLeft'){
+                socket.emit('move', {dir: 'left', state: true});
+            } else if (e.key == 'ArrowRight'){
+                socket.emit('move', {dir: 'right', state: true});
+            } else if (e.key == 'ArrowUp'){
+                socket.emit('move', {dir: 'up', state: true});
+            } else if (e.key == 'ArrowDown'){
+                socket.emit('move', {dir: 'down', state: true});
+            }
+        })
+        this.input.keyboard.on('keyup', e=>{            
+            if (e.key == 'ArrowLeft'){
+                socket.emit('move', {dir: 'left', state: false});
+            } else if (e.key == 'ArrowRight'){
+                socket.emit('move', {dir: 'right', state: false});
+            } else if (e.key == 'ArrowUp'){
+                socket.emit('move', {dir: 'up', state: false});
+            } else if (e.key == 'ArrowDown'){
+                socket.emit('move', {dir: 'down', state: false});
+            }
+        })
+        socket.on('newplayer', data=>{
+            this.players.push(data);
+            this.createplayer(this.players[this.players.length-1]);
+        })
+        socket.on('removeplayer', data=>{
+            this.players.forEach(player=>{
+                if(player.name == data.name){
+                    player.sprite.destroy();
+                }
+            })
+            this.players.splice(this.players.indexOf(data), 1);
+        });
+        socket.on('move', data=> {
+            for (let i =0; i<this.players.length; ++i){
+                if (this.players[i].name == data.name){
+                    this.players[i].name = data.name; 
+				    this.players[i].class = data.class;
+                    this.players[i].pos = data.pos;
+                    this.players[i].move = data.move;
+				    this.players[i].dir = data.dir;
+                    this.players[i].speed = data.speed;
+                }
+            }
+        });
+        const mapconstraints = {
+            left: 0,
+            right: this.map.widthInPixels,
+            top: 0,
+            bottom: this.map.heightInPixels
+        };
+        //clientside interpolation loop
+        const tickrate = 5;
+        setInterval(()=>{
+            this.players.forEach(player=>{
+                if (player.move.left){
+                    player.pos.x-= player.speed/tickrate;
+                } else if (player.move.right){
+                    player.pos.x+= player.speed/tickrate;
+                } 
+                if (player.move.down){
+                    player.pos.y+= player.speed/tickrate;
+                } else if (player.move.up){
+                    player.pos.y-= player.speed/tickrate;
+                }
+                if (player.pos.x < mapconstraints.left)
+                    player.pos.x = mapconstraints.left;
+                if (player.pos.x > mapconstraints.right)
+                    player.pos.x = mapconstraints.right;
+                if (player.pos.y < mapconstraints.top)
+                    player.pos.y = mapconstraints.top;
+                if (player.pos.y > mapconstraints.bottom)
+                    player.pos.y = mapconstraints.bottom;
+            });
+        }, 100/tickrate); //twice as fast as server tick rate
     }
-    createplayer(data){
-        const mp = {
+    mp(){
+        return {
             'Rogue': 'locke',
             'Knight': 'edgar',
             'Cleric': 'celes',
@@ -51,112 +131,91 @@ class Overworld extends Phaser.Scene {
             'White Mage': 'terramonster',
             'Black Mage': 'kefka'
         }
-        let player = mp[this.player.class];
-        this.player.sprite = this.add.sprite(300, 150, 'players', `${player}/0`).setScrollFactor(0);
-        this.player.facing = 'down';
-        
-        let config = [
-            {
-                key: 'movedown',
-                frames: this.anims.generateFrameNames('players', {
-                    start: 0,
-                    end: 2,
-                    prefix: `${player}/`
-                }),
-                frameRate: 8,
-                repeat: -1
-            },
-            {
-                key: 'moveup',
-                frames: this.anims.generateFrameNames('players', {
-                    start: 3,
-                    end: 5,
-                    prefix: `${player}/`
-                }),
-                frameRate: 8,
-                repeat: -1
-            },
-            {
-                key: 'moveleft',
-                frames: this.anims.generateFrameNames('players', {
-                    start: 6,
-                    end: 8,
-                    prefix: `${player}/`
-                }),
-                frameRate: 8,
-                repeat: -1
-            }
-        ];
-        config.forEach(anim=> this.anims.create(anim));
     }
-    phys(delta){
-        this.controls.update(delta);
-        if (this.cursors.left.isDown){
-            socket.emit('move', {dir: 'left'});
-        } else if (this.cursors.right.isDown){
-            socket.emit('move', {dir: 'right'});
-        }
-        if (this.cursors.up.isDown){
-            socket.emit('move', {dir: 'up'});
-        } else if (this.cursors.down.isDown){
-            socket.emit('move', {dir: 'down'});
-        }
-        socket.on('newplayer', data=>{
-            this.createplayer(data);
-        })
-        socket.on('removeplayer', data=>{
-            this.removeplayer(data);
-        });
-        socket.on('move', data=> {
-            data.forEach(player=>{
-                if (player.name == this.player.name){
-                    this.cameras.main.scrollX = player.pos.x;
-                    this.cameras.main.scrollY = player.pos.y;
-                } else {
-                    //update other players;
+    createanims(){
+        Object.keys(this.mp()).forEach(key=>{
+            let config = [
+                {
+                    key: `${key}down`,
+                    frames: this.anims.generateFrameNames('players', {
+                        start: 0,
+                        end: 2,
+                        prefix: `${this.mp()[key]}/`
+                    }),
+                    frameRate: 8,
+                    repeat: -1
+                },
+                {
+                    key: `${key}up`,
+                    frames: this.anims.generateFrameNames('players', {
+                        start: 3,
+                        end: 5,
+                        prefix: `${this.mp()[key]}/`
+                    }),
+                    frameRate: 8,
+                    repeat: -1
+                },
+                {
+                    key: `${key}left`,
+                    frames: this.anims.generateFrameNames('players', {
+                        start: 6,
+                        end: 8,
+                        prefix: `${this.mp()[key]}/`
+                    }),
+                    frameRate: 8,
+                    repeat: -1
                 }
-            })
-        });
+            ];
+            config.forEach(anim=> this.anims.create(anim));
+        })
+    }
+    createplayer(data){
+        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`);
     }
 
     render(){
-        if (this.cursors.left.isDown){
-            this.player.sprite.flipX = false;
-            if (this.player.facing != 'left'){
-                this.player.sprite.anims.play('moveleft');
-                this.player.facing = 'left';
+        this.players.forEach(player=>{
+            if (player.name === this.player.name){
+                this.cameras.main.scrollX = player.pos.x;
+                this.cameras.main.scrollY = player.pos.y;
             }
-        } else if (this.cursors.right.isDown){
-            this.player.sprite.flipX = true;
-            if (this.player.facing != 'right'){
-                this.player.sprite.anims.play('moveleft');
-                this.player.facing = 'right';
+            player.sprite.x = player.pos.x + 300;
+            player.sprite.y = player.pos.y + 150;
+            
+            if (player.move.left){
+                player.sprite.flipX = false;
+                if (player.facing != 'left'){
+                    player.sprite.anims.play(`${player.class}left`);
+                    player.facing = 'left';
+                }
+            } else if (player.move.right){
+                player.sprite.flipX = true;
+                if (player.facing != 'right'){
+                    player.sprite.anims.play(`${player.class}left`);
+                    player.facing = 'right';
+                }
+            } else if (player.move.down){
+                if (player.facing != 'down'){
+                    player.sprite.anims.play(`${player.class}down`);
+                    player.facing = 'down';
+                }
+            } else if (player.move.up){
+                if (player.facing != 'up'){
+                    player.sprite.anims.play(`${player.class}up`);
+                    player.facing = 'up';
+                }    
+            } else if (!player.move.left && !player.move.right && !player.move.up && !player.move.down){
+                if (player.facing != 'idle'){
+                    player.facing = 'idle';
+                    player.sprite.anims.stop();
+                    player.sprite.anims.currentFrame = 0;
+                }
             }
-        } else if (this.cursors.down.isDown){
-            if (this.player.facing != 'down'){
-                this.player.sprite.anims.play('movedown');
-                this.player.facing = 'down';
-            }
-        } else if (this.cursors.up.isDown){
-            if (this.player.facing != 'up'){
-                this.player.sprite.anims.play('moveup');
-                this.player.facing = 'up';
-            }
-        } else if (this.cursors.right.isUp || this.cursors.left.isUp || this.cursors.up.isUp || this.cursors.down.isUp){
-            this.player.sprite.anims.stop();
-            this.player.sprite.anims.currentFrame = 0;
-            if (this.player.facing != 'idle'){
-                this.player.facing = 'idle';
-            }
-        }
+        })
     }
 
-    update(timestamp, elapsed){
-        this.lag += elapsed;
-        while(this.lag >= this.frameduration){
-            this.phys(this.frameduration);
-            this.lag -= this.frameduration;
-        }
-        this.render(this.lag/this.frameduration);
+
+    update(timestamp, delta){
+        this.render();
     }
 }

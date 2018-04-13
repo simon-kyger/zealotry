@@ -39,7 +39,7 @@ mongo.connect(dburl, (err, database)=>{
 });
 
 const getusername = socket => Object.keys(sessions).find(key => sessions[key] === socket)
-const findplayerbysocket = socket => players.find(player=> player.name === socket.character.name)
+const findplayerbysocket = socket => players.find(player=> player.name === socket.name)
 
 const init = socket => {
 	const msg = `we're connected`;
@@ -57,32 +57,20 @@ const move = (socket, data)=> {
 	let player = findplayerbysocket(socket) || null;
 	if (!player) return;
 	player.speed = 10;
-	if (data.dir == 'left') {
-		player.pos.x-= player.speed;
-	} else if (data.dir == 'right'){
-		player.pos.x+= player.speed;
+	if (data.state){
+		player.move[data.dir] = true;
+	} else {
+		player.move[data.dir] = false;
 	}
-	if (data.dir == 'up'){
-		player.pos.y-= player.speed;
-	} else if (data.dir == 'down'){
-		player.pos.y+= player.speed;
-	}
-
-	if (player.pos.x < mapconstraints.left)
-		player.pos.x = mapconstraints.left;
-	if (player.pos.x > mapconstraints.right)
-		player.pos.x = mapconstraints.right;
-	if (player.pos.y < mapconstraints.top)
-		player.pos.y = mapconstraints.top;
-	if (player.pos.y > mapconstraints.bottom)
-		player.pos.y = mapconstraints.bottom;
-
-	io.sockets.emit('move', players);
+	io.sockets.emit('move', player);
 }
 
 const disconnect = socket => {
 	let player = findplayerbysocket(socket) || null;
-	if (player) players.splice(players.indexOf(player), 1);
+	if (player) {
+		players.splice(players.indexOf(player), 1);
+		io.sockets.emit('removeplayer', player)
+	}
 	for (let user in sessions){
 		if (socket == sessions[user]){
 			delete sessions[user];
@@ -115,8 +103,9 @@ const playgame = (socket, db, data)=> {
 			return;
 		}
 		let player = res.characters.find(character=> character.name===data);
-		socket.character = player;
+		socket.name = player.name;
 		players.push(player);
+		io.sockets.emit('newplayer', player);
 		socket.emit('playgame', {
 			player: player,
 			players: players
@@ -154,8 +143,14 @@ const createchar = (socket, db, data)=>{
 							x: 0,
 							y: 0
 						},
+						move: {
+							left: false,
+							right: false,
+							up: false,
+							down: false
+						},
 						dir: 'down',
-						speed: 1
+						speed: 4
 					}
 				}
 			}
@@ -272,3 +267,27 @@ const login = (socket, db, data) => {
 		})
 	})
 }
+
+setInterval(()=>{
+	players.forEach(player=>{
+		if (player.move.left){
+			player.pos.x-= player.speed;
+		} else if (player.move.right){
+			player.pos.x+= player.speed;
+		}
+		if (player.move.up){
+			player.pos.y-= player.speed;
+		} else if (player.move.down){
+			player.pos.y+= player.speed;
+		}
+		
+		if (player.pos.x < mapconstraints.left)
+			player.pos.x = mapconstraints.left;
+		if (player.pos.x > mapconstraints.right)
+			player.pos.x = mapconstraints.right;
+		if (player.pos.y < mapconstraints.top)
+			player.pos.y = mapconstraints.top;
+		if (player.pos.y > mapconstraints.bottom)
+			player.pos.y = mapconstraints.bottom;
+	})
+}, 100);
