@@ -99,10 +99,10 @@ class Overworld extends Phaser.Scene {
                 } else if (player.move.right){
                     player.pos.x+= player.speed/tickrate;
                 } 
-                if (player.move.down){
-                    player.pos.y+= player.speed/tickrate;
-                } else if (player.move.up){
+                if (player.move.up){
                     player.pos.y-= player.speed/tickrate;
+                } else if (player.move.down){
+                    player.pos.y+= player.speed/tickrate;
                 }
                 if (player.pos.x < mapconstraints.left)
                     player.pos.x = mapconstraints.left;
