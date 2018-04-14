@@ -112,6 +112,12 @@ class Overworld extends Phaser.Scene {
                     player.pos.y = mapconstraints.top;
                 if (player.pos.y > mapconstraints.bottom)
                     player.pos.y = mapconstraints.bottom;
+                if (player.name === this.player.name){
+                    this.cameras.main.scrollX = player.pos.x;
+                    this.cameras.main.scrollY = player.pos.y;
+                }
+                player.sprite.x = player.pos.x + 300;
+                player.sprite.y = player.pos.y + 150;
             });
         }, 100/tickrate); //tickrate is how much faster this will be than server tickrate to induce more fluidity or snapping the character to its correct position
     }
@@ -175,13 +181,6 @@ class Overworld extends Phaser.Scene {
 
     render(){
         this.players.forEach(player=>{
-            if (player.name === this.player.name){
-                this.cameras.main.scrollX = player.pos.x;
-                this.cameras.main.scrollY = player.pos.y;
-            }
-            player.sprite.x = player.pos.x + 300;
-            player.sprite.y = player.pos.y + 150;
-            
             if (player.move.left){
                 player.sprite.flipX = false;
                 if (player.facing != 'left'){
