@@ -49,8 +49,8 @@ const init = socket => {
 const mapconstraints = {
 	left: 0,
 	top: 0,
-	right: 16000,
-	bottom: 16000
+	right: 16000 - 600,
+	bottom: 16000 - 300
 }
 
 const move = (socket, data)=> {
@@ -133,7 +133,8 @@ const createchar = (socket, db, data)=>{
 			});
 			return;
 		}
-		users.update({username: username},  
+		users.update(
+			{username: username},  
 			{ 
 				$push: { 
 					characters: {
@@ -164,7 +165,7 @@ const createchar = (socket, db, data)=>{
 				})
 			}
 		)
-	});
+	})
 }
 
 const register = (socket, db, data) => {

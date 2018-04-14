@@ -17,14 +17,11 @@ class Overworld extends Phaser.Scene {
         this.map = this.make.tilemap({key: 'map'});
         this.tileset = this.map.addTilesetImage('backgroundtiles');
         this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0);
+        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0);
         
-        //player character data
-        //need to make net requests for other players here and configure createplayer to attach camera only for this player
-
         this.players.forEach(player=>{
             this.createplayer(player);
         })
-        this.player.fixedToCamera = true;
 
         //camera
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -34,10 +31,9 @@ class Overworld extends Phaser.Scene {
             right: this.cursors.right,
             up: this.cursors.up,
             down: this.cursors.down,
-            speed: .2
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
-        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels+600, this.map.heightInPixels+300);
         this.input.keyboard.on('keydown', e=>{            
             if (e.key == 'ArrowLeft'){
                 socket.emit('move', {dir: 'left', state: true});
@@ -75,7 +71,6 @@ class Overworld extends Phaser.Scene {
         socket.on('move', data=> {
             for (let i =0; i<this.players.length; ++i){
                 if (this.players[i].name == data.name){
-                    this.players[i].name = data.name; 
 				    this.players[i].class = data.class;
                     this.players[i].pos = data.pos;
                     this.players[i].move = data.move;
@@ -86,9 +81,9 @@ class Overworld extends Phaser.Scene {
         });
         const mapconstraints = {
             left: 0,
-            right: this.map.widthInPixels,
+            right: this.map.widthInPixels - 600,
             top: 0,
-            bottom: this.map.heightInPixels
+            bottom: this.map.heightInPixels - 300
         };
         //clientside interpolation loop
         const tickrate = 5;
