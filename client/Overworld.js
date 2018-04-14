@@ -56,6 +56,11 @@ class Overworld extends Phaser.Scene {
                 socket.emit('move', {dir: 'down', state: false});
             }
         })
+        this.input.on('pointerdown', ()=>{
+            this.players.forEach(player=>{
+                player.sprite.clearTint();
+            })
+        })
         socket.on('newplayer', data=>{
             this.players.push(data);
             this.createplayer(this.players[this.players.length-1]);
@@ -162,7 +167,10 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`);
+        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive();
+        data.sprite.on('pointerdown', ()=>{
+            data.sprite.setTint(`0xff8888`);
+        })
     }
 
     render(){
