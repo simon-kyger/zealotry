@@ -66,21 +66,20 @@ class Overworld extends Phaser.Scene {
             this.createplayer(this.players[this.players.length-1]);
         })
         socket.on('removeplayer', data=>{
-            this.players.forEach(player=>{
+            this.players.forEach((player, i)=>{
                 if(player.name == data.name){
                     player.sprite.destroy();
+                    this.players.splice(i, 1);
                 }
             })
-            this.players.splice(this.players.indexOf(data), 1);
         });
         socket.on('move', data=> {
             for (let i =0; i<this.players.length; ++i){
                 if (this.players[i].name == data.name){
-				    this.players[i].class = data.class;
-                    this.players[i].pos = data.pos;
-                    this.players[i].move = data.move;
-				    this.players[i].dir = data.dir;
-                    this.players[i].speed = data.speed;
+                    let temp = this.players[i].sprite;
+                    this.players[i] = data;
+                    this.players[i].sprite = temp;
+                    break;
                 }
             }
         });
@@ -118,6 +117,7 @@ class Overworld extends Phaser.Scene {
                 }
                 player.sprite.x = player.pos.x + 300;
                 player.sprite.y = player.pos.y + 150;
+                player.sprite.depth = player.pos.y;
             });
         }, 100/tickrate); //tickrate is how much faster this will be than server tickrate to induce more fluidity or snapping the character to its correct position
     }
