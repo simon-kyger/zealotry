@@ -190,7 +190,6 @@ const createcharacterpage = data => {
 }
 
 socket.on('createcharsuccess', data=>{
-	console.log(data);
 	loadaccountcharacterspage(data);
 });
 
@@ -203,18 +202,6 @@ socket.on('playgame', data=>{
 	loadgame(data);
 });
 
-socket.on('disconnect', ()=>{
-	loginpage(true);
-	let restart = setInterval(()=>{
-		if (socket.connected){
-			window.clearInterval(restart);
-			setTimeout(()=>{
-				location.reload();
-			}, 2000);
-		}
-	}, 1000);
-})
-
 const loadgame = data => {
 	const config = {
 		type: Phaser.WEBGL,
@@ -226,3 +213,16 @@ const loadgame = data => {
 	}
 	const game = new Phaser.Game(config);
 }
+
+
+socket.on('disconnect', ()=>{
+	loginpage(true);
+	let restart = setInterval(()=>{
+		if (socket.connected){
+			window.clearInterval(restart);
+			setTimeout(()=>{
+				location.reload();
+			}, 1000);
+		}
+	}, 1000);
+})
