@@ -9,6 +9,7 @@
     "exe": "node ./serverbuild/index.js",
     "prestart": "npm run build",
     "start": "npm run exe",
+    "startdbwin": "start cmd /K \"cd C:\\Program Files\\MongoDB\\Server\\3.6\\bin & mongod.exe --dbpath \"C:\\users\\simon kyger\\desktop\\zealotry\\data\"",
     "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev"
   },
   "repository": {
