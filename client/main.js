@@ -2,10 +2,11 @@ const socket = io();
 
 socket.on(`helloworld`, (data)=>{
 	console.log(`we're connected.`);
-	loginpage();
+	socket.emit('loginreq');
 });
 
 const loginpage = (down) => {
+	document.body.innerHTML = ``;
 	let div = document.createElement("div");
 	div.id = 'main';
 	div.innerHTML = "";
@@ -67,6 +68,10 @@ const loginpage = (down) => {
 		}
 	})
 }
+
+socket.on(`loginreq`, ()=>{
+	document.addEventListener(`DOMContentLoaded`, loginpage(false));
+});
 
 socket.on("usercreated", data => {
 	document.querySelector('.intermediate').innerHTML = data.msg;
@@ -197,6 +202,18 @@ socket.on('playgame', data=>{
 	document.getElementById('main').parentElement.removeChild(document.getElementById('main'));
 	loadgame(data);
 });
+
+socket.on('disconnect', ()=>{
+	loginpage(true);
+	let restart = setInterval(()=>{
+		if (socket.connected){
+			window.clearInterval(restart);
+			setTimeout(()=>{
+				location.reload();
+			}, 2000);
+		}
+	}, 1000);
+})
 
 const loadgame = data => {
 	const config = {

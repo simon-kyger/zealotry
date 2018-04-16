@@ -30,6 +30,7 @@ mongo.connect(dburl, (err, database)=>{
 	io.sockets.on('connection', socket =>{
 		init(socket);
 		socket.on('register', data => register(socket, db, data));
+		socket.on('loginreq', ()=> socket.emit('loginreq'));
 		socket.on('login', data=> login(socket, db, data));
 		socket.on('disconnect', ()=> disconnect(socket));
 		socket.on('createchar', data=>createchar(socket, db, data));
