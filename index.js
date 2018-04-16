@@ -104,6 +104,9 @@ const playgame = (socket, db, data)=> {
 			return;
 		}
 		let player = res.characters.find(character=> character.name===data);
+		if (socket.name === player.name){
+			return; // this is a really bad session check, but it is to prevent someone from injection of socket.emit('playgame', 'jimmy')
+		}
 		socket.name = player.name;
 		players.push(player);
 		io.sockets.emit('newplayer', player);
