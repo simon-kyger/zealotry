@@ -50,8 +50,8 @@ const init = socket => {
 const mapconstraints = {
 	left: 0,
 	top: 0,
-	right: 16000 - 600,
-	bottom: 16000 - 300
+	right:  16000*3 -1920, //mapwidth * scale - canvassize
+	bottom: 16000*3 -950 //mapheight * scale - canvassize
 }
 
 const move = (socket, data)=> {

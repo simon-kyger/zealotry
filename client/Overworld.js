@@ -3,6 +3,7 @@ class Overworld extends Phaser.Scene {
         super({key: "Overworld"});
         this.player = args.player;
         this.players = args.players;
+        this.scale = 3;
     }
 
     preload(){
@@ -16,8 +17,8 @@ class Overworld extends Phaser.Scene {
         //map data
         this.map = this.make.tilemap({key: 'map'});
         this.tileset = this.map.addTilesetImage('backgroundtiles');
-        this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0).setScale(3);
-        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0).setScale(3);
+        this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0).setScale(this.scale);
+        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0).setScale(this.scale);
         
         this.players.forEach(player=>{
             this.createplayer(player);
@@ -33,7 +34,7 @@ class Overworld extends Phaser.Scene {
             down: this.cursors.down,
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
-        this.cameras.main.setBounds(0, 0, this.map.widthInPixels+this.cameras.main.width, this.map.heightInPixels+this.cameras.main.height);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels*this.scale, this.map.heightInPixels*this.scale);
         this.input.keyboard.on('keydown', e=>{            
             if (e.key == 'ArrowLeft'){
                 socket.emit('move', {dir: 'left', state: true});
@@ -85,9 +86,9 @@ class Overworld extends Phaser.Scene {
         });
         const mapconstraints = {
             left: 0,
-            right: this.map.widthInPixels - this.cameras.main.width,
+            right: this.map.widthInPixels*this.scale -this.cameras.main.width,
             top: 0,
-            bottom: this.map.heightInPixels - this.cameras.main.height
+            bottom: this.map.heightInPixels*this.scale -this.cameras.main.height
         };
         //clientside interpolation loop
         const tickrate = 5;

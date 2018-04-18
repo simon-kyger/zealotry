@@ -206,7 +206,7 @@ const loadgame = data => {
 	const config = {
 		type: Phaser.WEBGL,
 		width: 1920,
-		height: 949,
+		height: 950,
 		physics: {},
 		pixelArt: true,
 		scene: [new Overworld(data)],
