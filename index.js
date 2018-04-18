@@ -300,4 +300,4 @@ setInterval(()=>{
 		if (player.pos.y > mapconstraints.bottom)
 			player.pos.y = mapconstraints.bottom;
 	})
-}, 100);
+}, 50);

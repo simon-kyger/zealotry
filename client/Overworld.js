@@ -120,7 +120,7 @@ class Overworld extends Phaser.Scene {
                 player.sprite.y = player.pos.y + this.cameras.main.height/2;
                 player.sprite.depth = player.pos.y;
             });
-        }, 100/tickrate); //tickrate is how much faster this will be than server tickrate to induce more fluidity or snapping the character to its correct position
+        }, 50/tickrate); //tickrate is how much faster this will be than server tickrate to induce more fluidity or snapping the character to its correct position
     }
     mp(){
         return {
