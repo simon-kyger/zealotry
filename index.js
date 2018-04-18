@@ -57,7 +57,6 @@ const mapconstraints = {
 const move = (socket, data)=> {
 	let player = findplayerbysocket(socket) || null;
 	if (!player) return;
-	player.speed = 10;
 	if (data.state){
 		player.move[data.dir] = true;
 	} else {
@@ -155,7 +154,7 @@ const createchar = (socket, db, data)=>{
 							down: false
 						},
 						dir: 'down',
-						speed: 4
+						speed: 40
 					}
 				}
 			},

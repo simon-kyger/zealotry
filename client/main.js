@@ -205,8 +205,8 @@ socket.on('playgame', data=>{
 const loadgame = data => {
 	const config = {
 		type: Phaser.WEBGL,
-		width: 800,
-		height: 600,
+		width: 1920,
+		height: 949,
 		physics: {},
 		pixelArt: true,
 		scene: [new Overworld(data)],

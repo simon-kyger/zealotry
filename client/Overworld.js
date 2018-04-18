@@ -16,8 +16,8 @@ class Overworld extends Phaser.Scene {
         //map data
         this.map = this.make.tilemap({key: 'map'});
         this.tileset = this.map.addTilesetImage('backgroundtiles');
-        this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0);
-        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0);
+        this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0).setScale(3);
+        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0).setScale(3);
         
         this.players.forEach(player=>{
             this.createplayer(player);
@@ -33,7 +33,7 @@ class Overworld extends Phaser.Scene {
             down: this.cursors.down,
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
-        this.cameras.main.setBounds(0, 0, this.map.widthInPixels+600, this.map.heightInPixels+300);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels+this.cameras.main.width, this.map.heightInPixels+this.cameras.main.height);
         this.input.keyboard.on('keydown', e=>{            
             if (e.key == 'ArrowLeft'){
                 socket.emit('move', {dir: 'left', state: true});
@@ -85,9 +85,9 @@ class Overworld extends Phaser.Scene {
         });
         const mapconstraints = {
             left: 0,
-            right: this.map.widthInPixels - 600,
+            right: this.map.widthInPixels - this.cameras.main.width,
             top: 0,
-            bottom: this.map.heightInPixels - 300
+            bottom: this.map.heightInPixels - this.cameras.main.height
         };
         //clientside interpolation loop
         const tickrate = 5;
@@ -115,8 +115,8 @@ class Overworld extends Phaser.Scene {
                     this.cameras.main.scrollX = player.pos.x;
                     this.cameras.main.scrollY = player.pos.y;
                 }
-                player.sprite.x = player.pos.x + 300;
-                player.sprite.y = player.pos.y + 150;
+                player.sprite.x = player.pos.x + this.cameras.main.width/2;
+                player.sprite.y = player.pos.y + this.cameras.main.height/2;
                 player.sprite.depth = player.pos.y;
             });
         }, 100/tickrate); //tickrate is how much faster this will be than server tickrate to induce more fluidity or snapping the character to its correct position
@@ -173,7 +173,7 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive();
+        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive().setScale(3);
         data.sprite.on('pointerdown', ()=>{
             data.sprite.setTint(`0xff8888`);
         })
