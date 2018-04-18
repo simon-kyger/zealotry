@@ -9,9 +9,9 @@
     "exe": "node ./serverbuild/index.js",
     "prestart": "npm run build",
     "start": "npm run exe",
-    "db": "start cmd /K \"\"C:/Program Files/MongoDB/Server/3.6/bin/mongod.exe\" --dbpath ./data\"",
+    "dbstartwin": "start cmd /K \"mongod --dbpath ./data\"",
     "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev",
-    "fullstartwin": "npm run db & npm run dev"
+    "startallwin": "npm run dbstartwin & npm run dev"
   },
   "repository": {
     "type": "git",
