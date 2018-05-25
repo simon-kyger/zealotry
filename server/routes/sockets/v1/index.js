@@ -40,7 +40,7 @@ function disconnect (socket)  {
     let player = Server.findPlayerBySocket(socket) || null;
     if (player) {
         Server.players.splice(Server.players.indexOf(player), 1);
-        io.sockets.emit('removeplayer', player)
+        emit('removeplayer', player)
     }
     for (let user in Server.sessions){
         if (socket == Server.sessions[user]){
