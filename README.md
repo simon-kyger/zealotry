@@ -1,5 +1,5 @@
 # zealotry
-### Windows Install/Setup Guide
+## Windows Install/Setup Guide
 1. install node
 2. install mongodb
 3. add mongod to path. example help:
@@ -8,3 +8,13 @@ https://user-images.githubusercontent.com/13419651/38953587-3514c5b0-431d-11e8-8
 5. create subdirectory in root called "data" example: ../zealotry/data
 6. npm install
 7. npm run startallwin
+
+## Testing
+* To run tests use the command
+    > npm test
+
+* To run tests with coverage use the command
+    > npm run test-coverage
+
+* For an HTML print out of code coverage use the command
+    > npm run test-coverage-html

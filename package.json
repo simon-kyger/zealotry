@@ -11,7 +11,10 @@
     "start": "npm run exe",
     "dbstartwin": "start cmd /K \"mongod --dbpath ./data\"",
     "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev",
-    "startallwin": "npm run dbstartwin & npm run dev"
+    "startallwin": "npm run dbstartwin & npm run dev",
+    "test": "mocha --compilers js:babel-register --require babel-polyfill --recursive",
+    "test-coverage": "nyc --reporter=text mocha --compilers js:babel-register --require babel-polyfill --recursive",
+    "test-coverage-html": "nyc --reporter=html mocha --compilers js:babel-register --require babel-polyfill --recursive"
   },
   "repository": {
     "type": "git",
@@ -30,6 +33,7 @@
   "homepage": "https://github.com/simon-kyger/zealotry#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "mongo-sanitize": "^1.0.0",
     "mongodb": "^3.0.5",
@@ -37,9 +41,17 @@
     "socket.io": "^2.0.4"
   },
   "devDependencies": {
-    "nodemon": "^1.17.2",
     "babel-cli": "^6.26.0",
+    "babel-plugin-rewire": "^1.1.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-stage-0": "^6.24.1"
+    "babel-preset-stage-0": "^6.24.1",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "mockery": "^2.1.0",
+    "nodemon": "^1.17.2",
+    "nyc": "^11.8.0",
+    "sinon": "^5.0.10",
+    "supertest": "^3.1.0"
   }
 }
