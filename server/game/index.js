@@ -1,6 +1,6 @@
 import * as Server from '../';
 
-const GAME_LOOP_TICK_RATE = 50;
+const GAME_LOOP_TICK_RATE = 1000/16; //62.5fps target
 // Move this into individual map objects
 const mapconstraints = {
 	left: 0,
@@ -21,10 +21,11 @@ export function endLoop() {
     clearInterval(gameLoopInterval);
 }
 
-function playerMovement(player) {
+function playerMovement(player, delta) {
     if (player.move.left){
         player.pos.x-= player.speed;
     } else if (player.move.right){
+        console.log(player.pos.x);
         player.pos.x+= player.speed;
     }
     if (player.move.up){

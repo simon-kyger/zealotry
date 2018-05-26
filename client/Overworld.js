@@ -1,9 +1,15 @@
 class Overworld extends Phaser.Scene {
     constructor(args){
+        //setup and variable initializations
         super({key: "Overworld"});
         this.player = args.player;
         this.players = args.players;
         this.scale = 3;
+
+        //framelocking;
+        this.lag = 0;
+        this.fps = 62.5;
+        this.frameduration = 1000 / this.fps;
     }
 
     preload(){
@@ -83,43 +89,6 @@ class Overworld extends Phaser.Scene {
                 }
             }
         });
-        const mapconstraints = {
-            left: 0,
-            right: this.map.widthInPixels*this.scale -this.cameras.main.width,
-            top: 0,
-            bottom: this.map.heightInPixels*this.scale -this.cameras.main.height
-        };
-        //clientside interpolation loop
-        const tickrate = 5;
-        setInterval(()=>{
-            this.players.forEach(player=>{
-                if (player.move.left){
-                    player.pos.x-= player.speed/tickrate;
-                } else if (player.move.right){
-                    player.pos.x+= player.speed/tickrate;
-                } 
-                if (player.move.up){
-                    player.pos.y-= player.speed/tickrate;
-                } else if (player.move.down){
-                    player.pos.y+= player.speed/tickrate;
-                }
-                if (player.pos.x < mapconstraints.left)
-                    player.pos.x = mapconstraints.left;
-                if (player.pos.x > mapconstraints.right)
-                    player.pos.x = mapconstraints.right;
-                if (player.pos.y < mapconstraints.top)
-                    player.pos.y = mapconstraints.top;
-                if (player.pos.y > mapconstraints.bottom)
-                    player.pos.y = mapconstraints.bottom;
-                if (player.name === this.player.name){
-                    this.cameras.main.scrollX = player.pos.x;
-                    this.cameras.main.scrollY = player.pos.y;
-                }
-                player.sprite.x = player.pos.x + this.cameras.main.width/2;
-                player.sprite.y = player.pos.y + this.cameras.main.height/2;
-                player.sprite.depth = player.pos.y;
-            });
-        }, 50/tickrate); //tickrate is how much faster this will be than server tickrate to induce more fluidity or snapping the character to its correct position
     }
     mp(){
         return {
@@ -213,8 +182,49 @@ class Overworld extends Phaser.Scene {
         })
     }
 
+    phys(delta){
+        const mapconstraints = {
+            left: 0,
+            right: this.map.widthInPixels*this.scale -this.cameras.main.width,
+            top: 0,
+            bottom: this.map.heightInPixels*this.scale -this.cameras.main.height
+        };
+        this.players.forEach(player=>{
+            if (player.move.left){
+                player.pos.x-= player.speed;
+            } else if (player.move.right){
+                console.log(player.pos.x);
+                player.pos.x+= player.speed;
+            } 
+            if (player.move.up){
+                player.pos.y-= player.speed;
+            } else if (player.move.down){
+                player.pos.y+= player.speed;
+            }
+            if (player.pos.x < mapconstraints.left)
+                player.pos.x = mapconstraints.left;
+            if (player.pos.x > mapconstraints.right)
+                player.pos.x = mapconstraints.right;
+            if (player.pos.y < mapconstraints.top)
+                player.pos.y = mapconstraints.top;
+            if (player.pos.y > mapconstraints.bottom)
+                player.pos.y = mapconstraints.bottom;
+            if (player.name === this.player.name){
+                this.cameras.main.scrollX = player.pos.x;
+                this.cameras.main.scrollY = player.pos.y;
+            }
+            player.sprite.x = player.pos.x + this.cameras.main.width/2;
+            player.sprite.y = player.pos.y + this.cameras.main.height/2;
+            player.sprite.depth = player.pos.y;
+        });
+    }
 
-    update(timestamp, delta){
-        this.render();
+    update(time, elapsed){
+        this.lag+= elapsed;
+        while (this.lag >= this.frameduration){
+            this.lag -= this.frameduration;
+        } 
+        this.phys(this.frameduration);
+        this.render(elapsed);
     }
 }
