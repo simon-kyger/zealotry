@@ -39,9 +39,14 @@ function move(socket, data) {
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     if (data.state){
-        player.move[data.dir] = true;
+        player.move[data.dir] = true;        
     } else {
         player.move[data.dir] = false;
+    }
+    if (player.move.left || player.move.right || player.move.up || player.move.down) {
+        player.startedMoving = Date.now();
+    } else {
+        calcPlayerMovement(player, Date.now() - player.startedMoving);
     }
     SocketsV1.emit('move', player);
 }
@@ -50,4 +55,36 @@ function tempErrorHandler(error) {
     // Temporary test code.
     console.log("error: ");
     console.log(error);
+}
+
+// Move this into individual map objects
+const mapconstraints = {
+	left: 0,
+	top: 0,
+	right:  16000*3 -1920, //mapwidth * scale - canvassize
+	bottom: 16000*3 -950 //mapheight * scale - canvassize
+}
+
+function calcPlayerMovement(player, timeElapsed) {
+    let deltaPos = player.speed * (timeElapsed / 16);
+    if (player.move.left){
+        player.pos.x-= deltaPos;
+    } else if (player.move.right){
+        console.log(player.pos.x);
+        player.pos.x+= deltaPos;
+    }
+    if (player.move.up){
+        player.pos.y-= deltaPos;
+    } else if (player.move.down){
+        player.pos.y+= deltaPos;
+    }
+    
+    if (player.pos.x < mapconstraints.left)
+        player.pos.x = mapconstraints.left;
+    if (player.pos.x > mapconstraints.right)
+        player.pos.x = mapconstraints.right;
+    if (player.pos.y < mapconstraints.top)
+        player.pos.y = mapconstraints.top;
+    if (player.pos.y > mapconstraints.bottom)
+        player.pos.y = mapconstraints.bottom;
 }

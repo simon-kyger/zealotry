@@ -21,7 +21,7 @@ export function endLoop() {
     clearInterval(gameLoopInterval);
 }
 
-function playerMovement(player, delta) {
+function playerMovement(player) {
     if (player.move.left){
         player.pos.x-= player.speed;
     } else if (player.move.right){

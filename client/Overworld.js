@@ -1,4 +1,7 @@
 class Overworld extends Phaser.Scene {
+
+    
+
     constructor(args){
         //setup and variable initializations
         super({key: "Overworld"});
@@ -10,6 +13,10 @@ class Overworld extends Phaser.Scene {
         this.lag = 0;
         this.fps = 62.5;
         this.frameduration = 1000 / this.fps;
+
+        this.deltaTime = 1/62.5;
+        this.lastTime = 0;
+        this.accumulatedTime = 0;
     }
 
     preload(){
@@ -192,41 +199,53 @@ class Overworld extends Phaser.Scene {
             bottom: this.map.heightInPixels*this.scale -this.cameras.main.height
         };
         this.players.forEach(player=>{
-            if (player.move.left){
-                player.pos.x-= player.speed;
-            } else if (player.move.right){
-                console.log(player.pos.x);
-                player.pos.x+= player.speed;
-            } 
-            if (player.move.up){
-                player.pos.y-= player.speed;
-            } else if (player.move.down){
-                player.pos.y+= player.speed;
-            }
-            if (player.pos.x < mapconstraints.left)
-                player.pos.x = mapconstraints.left;
-            if (player.pos.x > mapconstraints.right)
-                player.pos.x = mapconstraints.right;
-            if (player.pos.y < mapconstraints.top)
-                player.pos.y = mapconstraints.top;
-            if (player.pos.y > mapconstraints.bottom)
-                player.pos.y = mapconstraints.bottom;
-            if (player.name === this.player.name){
-                this.cameras.main.scrollX = player.pos.x;
-                this.cameras.main.scrollY = player.pos.y;
-            }
-            player.sprite.x = player.pos.x + this.cameras.main.width/2;
-            player.sprite.y = player.pos.y + this.cameras.main.height/2;
-            player.sprite.depth = player.pos.y;
+            
+            
+                //console.log(player.accumulatedTime)
+                let deltaPos = player.speed * this.deltaTime * this.frameduration;
+                if (player.move.left){
+                    player.pos.x-= deltaPos;
+                } else if (player.move.right){
+                    console.log(player.pos.x);
+                    player.pos.x+= deltaPos;
+                } 
+                if (player.move.up){
+                    player.pos.y-= deltaPos;
+                } else if (player.move.down){
+                    player.pos.y+= deltaPos;
+                }
+                if (player.pos.x < mapconstraints.left)
+                    player.pos.x = mapconstraints.left;
+                if (player.pos.x > mapconstraints.right)
+                    player.pos.x = mapconstraints.right;
+                if (player.pos.y < mapconstraints.top)
+                    player.pos.y = mapconstraints.top;
+                if (player.pos.y > mapconstraints.bottom)
+                    player.pos.y = mapconstraints.bottom;
+                if (player.name === this.player.name){
+                    this.cameras.main.scrollX = player.pos.x;
+                    this.cameras.main.scrollY = player.pos.y;
+                }
+                player.sprite.x = player.pos.x + this.cameras.main.width/2;
+                player.sprite.y = player.pos.y + this.cameras.main.height/2;
+                player.sprite.depth = player.pos.y;
+
+                
         });
     }
 
     update(time, elapsed){
-        this.lag+= elapsed;
-        while (this.lag >= this.frameduration){
-            this.lag -= this.frameduration;
-        } 
-        this.phys(this.frameduration);
+        // this.lag+= elapsed;
+        // while (this.lag >= this.frameduration){
+        //     this.lag -= this.frameduration;
+        // } 
+        this.accumulatedTime += (time - this.lastTime)/1000;
+        while (this.accumulatedTime > this.deltaTime) {
+
+            this.phys(time);            
+            this.accumulatedTime -= this.deltaTime;
+        }
         this.render(elapsed);
+        this.lastTime = time;
     }
 }
