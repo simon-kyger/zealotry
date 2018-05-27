@@ -157,8 +157,19 @@ class Overworld extends Phaser.Scene {
         })
     }
 
+    mapconstraints() {
+        return {
+            left: 0,
+            right: this.map.widthInPixels*this.scale -this.cameras.main.width,
+            top: 0,
+            bottom: this.map.heightInPixels*this.scale -this.cameras.main.height
+        }
+    }
+
     render(){
-        this.players.forEach(player=>{
+        const j = this.players.length;
+        for (let i=0; i<j; ++i){
+            const player = this.players[i];
             if (player.move.left){
                 player.sprite.flipX = false;
                 if (player.facing != 'left'){
@@ -188,68 +199,55 @@ class Overworld extends Phaser.Scene {
                     player.sprite.anims.currentFrame = 0;
                 }
             }
+            if (player.name === this.player.name){
+                this.tweens.add({
+                    targets: this.cameras.main,
+                    scrollX: player.pos.x,
+                    scrollY: player.pos.y,
+                    duration: 50,
+                    ease: 'Sine.easeIn'
+                });
+            }
+            this.tweens.add({
+                targets: player.sprite,
+                x: player.pos.x + this.cameras.main.width/2,
+                y: player.pos.y + this.cameras.main.height/2,
+                duration: 30,
+                ease: 'Sine.easeIn'
+            })   
             player.sprite.depth = player.pos.y;
-        })
+        }
     }
 
     phys(delta){
-        const mapconstraints = {
-            left: 0,
-            right: this.map.widthInPixels*this.scale -this.cameras.main.width,
-            top: 0,
-            bottom: this.map.heightInPixels*this.scale -this.cameras.main.height
-        };
-        this.players.forEach(player=>{
-            
-            
-                //console.log(player.accumulatedTime)
-                let deltaPos = player.speed * this.deltaTime * this.frameduration;
-                if (player.move.left){
-                    player.pos.x-= deltaPos;
-                } else if (player.move.right){
-                    player.pos.x+= deltaPos;
-                } 
-                if (player.move.up){
-                    player.pos.y-= deltaPos;
-                } else if (player.move.down){
-                    player.pos.y+= deltaPos;
-                }
-                if (player.pos.x < mapconstraints.left)
-                    player.pos.x = mapconstraints.left;
-                if (player.pos.x > mapconstraints.right)
-                    player.pos.x = mapconstraints.right;
-                if (player.pos.y < mapconstraints.top)
-                    player.pos.y = mapconstraints.top;
-                if (player.pos.y > mapconstraints.bottom)
-                    player.pos.y = mapconstraints.bottom;
-                if (player.name === this.player.name){
-                    this.tweens.add({
-                        targets: this.cameras.main,
-                        scrollX: player.pos.x,
-                        scrollY: player.pos.y,
-                        duration: 50,
-                        ease: 'Sine.easeIn'
-                    });
-                }
-                this.tweens.add({
-                    targets: player.sprite,
-                    x: player.pos.x + this.cameras.main.width/2,
-                    y: player.pos.y + this.cameras.main.height/2,
-                    duration: 30,
-                    ease: 'Sine.easeIn'
-                })
-                
-        });
+        const j = this.players.length;
+        for (let i=0; i<j; ++i){
+            const player = this.players[i];
+            const deltaPos = player.speed * this.deltaTime * this.frameduration;
+            if (player.move.left){
+                player.pos.x-= deltaPos;
+            } else if (player.move.right){
+                player.pos.x+= deltaPos;
+            } 
+            if (player.move.up){
+                player.pos.y-= deltaPos;
+            } else if (player.move.down){
+                player.pos.y+= deltaPos;
+            }
+            if (player.pos.x < this.mapconstraints().left)
+                player.pos.x = this.mapconstraints().left;
+            if (player.pos.x > this.mapconstraints().right)
+                player.pos.x = this.mapconstraints().right;
+            if (player.pos.y < this.mapconstraints().top)
+                player.pos.y = this.mapconstraints().top;
+            if (player.pos.y > this.mapconstraints().bottom)
+                player.pos.y = this.mapconstraints().bottom;    
+        }
     }
 
     update(time, elapsed){
-        // this.lag+= elapsed;
-        // while (this.lag >= this.frameduration){
-        //     this.lag -= this.frameduration;
-        // } 
         this.accumulatedTime += (time - this.lastTime)/1000;
         while (this.accumulatedTime > this.deltaTime) {
-
             this.phys(time);            
             this.accumulatedTime -= this.deltaTime;
         }

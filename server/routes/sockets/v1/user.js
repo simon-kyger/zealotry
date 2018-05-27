@@ -93,7 +93,7 @@ function createCharacter(socket, data) {
             down: false 
         }
         character.dir = 'down';
-        character.speed = 10;
+        character.speed = 20;
         user.characters.push(character)
         socketControllerHandler(
             UserController.update,
