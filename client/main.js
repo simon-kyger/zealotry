@@ -92,7 +92,11 @@ const loadpickrealm = data => {
 						<button class='angelrealm'>Angel</button>
 						<button class='humanrealm'>Human</button>
 						<button class='demonrealm'>Demon</button>
-						<div class='realmdescription' style='padding-top: 50px; margin-left:700; margin-right:700; text-align:justify;'></div>
+						<div style='display: flex; padding-top:20px;'>
+							<div style='flex: 1;'></div>
+							<div class='realmdescription' style='flex: 1; text-align:justify;'></div>
+							<div style='flex: 1;'></div>
+						</div>
 						<div class='intermediate' style='padding-top: 50px'></div>
 						<button class='pickrealm' style='margin-top: 20px; width:100px; visibility: hidden;'>Yes</div>
 						<button class='nopickrealm' style='width:100px; visibility: hidden;'>No</div>
@@ -146,8 +150,6 @@ const loadpickrealm = data => {
 		socket.emit('realmpick', {realm: pick});
 	})
 }
-
-socket.on('realmpick', loadaccountcharacterspage(data));
 
 const loadaccountcharacterspage = data => {
 	let div = document.getElementById('main');
@@ -259,6 +261,10 @@ const createcharacterpage = data => {
 		}
 	});
 }
+
+socket.on('realmpick', data=>{
+	loadaccountcharacterspage(data);
+});
 
 socket.on('createcharsuccess', data=>{
 	loadaccountcharacterspage(data);
