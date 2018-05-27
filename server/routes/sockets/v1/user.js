@@ -80,15 +80,18 @@ function login(socket, data) {
 function realmpick(socket, data){
     UserController.get(Server.getUsernameBySocket(socket))
     .then( user => {
+        user.realm = data.realm;
         socketControllerHandler(
             UserController.update,
-            [data.realm], //why doesn't this work?
+            [user], //why doesn't this work?
             result => {
-                socket.emit(SocketsV1.REALMPICK, user); //client also doesn't get this, and it is listening for it
+                console.log("The socket is being sent.  Check the client side code.");
+                socket.emit(SocketsV1.REALM_PICK, result); //client also doesn't get this, and it is listening for it
             },
             tempErrorHandler
         );
-    });
+    })
+    .catch(tempErrorHandler);
 }
 
 function createCharacter(socket, data) {

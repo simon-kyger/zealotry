@@ -11,6 +11,7 @@ export const USER_CREATED = "usercreated";
 export const USER_LOGIN_SUCCESS = "loginsuccess"
 export const CHARACTER_CREATE_FAIL = "failcreate";
 export const CHARACTER_CREATE_SUCESS = "createcharsuccess";
+export const REALM_PICK = "realmpick";
 
 let _io;
 

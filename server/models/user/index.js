@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
       type: String,
       validate: [{ validator: UserValidator.validatePassword, msg: 'Invalid password' }],
   },
+  realm : String,
   characters : {
       type: [Character]
   }
