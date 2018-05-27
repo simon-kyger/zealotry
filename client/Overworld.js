@@ -188,6 +188,7 @@ class Overworld extends Phaser.Scene {
                     player.sprite.anims.currentFrame = 0;
                 }
             }
+            player.sprite.depth = player.pos.y;
         })
     }
 
@@ -206,7 +207,6 @@ class Overworld extends Phaser.Scene {
                 if (player.move.left){
                     player.pos.x-= deltaPos;
                 } else if (player.move.right){
-                    console.log(player.pos.x);
                     player.pos.x+= deltaPos;
                 } 
                 if (player.move.up){
@@ -223,13 +223,21 @@ class Overworld extends Phaser.Scene {
                 if (player.pos.y > mapconstraints.bottom)
                     player.pos.y = mapconstraints.bottom;
                 if (player.name === this.player.name){
-                    this.cameras.main.scrollX = player.pos.x;
-                    this.cameras.main.scrollY = player.pos.y;
+                    this.tweens.add({
+                        targets: this.cameras.main,
+                        scrollX: player.pos.x,
+                        scrollY: player.pos.y,
+                        duration: 50,
+                        ease: 'Sine.easeIn'
+                    });
                 }
-                player.sprite.x = player.pos.x + this.cameras.main.width/2;
-                player.sprite.y = player.pos.y + this.cameras.main.height/2;
-                player.sprite.depth = player.pos.y;
-
+                this.tweens.add({
+                    targets: player.sprite,
+                    x: player.pos.x + this.cameras.main.width/2,
+                    y: player.pos.y + this.cameras.main.height/2,
+                    duration: 30,
+                    ease: 'Sine.easeIn'
+                })
                 
         });
     }

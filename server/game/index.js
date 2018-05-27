@@ -25,7 +25,6 @@ function playerMovement(player) {
     if (player.move.left){
         player.pos.x-= player.speed;
     } else if (player.move.right){
-        console.log(player.pos.x);
         player.pos.x+= player.speed;
     }
     if (player.move.up){
