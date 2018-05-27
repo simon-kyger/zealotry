@@ -76,7 +76,78 @@ socket.on(`loginreq`, ()=>{
 socket.on("usercreated", data => {
 	document.querySelector('.intermediate').innerHTML = data.msg;
 });
-socket.on("loginsuccess", data => loadaccountcharacterspage(data));
+socket.on("loginsuccess", data => {
+	if (data.realm){
+		loadaccountcharacterspage(data);
+	} else {
+		loadpickrealm(data);
+	}
+});
+
+const loadpickrealm = data => {
+	let div = document.getElementById('main');
+	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
+						<div>Welcome ${data.username}!</div>
+						<div>Choose your realm:</div>
+						<button class='angelrealm'>Angel</button>
+						<button class='humanrealm'>Human</button>
+						<button class='demonrealm'>Demon</button>
+						<div class='realmdescription' style='padding-top: 50px; margin-left:700; margin-right:700; text-align:justify;'></div>
+						<div class='intermediate' style='padding-top: 50px'></div>
+						<button class='pickrealm' style='margin-top: 20px; width:100px; visibility: hidden;'>Yes</div>
+						<button class='nopickrealm' style='width:100px; visibility: hidden;'>No</div>
+					</main>
+	`;
+	const intermediate = document.querySelector('.intermediate');
+	const pickrealm = document.querySelector('.pickrealm');
+	const nopickrealm = document.querySelector('.nopickrealm');
+	const realmdescription = document.querySelector('.realmdescription');
+	let pick;
+	document.querySelector('.angelrealm').addEventListener('click', e=>{
+		intermediate.innerHTML = `Are you sure you want to choose Angel? Your account will then be tied to this realm.`;
+		pickrealm.style.visibility = nopickrealm.style.visibility = 'visible';
+		pick = 'angel';
+		realmdescription.innerHTML = `
+			Angel: <br> <br>
+			The angels have always been a source of what is good and holy within this world of Zealotry. Their ultimate plight is the way of the light, blinding enemies in faith. <br> <br>
+			Many of their kind have abilities which enhance regeneration and healing and use these benefits to smite heathens and blasphemers.
+		`;
+	});
+	
+	document.querySelector('.humanrealm').addEventListener('click', e=>{
+		intermediate.innerHTML = `Are you sure you want to choose Human? Your account will then be tied to this realm.`;
+		pickrealm.style.visibility = nopickrealm.style.visibility = 'visible';
+		pick = 'human';
+		realmdescription.innerHTML = `
+			Humanity: <br> <br>
+			The humans are the cultivators of this land.  They were put here by the gods in front of angels and demons alike to witness. <br> <br>
+			Many of their kind revolve around the usage of brute force, heroicism, and rational scientific logic to conquer their enemies.
+		`;
+	});
+	
+	document.querySelector('.demonrealm').addEventListener('click', e=>{
+		intermediate.innerHTML = `Are you sure you want to choose Demon? Your account will then be tied to this realm.`;
+		pickrealm.style.visibility = nopickrealm.style.visibility = 'visible';
+		pick = 'demon';
+		realmdescription.innerHTML = `
+			Demon: <br> <br>
+			The demons are fallen angels, cast out from the faith due to their insubordination and debauchery.  Demonic use of subtrefuge is a common thing amongst the most vile. <br> <br>
+			Many of their kind revolve around the use of a sinful nature, such as stealing the health of their opponents, attacking the minds and perverting the thoughts of the enemies.
+		`;
+	});
+	
+	nopickrealm.addEventListener('click', e=>{
+		pick = null;
+		intermediate.innerHTML = '';
+		pickrealm.style.visibility = nopickrealm.style.visibility = 'hidden';
+		realmdescription.innerHTML = '';
+	})
+	pickrealm.addEventListener('click', e=>{
+		socket.emit('realmpick', {realm: pick});
+	})
+}
+
+socket.on('realmpick', loadaccountcharacterspage(data));
 
 const loadaccountcharacterspage = data => {
 	let div = document.getElementById('main');

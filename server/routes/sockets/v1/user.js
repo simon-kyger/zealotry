@@ -12,6 +12,7 @@ export function init(socket) {
     socket.on('register', data => register(socket, data));
     socket.on('login', data => login(socket, data));
     socket.on('createchar', data => createCharacter(socket, data));        
+    socket.on('realmpick', data=> realmpick(socket, data));
 }
 
 function register(socket, data) {
@@ -73,6 +74,21 @@ function login(socket, data) {
         },
         tempErrorHandler
     );
+}
+
+//SHANE
+function realmpick(socket, data){
+    UserController.get(Server.getUsernameBySocket(socket))
+    .then( user => {
+        socketControllerHandler(
+            UserController.update,
+            [data.realm], //why doesn't this work?
+            result => {
+                socket.emit(SocketsV1.REALMPICK, user); //client also doesn't get this, and it is listening for it
+            },
+            tempErrorHandler
+        );
+    });
 }
 
 function createCharacter(socket, data) {
