@@ -250,8 +250,8 @@ const createcharacterpage = data => {
 							<img src='undefined' class='imgchar'>
 						</div>
 						<div class='charblock'>
-							<button class='btnchar'>Witch</button>
-							<img src='undefined' class='imgchar'>
+							<button class='btnchar'>Ghost</button>
+							<img src='assets/ghost/0.png' class='imgchar'>
 						</div>
 			`
 			break;

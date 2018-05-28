@@ -116,7 +116,7 @@ class Overworld extends Phaser.Scene {
             //'Shadow': ??,
             //'Prophet': ??,
             //'Succubus': ??,
-            //'Witch': ??
+            'Ghost': 'ghost'
         }
     }
     createanims(){
