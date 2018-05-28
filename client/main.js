@@ -5,6 +5,8 @@ socket.on(`helloworld`, (data)=>{
 	socket.emit('loginreq');
 });
 
+let gameUser;
+
 const loginpage = (down) => {
 	document.body.innerHTML = ``;
 	let div = document.createElement("div");
@@ -77,17 +79,20 @@ socket.on("usercreated", data => {
 	document.querySelector('.intermediate').innerHTML = data.msg;
 });
 socket.on("loginsuccess", data => {
+	gameUser = data;
 	if (data.realm){
-		loadaccountcharacterspage(data);
+		socket.emit("characterlist", data);
 	} else {
 		loadpickrealm(data);
 	}
 });
 
+
+
 const loadpickrealm = data => {
 	let div = document.getElementById('main');
 	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
-						<div>Welcome ${data.username}!</div>
+						<div>Welcome ${gameUser.username}!</div>
 						<div>Choose your realm:</div>
 						<button class='angelrealm'>Angel</button>
 						<button class='humanrealm'>Human</button>
@@ -154,15 +159,15 @@ const loadpickrealm = data => {
 const loadaccountcharacterspage = data => {
 	let div = document.getElementById('main');
 	let chars = '';
-	if (data.characters){
-		data.characters.forEach(i=> {
+	if (data){
+		data.forEach(i=> {
 			chars+=`<div class='charblock'>
 						<button class='btnchar' value='${i.name}'>${i.name} the ${i.class}</button>
 					</div>`
 		})
 	}
 	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
-						<div>Welcome back ${data.username}</div>
+						<div>Welcome back ${gameUser.username}</div>
 						<div>Characters:</div>
 						${chars}
 						<div class='intermediate' style='padding-top: 50px'></div>
@@ -179,6 +184,8 @@ const loadaccountcharacterspage = data => {
 		});
 	});
 }
+
+socket.on("characterlist", loadaccountcharacterspage);
 
 const createcharacterpage = data => {
 	let div = document.getElementById('main');
@@ -244,7 +251,7 @@ const createcharacterpage = data => {
 		});
 	});
 	document.querySelector('.back').addEventListener('click', e=>{
-		loadaccountcharacterspage(data);
+		socket.emit("characterlist", data);
 	});
 	document.querySelector('.create').addEventListener('click', e=>{
 		let int = document.querySelector('.intermediate');
@@ -263,11 +270,11 @@ const createcharacterpage = data => {
 }
 
 socket.on('realmpick', data=>{
-	loadaccountcharacterspage(data);
+	socket.emit("characterlist", data);
 });
 
 socket.on('createcharsuccess', data=>{
-	loadaccountcharacterspage(data);
+	socket.emit("characterlist", data);
 });
 
 socket.on('failcreate', data=>{

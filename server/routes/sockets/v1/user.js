@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs';
 import Character from '../../../models/character';
-import * as SocketsV1 from './index';
+import SocketsV1 from './index';
 import { socketControllerHandler } from '../../../util/controllerHandler';
-import * as UserController from '../../../controllers/user';
-import * as Server from '../../../index';
+import UserController from '../../../controllers/user';
+import CharacterController from '../../../controllers/character';
+import Server from '../../../index';
 
 
 export function init(socket) {
@@ -13,6 +14,7 @@ export function init(socket) {
     socket.on('login', data => login(socket, data));
     socket.on('createchar', data => createCharacter(socket, data));        
     socket.on('realmpick', data=> realmpick(socket, data));
+    socket.on(SocketsV1.USER_GET_CHARACTER_LIST, data => characterList(socket, data));
 }
 
 function register(socket, data) {
@@ -37,7 +39,7 @@ function login(socket, data) {
         msg: `Logging in...`
     });
     socketControllerHandler(
-        UserController.get,
+        UserController.getByUsername,
         [data.username],
         result => {
             if (result) {
@@ -77,12 +79,8 @@ function login(socket, data) {
     );
 }
 
-//SHANE
-function realmpick(socket, data){
-    if(!data.realm.match(/^(angel|human|demon)$/)){
-        return;
-    }
-    UserController.get(Server.getUsernameBySocket(socket))
+function realmpick(socket, data){    
+    UserController.getByUsername(Server.getUsernameBySocket(socket))
     .then( user => {
         user.realm = data.realm;
         socketControllerHandler(
@@ -102,7 +100,7 @@ function createCharacter(socket, data) {
         msg: `Creating character...`
     });
 
-    UserController.get(Server.getUsernameBySocket(socket))
+    UserController.getByUsername(Server.getUsernameBySocket(socket))
     .then( user => {
         let character = {};
         character.name = data.name;
@@ -116,16 +114,45 @@ function createCharacter(socket, data) {
         }
         character.dir = 'down';
         character.speed = 20;
-        user.characters.push(character)
+        character.user_id = user._id;
+
+        CharacterController.create(character)
+        .then( result => {        
+            user.characters.push(character._id);
+            socketControllerHandler(
+                UserController.update,
+                [user],
+                result => {
+                    socket.emit(SocketsV1.CHARACTER_CREATE_SUCESS, 
+                        result);
+                },
+                tempErrorHandler
+            );
+        })
+        .catch(
+            error => {
+                if (error.message && error.message.indexOf("duplicate") > -1)
+                    // fix this so that it isn't hardcoded
+                    socket.emit(SocketsV1.CHARACTER_CREATE_FAIL, {msg : "Character name already exists. Please choose a different name"});                 
+            }
+        );
+        
+    }).catch( tempErrorHandler );
+}
+
+function characterList(socket, data) {
+    UserController.getByUsername(Server.getUsernameBySocket(socket))
+    .then( user => {
+        
         socketControllerHandler(
-            UserController.update,
-            [user],
+            CharacterController.listByUser,
+            [user._id],
             result => {
-                socket.emit(SocketsV1.CHARACTER_CREATE_SUCESS, 
+                socket.emit(SocketsV1.USER_GET_CHARACTER_LIST, 
                     result);
             },
             tempErrorHandler
-        )
+        );
         
     }).catch( tempErrorHandler );
 }

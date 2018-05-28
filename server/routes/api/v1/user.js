@@ -1,6 +1,6 @@
 import express from 'express';
 import { apiControllerHandler } from '../../../util/controllerHandler';
-import * as UserController from '../../../controllers/user';
+import UserController from '../../../controllers/user';
 
 let router = express.Router();
 
@@ -21,7 +21,7 @@ router.post(
 router.get(
     '/:username', 
     apiControllerHandler(
-        UserController.get, 
+        UserController.getByUsername, 
         (req, res, next) => [req.params.username]
     )
 );

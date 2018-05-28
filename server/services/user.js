@@ -14,21 +14,18 @@ import User from '../models/User';
  */
 export function create(user) {
     user = new User(user);
-    return user.save( (err, user) => {
-        if (err)         
-          throw new Error(err);        
-    });
+    return user.save();
 }
 
 /**
  * get
  * ============================================================
- * retrieves the user matching the passed username (case insensitive)
- * @param {String} username username to match against
+ * retrieves the user matching the passed id
+ * @param {ObjectId} id user id to match against
  * @returns {Promise} the result of the get query
  */
-export function get(username) {
-    return User.findOne({username}).exec(); 
+export function get(id) {
+    return User.findById(id).exec(); 
 }
 
 /** 
@@ -46,6 +43,17 @@ export function update(user) {
     ).exec(); 
 }
 
+/**
+ * getByUsername
+ * ============================================================
+ * retrieves the user matching the passed username (case insensitive)
+ * @param {String} username username to match against
+ * @returns {Promise} the result of the get query
+ */
+export function getByUsername(username) {
+    return User.findOne({username}).exec(); 
+}
+
 
 /**
  * Export a default containing the primary methods
@@ -53,5 +61,6 @@ export function update(user) {
 export default {
     create,
     get,
-    update
+    update,
+    getByUsername
 }
