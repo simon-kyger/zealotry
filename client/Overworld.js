@@ -7,7 +7,7 @@ class Overworld extends Phaser.Scene {
         super({key: "Overworld"});
         this.player = args.player;
         this.players = args.players;
-        this.scale = 3;
+        this.scale = 4;
 
         //framelocking;
         this.lag = 0;
@@ -261,9 +261,9 @@ class Overworld extends Phaser.Scene {
             if (player.name === this.player.name){
                 this.tweens.add({
                     targets: this.cameras.main,
-                    scrollX: player.pos.x,
-                    scrollY: player.pos.y,
-                    duration: 50,
+                    scrollX: Math.floor(player.pos.x),
+                    scrollY: Math.floor(player.pos.y),
+                    duration: 64,
                     ease: 'Sine.easeIn'
                 });
             }
@@ -278,7 +278,7 @@ class Overworld extends Phaser.Scene {
                 targets: player.sprite.shadows,
                 x: player.pos.x + this.cameras.main.width/2,
                 y: player.pos.y + this.cameras.main.height/2 + player.sprite.height*this.scale - 4,
-                duration: 30,
+                duration: 32,
                 ease: 'Sine.easeIn'
             })
             player.sprite.depth = player.pos.y;

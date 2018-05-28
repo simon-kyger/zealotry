@@ -107,7 +107,6 @@ function createCharacter(socket, data) {
         let character = {};
         character.name = data.name;
         character.class = data.class;
-        character.pos = { x : 0, y : 0 };
         character.move = { 
             left: false,
             right: false,
@@ -116,6 +115,18 @@ function createCharacter(socket, data) {
         }
         character.dir = 'down';
         character.speed = 20;
+        //TODO need access to mapconstraints
+        switch(user.realm){
+            case 'angel':
+                character.pos = { x: 16000*4 -1920, y: 16000*4 -1050};
+                break;
+            case 'human':
+                character.pos = { x : 0, y : 0 };
+                break;
+            case 'demon':
+                character.pos = { x: 16000*4 -1920, y: 0};
+                break;    
+        }
         user.characters.push(character)
         socketControllerHandler(
             UserController.update,
