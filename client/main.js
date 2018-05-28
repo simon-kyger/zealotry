@@ -95,6 +95,7 @@ const loadpickrealm = data => {
 	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
 						<div>Welcome ${gameUser.username}!</div>
 						<div>Choose your realm:</div>
+						<div class='conceptartcontainer' style='position: absolute; opacity: 0.2; z-index:-1;'></div>
 						<button class='angelrealm'>Angel</button>
 						<button class='humanrealm'>Human</button>
 						<button class='demonrealm'>Demon</button>
@@ -112,6 +113,7 @@ const loadpickrealm = data => {
 	const pickrealm = document.querySelector('.pickrealm');
 	const nopickrealm = document.querySelector('.nopickrealm');
 	const realmdescription = document.querySelector('.realmdescription');
+	const conceptartcontainer = document.querySelector('.conceptartcontainer');
 	let pick;
 	document.querySelector('.angelrealm').addEventListener('click', e=>{
 		intermediate.innerHTML = `Are you sure you want to choose Angel? Your account will then be tied to this realm.`;
@@ -121,6 +123,9 @@ const loadpickrealm = data => {
 			Angel: <br> <br>
 			The angels have always been a source of what is good and holy within this world of Zealotry. Their ultimate plight is the way of the light, blinding enemies in faith. <br> <br>
 			Many of their kind have abilities which enhance regeneration and healing and use these benefits to smite heathens and blasphemers.
+		`;
+		conceptartcontainer.innerHTML = `
+			<img src='/assets/conceptart/${pick}_t.png'>
 		`;
 	});
 	
@@ -133,6 +138,9 @@ const loadpickrealm = data => {
 			The humans are the cultivators of this land.  They were put here by the gods in front of angels and demons alike to witness. <br> <br>
 			Many of their kind revolve around the usage of brute force, heroicism, and rational scientific logic to conquer their enemies.
 		`;
+		conceptartcontainer.innerHTML = `
+			<img src='/assets/conceptart/${pick}_t.png'>
+		`;
 	});
 	
 	document.querySelector('.demonrealm').addEventListener('click', e=>{
@@ -144,6 +152,9 @@ const loadpickrealm = data => {
 			The demons are fallen angels, cast out from the faith due to their insubordination and debauchery.  Demonic use of subtrefuge is a common thing amongst the most vile. <br> <br>
 			Many of their kind revolve around the use of a sinful nature, such as stealing the health of their opponents, attacking the minds and perverting the thoughts of the enemies.
 		`;
+		conceptartcontainer.innerHTML = `
+			<img src='/assets/conceptart/${pick}_t.png'>
+		`;
 	});
 	
 	nopickrealm.addEventListener('click', e=>{
@@ -151,6 +162,7 @@ const loadpickrealm = data => {
 		intermediate.innerHTML = '';
 		pickrealm.style.visibility = nopickrealm.style.visibility = 'hidden';
 		realmdescription.innerHTML = '';
+		conceptartcontainer.innerHTML = '';
 	})
 	pickrealm.addEventListener('click', e=>{
 		socket.emit('realmpick', {realm: pick});
