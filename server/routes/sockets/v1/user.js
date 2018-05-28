@@ -56,7 +56,8 @@ function login(socket, data) {
                         Server.sessions[result.username] = socket;
                         socket.emit(SocketsV1.USER_LOGIN_SUCCESS, {
                             username: result.username,
-                            characters: result.characters || null
+                            characters: result.characters || null,
+                            realm: result.realm || null
                         });
                         
                     } else {
@@ -78,15 +79,17 @@ function login(socket, data) {
 
 //SHANE
 function realmpick(socket, data){
+    if(!data.realm.match(/^(angel|human|demon)$/)){
+        return;
+    }
     UserController.get(Server.getUsernameBySocket(socket))
     .then( user => {
         user.realm = data.realm;
         socketControllerHandler(
             UserController.update,
-            [user], //why doesn't this work?
+            [user],
             result => {
-                console.log("The socket is being sent.  Check the client side code.");
-                socket.emit(SocketsV1.REALM_PICK, result); //client also doesn't get this, and it is listening for it
+                socket.emit(SocketsV1.REALM_PICK, result);
             },
             tempErrorHandler
         );
