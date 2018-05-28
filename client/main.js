@@ -7,6 +7,15 @@ socket.on(`helloworld`, (data)=>{
 
 let gameUser;
 
+const randomtip = () => {
+	const tips = [
+		`When creating a character, if the img isn't loading, don't pick to test with.`,
+		`Want to contribute? <a href='https://github.com/simon-kyger/zealotry' target='_blank' style='color: white'>https://github.com/simon-kyger/zealotry</a>`,
+		`The humans were the first realm created in Zealotry`,
+	]
+	return tips[Math.floor(Math.random()*tips.length)];
+}
+
 const loginpage = (down) => {
 	document.body.innerHTML = ``;
 	let div = document.createElement("div");
@@ -16,7 +25,7 @@ const loginpage = (down) => {
 	div.style.height = `100%`;
 	div.style.color = 'white';
 	div.innerHTML = `<main id='login' align='center' class='zdef'>					
-						<div class='tipoftheday'>Tip of the day: Pick Human realm for testing, or else client will crash and burn lol.</div>
+						<div class='tipoftheday'>${randomtip()}</div>
 						<div style='font-size: 100'>zealotry.io</div>
 						<img src="kefka.gif" style='width:100; height:100'>
 						<div style='display: flex;'>
