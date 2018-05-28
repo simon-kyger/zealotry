@@ -7,7 +7,7 @@ class Overworld extends Phaser.Scene {
         super({key: "Overworld"});
         this.player = args.player;
         this.players = args.players;
-        this.scale = 3;
+        this.scale = 4;
 
         //framelocking;
         this.lag = 0;
@@ -20,9 +20,62 @@ class Overworld extends Phaser.Scene {
     }
 
     preload(){
-        this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
+        this.loadscreen();
         this.load.image('backgroundtiles', 'assets/backgroundtiles.png');
         this.load.atlas('players', 'assets/players.png', 'assets/players.json');
+        this.load.image('shadows', 'assets/shadows/0.png');
+        this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
+    }
+
+    loadscreen(){
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+        const loadingText = this.make.text({
+            x: width / 2,
+            y: height / 2 - 50,
+            text: 'Loading...',
+            style: {
+                font: '40px Segoe UI',
+                fill: '#ffffff'
+            }
+        });
+        loadingText.setOrigin(0.5, 0.5);
+        const percentText = this.make.text({
+            x: width / 2,
+            y: height / 2,
+            text: '0%',
+            style: {
+                font: '20px Segoe UI',
+                fill: '#ffffff'
+            }
+        });
+        percentText.setOrigin(0.5, 0.5);
+        
+        const assetText = this.make.text({
+            x: width / 2,
+            y: height / 2 + 50,
+            text: '',
+            style: {
+                font: '20px Segoe UI',
+                fill: '#ffffff'
+            }
+        });
+
+        assetText.setOrigin(0.5, 0.5);
+        
+        this.load.on('progress', v=> {
+            percentText.setText(parseInt(v * 100) + '%');
+        });
+        
+        this.load.on('fileprogress', file=> {
+            assetText.setText('Loading asset: ' + file.key);
+        });
+
+        this.load.on('complete', function () {
+            loadingText.destroy();
+            percentText.destroy();
+            assetText.destroy();
+        });
     }
 
     create(){
@@ -49,6 +102,8 @@ class Overworld extends Phaser.Scene {
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels*this.scale, this.map.heightInPixels*this.scale);
+        this.cameras.main.scrollX = this.player.pos.x;
+        this.cameras.main.scrollY = this.player.pos.y;
         this.input.keyboard.on('keydown', e=>{            
             if (e.key == 'ArrowLeft'){
                 socket.emit('move', {dir: 'left', state: true});
@@ -100,17 +155,23 @@ class Overworld extends Phaser.Scene {
         });
     }
     mp(){
+        //TODO
         return {
-            'Rogue': 'locke',
-            'Knight': 'edgar',
-            'Cleric': 'celes',
-            'Berserker': 'sabin',
-            'Thief': 'setzer',
-            'Ninja': 'shadow',
+            'Paladin': 'edgar',
+            //'Zealot': ??,
+            //'Seraph': ??,
+            'Archangel': 'terramonster',
+            //'Spirit': ??,
             'Warrior': 'leo',
+            'Rogue': 'locke',
             'Bard': 'relm',
-            'White Mage': 'terramonster',
-            'Black Mage': 'kefka'
+            'Wizard': 'setzer',
+            'Cleric': 'celes',
+            //'Skeleton': ??,
+            //'Shadow': ??,
+            //'Prophet': ??,
+            //'Succubus': ??,
+            'Ghost': 'ghost'
         }
     }
     createanims(){
@@ -124,7 +185,7 @@ class Overworld extends Phaser.Scene {
                         prefix: `${this.mp()[key]}/`
                     }),
                     frameRate: 8,
-                    repeat: -1
+                    repeat: -1,
                 },
                 {
                     key: `${key}up`,
@@ -151,7 +212,8 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive().setScale(3);
+        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive().setScale(this.scale);
+        data.sprite.shadows = this.add.sprite(data.pos.x, data.pos.y, 'shadows').setScale(this.scale);
         data.sprite.on('pointerdown', ()=>{
             data.sprite.setTint(`0xff8888`);
         })
@@ -196,15 +258,14 @@ class Overworld extends Phaser.Scene {
                 if (player.facing != 'idle'){
                     player.facing = 'idle';
                     player.sprite.anims.stop();
-                    player.sprite.anims.currentFrame = 0;
                 }
             }
             if (player.name === this.player.name){
                 this.tweens.add({
                     targets: this.cameras.main,
-                    scrollX: player.pos.x,
-                    scrollY: player.pos.y,
-                    duration: 50,
+                    scrollX: Math.floor(player.pos.x),
+                    scrollY: Math.floor(player.pos.y),
+                    duration: 64,
                     ease: 'Sine.easeIn'
                 });
             }
@@ -214,7 +275,14 @@ class Overworld extends Phaser.Scene {
                 y: player.pos.y + this.cameras.main.height/2,
                 duration: 30,
                 ease: 'Sine.easeIn'
-            })   
+            })
+            this.tweens.add({
+                targets: player.sprite.shadows,
+                x: player.pos.x + this.cameras.main.width/2,
+                y: player.pos.y + this.cameras.main.height/2 + player.sprite.height*this.scale - 4,
+                duration: 32,
+                ease: 'Sine.easeIn'
+            })
             player.sprite.depth = player.pos.y;
         }
     }
@@ -241,7 +309,7 @@ class Overworld extends Phaser.Scene {
             if (player.pos.y < this.mapconstraints().top)
                 player.pos.y = this.mapconstraints().top;
             if (player.pos.y > this.mapconstraints().bottom)
-                player.pos.y = this.mapconstraints().bottom;    
+                player.pos.y = this.mapconstraints().bottom; 
         }
     }
 

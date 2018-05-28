@@ -15,7 +15,8 @@ const loginpage = (down) => {
 	div.style.width = `100%`;
 	div.style.height = `100%`;
 	div.style.color = 'white';
-	div.innerHTML = `<main id='login' align='center' class='zdef'>
+	div.innerHTML = `<main id='login' align='center' class='zdef'>					
+						<div class='tipoftheday'>Tip of the day: Pick Human realm for testing, or else client will crash and burn lol.</div>
 						<div style='font-size: 100'>zealotry.io</div>
 						<img src="kefka.gif" style='width:100; height:100'>
 						<div style='display: flex;'>
@@ -189,49 +190,83 @@ socket.on("characterlist", loadaccountcharacterspage);
 
 const createcharacterpage = data => {
 	let div = document.getElementById('main');
+	let template;
+	switch (data.realm){
+		case 'angel':
+			template = `<div class='charblock'>
+							<button class='btnchar'>Paladin</button>
+							<img src='assets/edgar/0.png' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Zealot</button>
+							<img src='undefined' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Seraph</button>
+							<img src='undefined' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Archangel</button>
+							<img src='assets/terramonster/0.png' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Spirit</button>
+							<img src='undefined' class='imgchar'>
+						</div>
+			`
+			break;
+		case 'human':
+			template = `<div class='charblock'>
+							<button class='btnchar'>Warrior</button>
+							<img src='assets/leo/0.png' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar' value='Rogues are sickheads'>Rogue</button>
+							<img src='assets/locke/0.png' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Bard</button>
+							<img src='assets/relm/0.png' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Wizard</button>
+							<img src='assets/setzer/0.png' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Cleric</button>
+							<img src='assets/celes/0.png' class='imgchar'>
+						</div>
+			`
+			break;
+		case 'demon':
+			template = `
+						<div class='charblock'>
+							<button class='btnchar'>Skeleton</button>
+							<img src='undefined' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Shadow</button>
+							<img src='undefined' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Prophet</button>
+							<img src='undefined' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Succubus</button>
+							<img src='undefined' class='imgchar'>
+						</div>
+						<div class='charblock'>
+							<button class='btnchar'>Ghost</button>
+							<img src='assets/ghost/0.png' class='imgchar'>
+						</div>
+			`
+			break;
+	}
 	div.innerHTML = `<main id='accountcharacters' align='center' class='zdef'>
 						<div style='font-size: 50'>Create Character</div>
 						<div style='padding-top:50;'>
-							<div class='charblock'>
-								<button class='btnchar' value='Rogues are sickheads'>Rogue</button>
-								<img src='assets/locke/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Knight</button>
-								<img src='assets/edgar/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Cleric</button>
-								<img src='assets/celes/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Berserker</button>
-								<img src='assets/sabin/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Thief</button>
-								<img src='assets/setzer/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Ninja</button>
-								<img src='assets/shadow/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Warrior</button>
-								<img src='assets/leo/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Bard</button>
-								<img src='assets/relm/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>White Mage</button>
-								<img src='assets/terramonster/0.png' class='imgchar'>
-							</div>
-							<div class='charblock'>
-								<button class='btnchar'>Black Mage</button>
-								<img src='assets/kefka/0.png' class='imgchar'>
-							</div>
+							${template}
 						</div>
 						<div class='intermediate' style='padding-top: 50px'></div>
 						<div style='padding-top:50px;'>

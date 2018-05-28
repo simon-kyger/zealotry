@@ -5,8 +5,8 @@ const GAME_LOOP_TICK_RATE = 1000/16; //62.5fps target
 const mapconstraints = {
 	left: 0,
 	top: 0,
-	right:  16000*3 -1920, //mapwidth * scale - canvassize
-	bottom: 16000*3 -950 //mapheight * scale - canvassize
+	right:  16000*4 -1920, //mapwidth * scale - canvassize
+	bottom: 16000*4 -950 //mapheight * scale - canvassize
 }
 
 let gameLoopInterval = 0;
