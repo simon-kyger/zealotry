@@ -100,17 +100,23 @@ class Overworld extends Phaser.Scene {
         });
     }
     mp(){
+        //TODO
         return {
-            'Rogue': 'locke',
-            'Knight': 'edgar',
-            'Cleric': 'celes',
-            'Berserker': 'sabin',
-            'Thief': 'setzer',
-            'Ninja': 'shadow',
+            'Paladin': 'edgar',
+            //'Zealot': ??,
+            //'Seraph': ??,
+            'Archangel': 'terramonster',
+            //'Spirit': ??,
             'Warrior': 'leo',
+            'Rogue': 'locke',
             'Bard': 'relm',
-            'White Mage': 'terramonster',
-            'Black Mage': 'kefka'
+            'Wizard': 'setzer',
+            'Cleric': 'celes',
+            //'Skeleton': ??,
+            //'Shadow': ??,
+            //'Prophet': ??,
+            //'Succubus': ??,
+            //'Witch': ??
         }
     }
     createanims(){

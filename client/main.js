@@ -13,7 +13,8 @@ const loginpage = (down) => {
 	div.style.width = `100%`;
 	div.style.height = `100%`;
 	div.style.color = 'white';
-	div.innerHTML = `<main id='login' align='center' class='zdef'>
+	div.innerHTML = `<main id='login' align='center' class='zdef'>					
+						<div class='tipoftheday'>Tip of the day: Pick Human realm for testing, or else client will crash and burn lol.</div>
 						<div style='font-size: 100'>zealotry.io</div>
 						<img src="kefka.gif" style='width:100; height:100'>
 						<div style='display: flex;'>
