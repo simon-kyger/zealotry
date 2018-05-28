@@ -186,12 +186,14 @@ const loadaccountcharacterspage = data => {
 	});
 }
 
-socket.on("characterlist", loadaccountcharacterspage);
+socket.on("characterlist", data=> {
+	loadaccountcharacterspage(data)
+});
 
 const createcharacterpage = data => {
 	let div = document.getElementById('main');
 	let template;
-	switch (data.realm){
+	switch (gameUser.realm){
 		case 'angel':
 			template = `<div class='charblock'>
 							<button class='btnchar'>Paladin</button>
@@ -305,6 +307,7 @@ const createcharacterpage = data => {
 }
 
 socket.on('realmpick', data=>{
+	gameUser = data;
 	socket.emit("characterlist", data);
 });
 

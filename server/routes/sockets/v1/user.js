@@ -116,7 +116,7 @@ function createCharacter(socket, data) {
         character.speed = 20;
 		switch(user.realm){
             case 'angel':
-                character.pos = { x: 16000*4 -1920, y: 16000*4 -1050};
+                character.pos = { x: 16000*4 -1920, y: 16000*4 -950};
                 break;
             case 'human':
                 character.pos = { x : 0, y : 0 };
