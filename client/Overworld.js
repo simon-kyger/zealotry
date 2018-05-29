@@ -139,6 +139,8 @@ class Overworld extends Phaser.Scene {
             this.players.forEach((player, i)=>{
                 if(player.name == data.name){
                     player.sprite.destroy();
+                    player.sprite.shadows.destroy();
+                    player.sprite.name.destroy();
                     this.players.splice(i, 1);
                 }
             })
