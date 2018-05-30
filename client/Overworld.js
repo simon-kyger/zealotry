@@ -104,6 +104,7 @@ class Overworld extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels*this.scale, this.map.heightInPixels*this.scale);
         this.cameras.main.scrollX = this.player.pos.x;
         this.cameras.main.scrollY = this.player.pos.y;
+        this.cameras.main.roundPixels = true;
         this.input.keyboard.on('keydown', e=>{            
             if (e.key == 'ArrowLeft'){
                 socket.emit('move', {dir: 'left', state: true});
