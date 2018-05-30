@@ -14,7 +14,7 @@ class Overworld extends Phaser.Scene {
         this.fps = 62.5;
         this.frameduration = 1000 / this.fps;
 
-        this.deltaTime = 1/62.5;
+        this.deltaTime = 1/ this.fps;
         this.lastTime = 0;
         this.accumulatedTime = 0;
     }
@@ -146,11 +146,11 @@ class Overworld extends Phaser.Scene {
                 }
             })
         });
-        socket.on('move', data=> {
+        socket.on('update', data=> {
             for (let i =0; i<this.players.length; ++i){
-                if (this.players[i].name == data.name){
+                if (this.players[i].name == data[i].name){
                     let temp = this.players[i].sprite;
-                    this.players[i] = data;
+                    this.players[i] = data[i];
                     this.players[i].sprite = temp;
                     break;
                 }

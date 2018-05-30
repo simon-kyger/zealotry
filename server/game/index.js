@@ -1,6 +1,14 @@
 import * as Server from '../';
+const PHYS_TICK_RATE = 16; //62.5/s
+const UPDATE_TICK_RATE = 50; //20/s
 
-const GAME_LOOP_TICK_RATE = 1000/16; //62.5fps target
+
+
+export function start() {
+    setInterval(phys, PHYS_TICK_RATE);
+    setInterval(update, UPDATE_TICK_RATE);
+}
+
 // Move this into individual map objects
 const mapconstraints = {
 	left: 0,
@@ -9,36 +17,33 @@ const mapconstraints = {
 	bottom: 16000*4 -950 //mapheight * scale - canvassize
 }
 
-let gameLoopInterval = 0;
-
-export function beginLoop() {
-    gameLoopInterval = setInterval(()=>{
-        Server.players.forEach(playerMovement);
-    }, GAME_LOOP_TICK_RATE);
+const phys = () => {
+    const j = Server.players.length;
+    for (let i=0; i<j; ++i){
+        const player = Server.players[i];
+        const deltaPos = player.speed * PHYS_TICK_RATE;
+        if (player.move.get("left")){
+            player.pos.set("x", player.pos.get("x") - deltaPos);
+        } else if (player.move.get("right")){
+            player.pos.set("x", player.pos.get("x") + deltaPos);
+        }
+        if (player.move.get("up")){
+            player.pos.set("y", player.pos.get("y") - deltaPos);
+        } else if (player.move.get("down")){
+            player.pos.set("y", player.pos.get("y") + deltaPos);
+        }
+        
+        if (player.pos.get("x") < mapconstraints.left)
+            player.pos.set("x", mapconstraints.left);
+        if (player.pos.get("x") > mapconstraints.right)
+            player.pos.set("x", mapconstraints.right);
+        if (player.pos.get("y") < mapconstraints.top)
+            player.pos.set("y", mapconstraints.top);
+        if (player.pos.get("y") > mapconstraints.bottom)
+            player.pos.set("y", mapconstraints.bottom);
+    }
 }
 
-export function endLoop() {
-    clearInterval(gameLoopInterval);
-}
-
-function playerMovement(player) {
-    if (player.move.left){
-        player.pos.x-= player.speed;
-    } else if (player.move.right){
-        player.pos.x+= player.speed;
-    }
-    if (player.move.up){
-        player.pos.y-= player.speed;
-    } else if (player.move.down){
-        player.pos.y+= player.speed;
-    }
-    
-    if (player.pos.x < mapconstraints.left)
-        player.pos.x = mapconstraints.left;
-    if (player.pos.x > mapconstraints.right)
-        player.pos.x = mapconstraints.right;
-    if (player.pos.y < mapconstraints.top)
-        player.pos.y = mapconstraints.top;
-    if (player.pos.y > mapconstraints.bottom)
-        player.pos.y = mapconstraints.bottom;
+const update = () => {
+    Server.getIo().emit('update', Server.players);
 }
