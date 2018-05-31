@@ -1,7 +1,4 @@
 class Overworld extends Phaser.Scene {
-
-    
-
     constructor(args){
         //setup and variable initializations
         super({key: "Overworld"});
@@ -17,6 +14,9 @@ class Overworld extends Phaser.Scene {
         this.deltaTime = 1/ this.fps;
         this.lastTime = 0;
         this.accumulatedTime = 0;
+
+        //debug
+        this.showdebug = true;
     }
 
     preload(){
@@ -79,6 +79,8 @@ class Overworld extends Phaser.Scene {
     }
 
     create(){
+        //DEBUG TEXT
+        this.debugtext = this.add.text(0, 0, '', { font: '20px Courier', fill: '#ff0000', backgroundColor: 'rgba(0, 0, 0, .6)' }).setDepth(1).setScrollFactor(0);
         this.createanims();
         //map data
         this.map = this.make.tilemap({key: 'map'});
@@ -148,6 +150,9 @@ class Overworld extends Phaser.Scene {
         });
         socket.on('update', data=> {
             for (let i =0; i<this.players.length; ++i){
+                if (this.player.name == data[i].name){
+                    Object.assign(this.player, data[i]);
+                }
                 if (this.players[i].name == data[i].name){
                     Object.assign(this.players[i], data[i]);
                 }
@@ -238,7 +243,32 @@ class Overworld extends Phaser.Scene {
         }
     }
 
+    displaydebug() {
+        let player = this.players.find(player=> player.name == this.player.name);
+        let template = `
+----------------------------DEBUG-----------------------------
+Player (Server) { 
+    x: ${this.player.pos.x}  
+    y: ${this.player.pos.y}  
+}
+Player (Sprite) {
+    x: ${player.sprite.x}  
+    y: ${player.sprite.y}  
+}
+Camera {
+    scrollX: ${this.cameras.main.scrollX}
+    scrollY: ${this.cameras.main.scrollY}
+}
+Tweens {
+    active: ${this.tweens._active.length}
+}
+        `;
+        this.debugtext.setText(template);
+        this.debugtext.width = 1920/2
+    }
+
     render(){
+        this.showdebug ? this.displaydebug() : null;
         const j = this.players.length;
         for (let i=0; i<j; ++i){
             const player = this.players[i];
