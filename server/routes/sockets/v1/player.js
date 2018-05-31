@@ -35,10 +35,17 @@ export function playGame(socket, data){
 const move = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
+    player.dir = data.dir;
     if (data.state){
         player.move.set(data.dir,true);        
     } else {
         player.move.set(data.dir,false);
+        if (!player.move.get('left') && 
+            !player.move.get('right') && 
+            !player.move.get('up') && 
+            !player.move.get('down')){
+            player.move.set('idle');
+        }
     }
 }
 

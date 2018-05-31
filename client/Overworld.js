@@ -149,10 +149,7 @@ class Overworld extends Phaser.Scene {
         socket.on('update', data=> {
             for (let i =0; i<this.players.length; ++i){
                 if (this.players[i].name == data[i].name){
-                    let temp = this.players[i].sprite;
-                    this.players[i] = data[i];
-                    this.players[i].sprite = temp;
-                    break;
+                    Object.assign(this.players[i], data[i]);
                 }
             }
         });
