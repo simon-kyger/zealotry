@@ -338,7 +338,7 @@ Tweens {
         const j = this.players.length;
         for (let i=0; i<j; ++i){
             const player = this.players[i];
-            const deltaPos = player.speed * this.deltaTime * this.frameduration;
+            const deltaPos = player.speed * 1/delta;
             if (player.move.left){
                 player.pos.x-= deltaPos;
             } else if (player.move.right){

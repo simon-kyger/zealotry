@@ -21,16 +21,16 @@ const phys = () => {
     const j = Server.players.length;
     for (let i=0; i<j; ++i){
         const player = Server.players[i];
-        const deltaPos = player.speed * PHYS_TICK_RATE;
+        const deltaPos = player.speed * 1/PHYS_TICK_RATE;
         if (player.move.get("left")){
-            player.pos.set("x", player.pos.get("x") - deltaPos);
+            player.pos.set("x", Math.floor(player.pos.get("x") - deltaPos));
         } else if (player.move.get("right")){
-            player.pos.set("x", player.pos.get("x") + deltaPos);
+            player.pos.set("x", Math.floor(player.pos.get("x") + deltaPos));
         }
         if (player.move.get("up")){
-            player.pos.set("y", player.pos.get("y") - deltaPos);
+            player.pos.set("y", Math.floor(player.pos.get("y") - deltaPos));
         } else if (player.move.get("down")){
-            player.pos.set("y", player.pos.get("y") + deltaPos);
+            player.pos.set("y", Math.floor(player.pos.get("y") + deltaPos));
         }
         
         if (player.pos.get("x") < mapconstraints.left)
