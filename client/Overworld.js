@@ -170,11 +170,11 @@ class Overworld extends Phaser.Scene {
             'Warrior': 'leo',
             'Rogue': 'locke',
             'Bard': 'relm',
-            'Wizard': 'setzer',
-            'Cleric': 'celes',
+            'Engineer': 'setzer',
+            'Doctor': 'celes',
             //'Skeleton': ??,
             //'Shadow': ??,
-            //'Prophet': ??,
+            //'Banshee': ??,
             //'Succubus': ??,
             'Ghost': 'ghost'
         }

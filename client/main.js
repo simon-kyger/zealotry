@@ -252,11 +252,11 @@ const createcharacterpage = data => {
 							<img src='assets/relm/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
-							<button class='btnchar'>Wizard</button>
+							<button class='btnchar'>Engineer</button>
 							<img src='assets/setzer/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
-							<button class='btnchar'>Cleric</button>
+							<button class='btnchar'>Doctor</button>
 							<img src='assets/celes/0.png' class='imgchar'>
 						</div>
 			`
@@ -272,7 +272,7 @@ const createcharacterpage = data => {
 							<img src='undefined' class='imgchar'>
 						</div>
 						<div class='charblock'>
-							<button class='btnchar'>Prophet</button>
+							<button class='btnchar'>Banshee</button>
 							<img src='undefined' class='imgchar'>
 						</div>
 						<div class='charblock'>
