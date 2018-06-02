@@ -21,11 +21,12 @@ export function playGame(socket, data){
     CharacterController.getByName(data)
     .then(result => {
         socket.name = result.name;
+        const otherplayers = Server.players.slice(0);
         Server.players.push(result);
         SocketsV1.emit(NEW_PLAYER, result);
         socket.emit(PLAY_GAME, {
             player: result,
-            players: Server.players
+            players: otherplayers
         });
     })
     .catch( tempErrorHandler );
@@ -41,17 +42,9 @@ const move = (socket, data) => {
     } else {
         player.move.set(data.dir,false);
     }
-    if (player.move.get("left")){
-        player.pos.set("x", Math.floor(player.pos.get("x")));
-    } else if (player.move.get("right")){
-        player.pos.set("x", Math.floor(player.pos.get("x")));
-    }
-    if (player.move.get("up")){
-        player.pos.set("y", Math.floor(player.pos.get("y")));
-    } else if (player.move.get("down")){
-        player.pos.set("y", Math.floor(player.pos.get("y")));
-    }
-    Server.getIo().emit('move', Server.players);
+    player.pos.set("x", data.x);
+    player.pos.set("y", data.y);
+    socket.broadcast.emit('move', player); // this should be handled better....
 }
 
 const tempErrorHandler = error => {
