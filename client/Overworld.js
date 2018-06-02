@@ -3,7 +3,7 @@ class Overworld extends Phaser.Scene {
         //setup and variable initializations
         super({key: "Overworld"});
         this.player = args.player;
-        this.players = args.players;
+        this.players = args.players; // includes the actual player as well
         this.scale = 4;
 
         //framelocking;
@@ -101,6 +101,7 @@ class Overworld extends Phaser.Scene {
             right: this.cursors.right,
             up: this.cursors.up,
             down: this.cursors.down,
+            speed: .5
         }
         this.controls = new Phaser.Cameras.Controls.Fixed(this.controlConfig);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels*this.scale, this.map.heightInPixels*this.scale);
@@ -148,14 +149,20 @@ class Overworld extends Phaser.Scene {
                 }
             })
         });
-        socket.on('update', data=> {
+        socket.on('move', data=> {
             for (let i =0; i<this.players.length; ++i){
-                if (this.player.name == data[i].name){
-                    Object.assign(this.player, data[i]);
+                const c = this.players[i];
+                const s = data[i];
+                if (this.player.name == s.name){
+                    continue;
                 }
-                if (this.players[i].name == data[i].name){
-                    Object.assign(this.players[i], data[i]);
-                }
+                this.tweens.add({
+                    targets: c.sprite,
+                    x: s.pos.x,
+                    y: s.pos.y,
+                    duration: 500,
+                    ease: 'Sine.easeIn'
+                })
             }
         });
     }
@@ -217,18 +224,25 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive().setScale(this.scale);
-        data.sprite.shadows = this.add.sprite(data.pos.x, data.pos.y, 'shadows').setScale(this.scale);
+        data.sprite = this.add.sprite(data.pos.x+this.cameras.main.width/2, data.pos.y+this.cameras.main.height/2, 'players', `${this.mp()[data.class]}/0`).setInteractive().setScale(this.scale);
+        if (data.name === this.player.name){
+            this.player.sprite = data.sprite;
+            this.player.sprite.setScrollFactor(0);
+            this.player.sprite.x = data.pos.x + this.cameras.main.width/2;
+            this.player.sprite.y = data.pos.y + this.cameras.main.height/2;
+            this.player.sprite.fixedToCamera = true;
+        }
+        //TO DO, render this shit on top of the main sprite.
+        data.sprite.shadows = this.add.sprite(data.sprite.x, data.sprite.y+data.sprite.height*this.scale-4, 'shadows').setScale(this.scale).setScrollFactor(0);
         data.sprite.name = this.make.text({
-            x: data.pos.x,
-            y: data.pos.y,
+            x: data.sprite.x - data.sprite.width,
+            y: data.sprite.y - data.sprite.height,
             text: data.name,
             style: {
                 font: '20px Lucida Console',
                 fill: '#dddddd',
             }
-        });
-        data.sprite.name.setShadow(2, 2, 'rgba(0,0,0,1', 0);
+        }).setShadow(2, 2, 'rgba(0,0,0,1', 0).setScrollFactor(0);
         data.sprite.on('pointerdown', ()=>{
             data.sprite.setTint(`0xff8888`);
         })
@@ -269,9 +283,40 @@ Tweens {
 
     render(){
         this.showdebug ? this.displaydebug() : null;
+        //local player
+        if (this.cursors.left.isDown){
+            this.player.sprite.flipX = false;
+            if (this.player.facing != 'left'){
+                this.player.sprite.anims.play(`${this.player.class}left`);
+                this.player.facing = 'left';
+            }
+        } else if (this.cursors.right.isDown){
+            this.player.sprite.flipX = true;
+            if (this.player.facing != 'right'){
+                this.player.sprite.anims.play(`${this.player.class}left`);
+                this.player.facing = 'right';
+            }
+        } else if (this.cursors.down.isDown){
+            if (this.player.facing != 'down'){
+                this.player.sprite.anims.play(`${this.player.class}down`);
+                this.player.facing = 'down';
+            }
+        } else if (this.cursors.up.isDown){
+            if (this.player.facing != 'up'){
+                this.player.sprite.anims.play(`${this.player.class}up`);
+                this.player.facing = 'up';
+            }
+        } else {
+            this.player.sprite.anims.stop();
+            this.player.sprite.anims.currentFrame = 0;
+            this.player.facing = 'idle';
+        }
+        //every other player
         const j = this.players.length;
         for (let i=0; i<j; ++i){
             const player = this.players[i];
+            if (player.name == this.player.name)
+                continue;
             if (player.move.left){
                 player.sprite.flipX = false;
                 if (player.facing != 'left'){
@@ -300,36 +345,7 @@ Tweens {
                     player.sprite.anims.stop();
                 }
             }
-            if (player.name === this.player.name){
-                this.tweens.add({
-                    targets: this.cameras.main,
-                    scrollX: Math.floor(player.pos.x),
-                    scrollY: Math.floor(player.pos.y),
-                    duration: 64,
-                    ease: 'Sine.easeIn'
-                });
-            }
-            this.tweens.add({
-                targets: [player.sprite],
-                x: player.pos.x + this.cameras.main.width/2,
-                y: player.pos.y + this.cameras.main.height/2,
-                duration: 30,
-                ease: 'Sine.easeIn'
-            })
-            this.tweens.add({
-                targets: player.sprite.name,
-                x: player.pos.x + this.cameras.main.width/2 - player.sprite.name.width/2,
-                y: player.pos.y + this.cameras.main.height/2 - player.sprite.height*this.scale,
-                duration: 30,
-                ease: 'Sine.easeIn'
-            })
-            this.tweens.add({
-                targets: player.sprite.shadows,
-                x: player.pos.x + this.cameras.main.width/2,
-                y: player.pos.y + this.cameras.main.height/2 + player.sprite.height*this.scale - 4,
-                duration: 32,
-                ease: 'Sine.easeIn'
-            })
+            
             player.sprite.depth = player.pos.y;
         }
     }
@@ -339,15 +355,17 @@ Tweens {
         for (let i=0; i<j; ++i){
             const player = this.players[i];
             const deltaPos = player.speed * 1/delta;
-            if (player.move.left){
-                player.pos.x-= deltaPos;
-            } else if (player.move.right){
-                player.pos.x+= deltaPos;
-            } 
-            if (player.move.up){
-                player.pos.y-= deltaPos;
-            } else if (player.move.down){
-                player.pos.y+= deltaPos;
+            if (this.player.name !== player.name){
+                if (player.move.left){
+                    player.pos.x-= deltaPos;
+                } else if (player.move.right){
+                    player.pos.x+= deltaPos;
+                } 
+                if (player.move.up){
+                    player.pos.y-= deltaPos;
+                } else if (player.move.down){
+                    player.pos.y+= deltaPos;
+                }
             }
             if (player.pos.x < this.mapconstraints().left)
                 player.pos.x = this.mapconstraints().left;
@@ -360,13 +378,9 @@ Tweens {
         }
     }
 
-    update(time, elapsed){
-        this.accumulatedTime += (time - this.lastTime)/1000;
-        while (this.accumulatedTime > this.deltaTime) {
-            this.phys(time);            
-            this.accumulatedTime -= this.deltaTime;
-        }
-        this.render(elapsed);
-        this.lastTime = time;
+    update(time, delta){
+        this.controls.update(delta)
+        this.phys(delta);
+        this.render();
     }
 }

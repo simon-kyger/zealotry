@@ -40,13 +40,18 @@ const move = (socket, data) => {
         player.move.set(data.dir,true);        
     } else {
         player.move.set(data.dir,false);
-        if (!player.move.get('left') && 
-            !player.move.get('right') && 
-            !player.move.get('up') && 
-            !player.move.get('down')){
-            player.move.set('idle');
-        }
     }
+    if (player.move.get("left")){
+        player.pos.set("x", Math.floor(player.pos.get("x")));
+    } else if (player.move.get("right")){
+        player.pos.set("x", Math.floor(player.pos.get("x")));
+    }
+    if (player.move.get("up")){
+        player.pos.set("y", Math.floor(player.pos.get("y")));
+    } else if (player.move.get("down")){
+        player.pos.set("y", Math.floor(player.pos.get("y")));
+    }
+    Server.getIo().emit('move', Server.players);
 }
 
 const tempErrorHandler = error => {

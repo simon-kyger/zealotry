@@ -68,7 +68,7 @@ export function start( callback ) {
     // Start the server
     server.listen(port, () => {
         console.log(`${new Date().toLocaleString()} : Express server listening on - http://${hostname}:${port}`);
-        Game.start();
+        //Game.start();
         callback(server);
     });
 
