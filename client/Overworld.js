@@ -135,36 +135,34 @@ class Overworld extends Phaser.Scene {
             this.players.getChildren().forEach(player=>{
                 if (player.name.text == data.name){ //TO DO THIS IS AWFUL LOL
                     //player.setPosition(data.pos.x+self.cameras.main.width/2, data.pos.y+self.cameras.main.height/2);
-                    this.tweens.add({
-                        targets: player,
-                        x: data.pos.x+self.cameras.main.width/2,
-                        y: data.pos.y+self.cameras.main.height/2,
-                        ease: 'Sine.easeIn',
-                        duration: 1,
-                        onStart: ()=>{
-                            switch (data.dir){
-                                case 'left':
-                                    player.flipX = false;
-                                    player.anims.play(`${player.class}left`);
-                                    break;
-                                case 'right':
-                                    player.flipX = true;
-                                    player.anims.play(`${player.class}left`);
-                                    break;
-                                case 'down':
-                                    player.anims.play(`${player.class}down`);
-                                    break;
-                                case 'up':
-                                    player.anims.play(`${player.class}up`);
-                                    break;
-                                default:
-                                    player.anims.stop();
-                            }
-                        },
-                        onComplete: ()=>{
-                            player.anims.stop();
+                    player.x = data.pos.x + self.cameras.main.width/2;
+                    player.y = data.pos.y + self.cameras.main.height/2;
+                    if (data.dir == 'left'){
+                        player.flipX = false;
+                        if (player.facing != 'left'){
+                            player.play(`${player.class}left`);
+                            player.facing = 'left';
                         }
-                    })
+                    } else if (data.dir == 'right'){
+                        player.flipX = true;
+                        if (player.facing != 'right'){
+                            player.play(`${player.class}left`);
+                            player.facing = 'right';
+                        }
+                    } else if (data.dir == 'down'){
+                        if (player.facing != 'down'){
+                            player.play(`${player.class}down`);
+                            player.facing = 'down';
+                        }
+                    } else if (data.dir == 'up'){
+                        if (player.facing != 'up'){
+                            player.play(`${player.class}up`);
+                            player.facing = 'up';
+                        }
+                    } else if (data.dir == 'idle'){
+                        player.anims.stop();
+                        player.facing = 'idle';
+                    }
                 }
             });
         });
@@ -287,14 +285,6 @@ Tweens {
     }
 
     render(){
-        this.input.keyboard.on('keydown', e=>{
-            
-            if (e.key == 'ArrowLeft'){
-                } else if (e.key == 'ArrowRight'){
-                } else if (e.key == 'ArrowUp'){
-                } else if (e.key == 'ArrowDown'){
-                }
-        })
         this.showdebug ? this.displaydebug() : null;
         //local player
         if (this.cursors.left.isDown){
@@ -324,6 +314,11 @@ Tweens {
                 this.player.facing = 'up';
             }
         } else {
+            socket.emit('move', {dir: 'up', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
+            socket.emit('move', {dir: 'down', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
+            socket.emit('move', {dir: 'left', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
+            socket.emit('move', {dir: 'right', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
+            socket.emit('move', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
             
             this.player.sprite.anims.stop();
             this.player.sprite.anims.currentFrame = 0;

@@ -42,6 +42,10 @@ const move = (socket, data) => {
     } else {
         player.move.set(data.dir,false);
     }
+    if (!player.move.get('up') && !player.move.get('down') && !player.move.get('left') && !player.move.get('right')){
+        player.dir = 'idle';
+    }
+
     player.pos.set("x", data.x);
     player.pos.set("y", data.y);
     socket.broadcast.emit('move', player); // this should be handled better....
