@@ -112,26 +112,6 @@ class Overworld extends Phaser.Scene {
                 socket.emit('move', {dir: 'down', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
             }
         })
-        this.input.on('pointerdown', e=>{
-            //this should be done smarter, maybe a check on e, need to look into phaser docs
-            this.players.getChildren().concat(this.player.sprite).forEach(player=>{
-                this.tweens.add({
-                    targets: [player],
-                    scaleX: this.scale,
-                    scaleY: this.scale,
-                    duration: 500
-                })
-                this.tweens.add({
-                    targets: [player.shadows],
-                    scaleX: this.scale,
-                    scaleY: this.scale,
-                    duration: 500,
-                    x: player.x, 
-                    y: player.y+player.height*(this.scale)
-                })
-                player.clearTint();
-            })
-        })
         socket.on('newplayer', data=>{
             this.createplayer(data);
         })
@@ -267,21 +247,25 @@ class Overworld extends Phaser.Scene {
             }
         }).setShadow(2, 2, 'rgba(0,0,0,1', 0).setScrollFactor(0);
         data.sprite.on('pointerdown', ()=>{
+            const targetted = data.sprite.scaleX == this.scale ? true : false;
+            const scale = targetted ? this.scale+2 : this.scale;
             this.tweens.add({
                 targets: [data.sprite],
-                scaleX: this.scale+2,
-                scaleY: this.scale+2,
-                duration: 500
+                scaleX: scale,
+                scaleY: scale,
+                duration: 500,
+                onComplete: ()=>{
+                    targetted ? data.sprite.setTint(`0xff8888`) : data.sprite.clearTint();
+                }
             })
             this.tweens.add({
                 targets: [data.sprite.shadows],
-                scaleX: this.scale+2,
-                scaleY: this.scale+2,
+                scaleX: scale,
+                scaleY: scale,
                 duration: 500,
                 x: data.sprite.x, 
-                y: data.sprite.y+data.sprite.height*(this.scale+2)
+                y: data.sprite.y+data.sprite.height*(scale)
             })
-            data.sprite.setTint(`0xff8888`);
         })
     }
 
