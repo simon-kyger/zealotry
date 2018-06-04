@@ -112,8 +112,23 @@ class Overworld extends Phaser.Scene {
                 socket.emit('move', {dir: 'down', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
             }
         })
-        this.input.on('pointerdown', ()=>{
-            this.players.getChildren().forEach(player=>{
+        this.input.on('pointerdown', e=>{
+            //this should be done smarter, maybe a check on e, need to look into phaser docs
+            this.players.getChildren().concat(this.player.sprite).forEach(player=>{
+                this.tweens.add({
+                    targets: [player],
+                    scaleX: this.scale,
+                    scaleY: this.scale,
+                    duration: 500
+                })
+                this.tweens.add({
+                    targets: [player.shadows],
+                    scaleX: this.scale,
+                    scaleY: this.scale,
+                    duration: 500,
+                    x: player.x, 
+                    y: player.y+player.height*(this.scale)
+                })
                 player.clearTint();
             })
         })
@@ -241,10 +256,10 @@ class Overworld extends Phaser.Scene {
             data.sprite.speed = data.speed;
         }
         //TO DO, render this shit on top of the main sprite.
-        data.sprite.shadows = this.add.sprite(data.sprite.x, data.sprite.y+data.sprite.height*this.scale-4, 'shadows').setScale(this.scale).setScrollFactor(0);
+        data.sprite.shadows = this.add.sprite(data.sprite.x, data.sprite.y+data.sprite.height*data.sprite.scaleY, 'shadows').setScale(this.scale).setScrollFactor(0);
         data.sprite.name = this.make.text({
-            x: data.sprite.x - data.sprite.width,
-            y: data.sprite.y - data.sprite.height,
+            x: data.sprite.x - (data.sprite.width * data.sprite.scaleX)/2,
+            y: data.sprite.y - data.sprite.height * data.sprite.scaleY,
             text: data.name,
             style: {
                 font: '20px Lucida Console',
@@ -252,6 +267,20 @@ class Overworld extends Phaser.Scene {
             }
         }).setShadow(2, 2, 'rgba(0,0,0,1', 0).setScrollFactor(0);
         data.sprite.on('pointerdown', ()=>{
+            this.tweens.add({
+                targets: [data.sprite],
+                scaleX: this.scale+2,
+                scaleY: this.scale+2,
+                duration: 500
+            })
+            this.tweens.add({
+                targets: [data.sprite.shadows],
+                scaleX: this.scale+2,
+                scaleY: this.scale+2,
+                duration: 500,
+                x: data.sprite.x, 
+                y: data.sprite.y+data.sprite.height*(this.scale+2)
+            })
             data.sprite.setTint(`0xff8888`);
         })
     }
