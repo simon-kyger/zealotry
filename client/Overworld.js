@@ -14,7 +14,7 @@ class Overworld extends Phaser.Scene {
 
     preload(){
         this.loadscreen();
-        this.load.image('backgroundtiles', 'assets/backgroundtiles.png');
+        this.load.image('backgroundtiles', 'assets/backgroundtiles_extruded.png');
         this.load.atlas('players', 'assets/players.png', 'assets/players.json');
         this.load.image('shadows', 'assets/shadows/0.png');
         this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
@@ -162,8 +162,10 @@ class Overworld extends Phaser.Scene {
             });
         });
         //DEBUG TEXT
-        this.debugtext = this.add.text(0, 0, '', { font: '20px Courier', fill: '#ff0000', backgroundColor: 'rgba(0, 0, 0, .6)' }).setDepth(1).setScrollFactor(0);
-
+        if (this.showdebug){ 
+            this.debugtext = this.add.text(0, 0, '', { font: '20px Courier', fill: '#ff0000', backgroundColor: 'rgba(0, 0, 0, .6)' }, this.debuggroup).setDepth(1).setScrollFactor(0);
+            //need to fix position this somehow
+        }
     }
     mp(){
         //TODO
@@ -248,7 +250,7 @@ class Overworld extends Phaser.Scene {
         }).setShadow(2, 2, 'rgba(0,0,0,1', 0).setScrollFactor(0);
         data.sprite.on('pointerdown', ()=>{
             const targetted = data.sprite.scaleX == this.scale ? true : false;
-            const scale = targetted ? this.scale+2 : this.scale;
+            const scale = targetted ? this.scale+4 : this.scale;
             this.tweens.add({
                 targets: [data.sprite],
                 scaleX: scale,
@@ -257,6 +259,11 @@ class Overworld extends Phaser.Scene {
                 onComplete: ()=>{
                     targetted ? data.sprite.setTint(`0xff8888`) : data.sprite.clearTint();
                 }
+            })
+            this.tweens.add({
+                targets: this.cameras.main,
+                zoom: this.scale/scale,
+                duration: 500
             })
             this.tweens.add({
                 targets: [data.sprite.shadows],
