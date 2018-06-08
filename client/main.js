@@ -218,11 +218,11 @@ const createcharacterpage = data => {
 		case 'angel':
 			template = `<div class='charblock'>
 							<button class='btnchar'>Paladin</button>
-							<img src='assets/edgar/0.png' class='imgchar'>
+							<img src='assets/playersprites/edgar/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Zealot</button>
-							<img src='assets/angelshadow/0.png' class='imgchar'>
+							<img src='assets/playersprites/angelshadow/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Seraph</button>
@@ -230,7 +230,7 @@ const createcharacterpage = data => {
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Archangel</button>
-							<img src='assets/terramonster/0.png' class='imgchar'>
+							<img src='assets/playersprites/terramonster/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Spirit</button>
@@ -241,23 +241,23 @@ const createcharacterpage = data => {
 		case 'human':
 			template = `<div class='charblock'>
 							<button class='btnchar'>Warrior</button>
-							<img src='assets/leo/0.png' class='imgchar'>
+							<img src='assets/playersprites/leo/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar' value='Rogues are sickheads'>Rogue</button>
-							<img src='assets/locke/0.png' class='imgchar'>
+							<img src='assets/playersprites/locke/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Bard</button>
-							<img src='assets/relm/0.png' class='imgchar'>
+							<img src='assets/playersprites/relm/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Engineer</button>
-							<img src='assets/setzer/0.png' class='imgchar'>
+							<img src='assets/playersprites/setzer/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Doctor</button>
-							<img src='assets/celes/0.png' class='imgchar'>
+							<img src='assets/playersprites/celes/0.png' class='imgchar'>
 						</div>
 			`
 			break;
@@ -269,7 +269,7 @@ const createcharacterpage = data => {
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Shadow</button>
-							<img src='assets/angelshadow/0.png' class='imgchar'>
+							<img src='undefined' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Banshee</button>
@@ -281,7 +281,7 @@ const createcharacterpage = data => {
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Ghost</button>
-							<img src='assets/ghost/0.png' class='imgchar'>
+							<img src='assets/playersprites/ghost/0.png' class='imgchar'>
 						</div>
 			`
 			break;
