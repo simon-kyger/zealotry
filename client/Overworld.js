@@ -16,7 +16,7 @@ class Overworld extends Phaser.Scene {
         this.loadscreen();
         this.load.image('backgroundtiles', 'assets/backgroundtiles_extruded.png');
         this.load.atlas('players', 'assets/players.png', 'assets/players.json');
-        this.load.image('shadows', 'assets/shadows/0.png');
+        this.load.image('shadows', 'assets/playersprites/shadows/0.png');
         this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
     }
 
@@ -164,14 +164,13 @@ class Overworld extends Phaser.Scene {
         //DEBUG TEXT
         if (this.showdebug){ 
             this.debugtext = this.add.text(0, 0, '', { font: '20px Courier', fill: '#ff0000', backgroundColor: 'rgba(0, 0, 0, .6)' }, this.debuggroup).setDepth(1).setScrollFactor(0);
-            //need to fix position this somehow
         }
     }
     mp(){
         //TODO
         return {
             'Paladin': 'edgar',
-            //'Zealot': ??,
+            'Zealot': 'angelshadow',
             //'Seraph': ??,
             'Archangel': 'terramonster',
             //'Spirit': ??,
@@ -255,10 +254,7 @@ class Overworld extends Phaser.Scene {
                 targets: [data.sprite],
                 scaleX: scale,
                 scaleY: scale,
-                duration: 500,
-                onComplete: ()=>{
-                    targetted ? data.sprite.setTint(`0xff8888`) : data.sprite.clearTint();
-                }
+                duration: 500
             })
             this.tweens.add({
                 targets: this.cameras.main,
@@ -301,7 +297,6 @@ Tweens {
 }
         `;
         this.debugtext.setText(template);
-        this.debugtext.width = 1920/2
     }
 
     render(){
@@ -344,7 +339,6 @@ Tweens {
             this.player.sprite.anims.currentFrame = 0;
             this.player.facing = 'idle';
         }
-        //every other player
     }
 
     update(time, delta){

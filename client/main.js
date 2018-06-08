@@ -222,7 +222,7 @@ const createcharacterpage = data => {
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Zealot</button>
-							<img src='undefined' class='imgchar'>
+							<img src='assets/angelshadow/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Seraph</button>
@@ -269,7 +269,7 @@ const createcharacterpage = data => {
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Shadow</button>
-							<img src='undefined' class='imgchar'>
+							<img src='assets/angelshadow/0.png' class='imgchar'>
 						</div>
 						<div class='charblock'>
 							<button class='btnchar'>Banshee</button>
