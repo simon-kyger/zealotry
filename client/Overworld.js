@@ -5,9 +5,14 @@ class Overworld extends Phaser.Scene {
         this.player = args.player;
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
         this.scale = 4;
-
-        this.delta = null;
         
+        //main loop vars
+        this.fps = 60;
+        this.interval = 1000 / this.fps;
+        this.then = Date.now();
+        this.now;
+        this.delta;
+
         //debug
         this.showdebug = true;
     }
@@ -101,15 +106,12 @@ class Overworld extends Phaser.Scene {
         this.cameras.main.roundPixels = true;
         this.cameras.main.scrollX = this.player.pos.x;
         this.cameras.main.scrollY = this.player.pos.y;
-        this.input.keyboard.on('keyup', e=>{            
-            if (e.key == 'ArrowLeft'){
-                socket.emit('move', {dir: 'left', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            } else if (e.key == 'ArrowRight'){
-                socket.emit('move', {dir: 'right', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            } else if (e.key == 'ArrowUp'){
-                socket.emit('move', {dir: 'up', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            } else if (e.key == 'ArrowDown'){
-                socket.emit('move', {dir: 'down', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
+        this.input.keyboard.on('keyup', e=>{    
+            if (e.keyCode >= 37 && e.keyCode <= 40) {        
+                socket.emit('stop', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
+                this.player.sprite.anims.stop();
+                this.player.sprite.anims.currentFrame = 0;
+                this.player.facing = 'idle';
             }
         })
         socket.on('newplayer', data=>{
@@ -126,7 +128,7 @@ class Overworld extends Phaser.Scene {
             })
         });
         socket.on('move', data=> {
-            const self = this;
+            let self = this;
             this.players.getChildren().forEach(player=>{
                 if (player.name.text == data.name){ //TO DO THIS IS AWFUL LOL
                     //player.setPosition(data.pos.x+self.cameras.main.width/2, data.pos.y+self.cameras.main.height/2);
@@ -154,10 +156,18 @@ class Overworld extends Phaser.Scene {
                             player.play(`${player.class}up`);
                             player.facing = 'up';
                         }
-                    } else if (data.dir == 'idle'){
-                        player.anims.stop();
-                        player.facing = 'idle';
-                    }
+                    } 
+                }
+            });
+        });
+        socket.on('stop', data=> {
+            let self = this;
+            this.players.getChildren().forEach(player=>{
+                if (player.name.text == data.name){ //TO DO THIS IS AWFUL LOL
+                    player.x = data.pos.x + self.cameras.main.width/2;
+                    player.y = data.pos.y + self.cameras.main.height/2;
+                    player.anims.stop();
+                    player.facing = 'idle';
                 }
             });
         });
@@ -328,22 +338,17 @@ Tweens {
                 this.player.sprite.anims.play(`${this.player.class}up`);
                 this.player.facing = 'up';
             }
-        } else {
-            socket.emit('move', {dir: 'up', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            socket.emit('move', {dir: 'down', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            socket.emit('move', {dir: 'left', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            socket.emit('move', {dir: 'right', state: false, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            socket.emit('move', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY});
-            
-            this.player.sprite.anims.stop();
-            this.player.sprite.anims.currentFrame = 0;
-            this.player.facing = 'idle';
         }
     }
+    //game loop
 
-    update(time, delta){
-        this.delta = delta;
-        this.controls.update(delta)
-        this.render();
+    update(time){
+        this.now = Date.now();
+        this.delta = this.now - this.then;
+        if (this.delta > this.interval) {
+            this.then = this.now - (this.delta % this.interval)
+            this.controls.update(this.delta)
+            this.render();
+        }
     }
 }

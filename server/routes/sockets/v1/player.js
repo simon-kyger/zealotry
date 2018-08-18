@@ -12,6 +12,7 @@ export function init(socket) {
     // Clean all this up later
     socket.on('playgame', data => playGame(socket, data));
     socket.on('move', data => move(socket, data));  
+    socket.on('stop', data => stop(socket, data));
 }
 
 export function playGame(socket, data){
@@ -37,18 +38,20 @@ const move = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     player.dir = data.dir;
-    if (data.state){
-        player.move.set(data.dir,true);        
-    } else {
-        player.move.set(data.dir,false);
-    }
-    if (!player.move.get('up') && !player.move.get('down') && !player.move.get('left') && !player.move.get('right')){
-        player.dir = 'idle';
-    }
-
     player.pos.set("x", data.x);
     player.pos.set("y", data.y);
-    socket.broadcast.emit('move', player); // this should be handled better....
+    socket.broadcast.emit('move', player);
+    console.log('move');
+}
+
+const stop = (socket, data) => {
+    let player = Server.findPlayerBySocket(socket) || null;
+    if (!player) return;
+    player.dir = data.dir;
+    player.pos.set("x", data.x);
+    player.pos.set("y", data.y);
+    console.log('stop');
+    socket.broadcast.emit('stop', player);
 }
 
 const tempErrorHandler = error => {
