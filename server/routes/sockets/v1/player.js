@@ -67,11 +67,10 @@ const move = (socket, data) => {
             }
         });
     }
-    
-    console.log('move: ' + messageQueue[player.name].lastMessageId);
 }
 
 const stop = (socket, data) => {
+    console.log('Stop took:', Date.now()-data.time);
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     player.dir = data.dir;
@@ -89,10 +88,7 @@ const stop = (socket, data) => {
                 action(socket, item);
             }
         });
-    }
-
-    console.log('stop: ' + messageQueue[player.name].lastMessageId);
-    
+    }    
 }
 
 const tempErrorHandler = error => {
