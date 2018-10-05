@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io({transports: ['websocket']});
 
 socket.on(`helloworld`, (data)=>{
 	console.log(`we're connected.`);

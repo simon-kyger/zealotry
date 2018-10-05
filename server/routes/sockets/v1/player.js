@@ -70,7 +70,6 @@ const move = (socket, data) => {
 }
 
 const stop = (socket, data) => {
-    console.log('Stop took:', Date.now()-data.time);
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     player.dir = data.dir;

@@ -109,7 +109,7 @@ class Overworld extends Phaser.Scene {
         this.cameras.main.scrollY = this.player.pos.y;
         this.input.keyboard.on('keyup', e=>{    
             if (e.keyCode >= 37 && e.keyCode <= 40) {        
-                socket.emit('stop', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++, time: Date.now()});
+                socket.emit('stop', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
                 this.player.sprite.anims.stop();
                 this.player.sprite.anims.currentFrame = 0;
                 this.player.facing = 'idle';
