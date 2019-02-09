@@ -4,7 +4,7 @@ class Overworld extends Phaser.Scene {
         super({key: "Overworld"});
         this.player = args.player;
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
-        this.gamescale = 3;
+        this.gamescale = 4;
         
         //main loop vars
         this.fps = 60;
@@ -93,7 +93,7 @@ class Overworld extends Phaser.Scene {
         })
 
         //camera
-        //this.cameras.main.setZoom(this.gamescale);
+        this.cameras.main.setZoom(this.gamescale);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.cameras.main.startFollow(this.player.sprite);
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -273,6 +273,7 @@ this.player {
 Camera {
     scrollX: ${this.cameras.main.scrollX}
     scrollY: ${this.cameras.main.scrollY}
+    zoomfactorX: ${this.cameras.main.zoom}
 }
 Tweens {
     active: ${this.tweens._active.length}
@@ -285,6 +286,7 @@ Tweens {
         this.showdebug ? this.displaydebug() : null;
         this.player.sprite.body.setVelocity(0);
         this.controls.update(delta);
+        this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 2, 10))
         if (this.cursors.left.isDown){
             this.player.sprite.body.setVelocityX(-this.player.speed)
             //this.player.pos.x = this.player.sprite.x;

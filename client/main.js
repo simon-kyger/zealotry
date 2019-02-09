@@ -349,7 +349,7 @@ const loadgame = data => {
 	const config = {
 		type: Phaser.WEBGL,
 		scale: {
-			mode: Phaser.Scale.NONE,
+			mode: Phaser.Scale.RESIZE,
 			width: `1920`,
 			height: `1080`,
 		},
