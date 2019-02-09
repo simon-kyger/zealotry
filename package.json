@@ -9,7 +9,7 @@
     "exe": "node ./serverbuild/index.js",
     "prestart": "npm run build",
     "start": "npm run exe",
-    "dbstartwin": "start cmd /K \"mongod --dbpath ./data\"",
+    "dbstartwin": "mongod --dbpath ./data",
     "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev",
     "startallwin": "npm run dbstartwin & npm run dev",
     "test": "mocha --compilers js:babel-register --require babel-polyfill --recursive",

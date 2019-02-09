@@ -348,12 +348,19 @@ socket.on('playgame', data=>{
 const loadgame = data => {
 	const config = {
 		type: Phaser.WEBGL,
-		width: 1920,
-		height: 950,
+		scale: {
+			mode: Phaser.Scale.RESIZE,
+			width: `100%`,
+			height: `100%`,
+			zoom: 100,
+		},
 		physics: {
 			default: 'arcade',
+			debug: true,
 		},
-		pixelArt: true,
+		render:{
+			pixelArt: true
+		},
 		scene: [new Overworld(data)],
 	}
 	const game = new Phaser.Game(config);

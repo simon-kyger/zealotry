@@ -4,7 +4,7 @@ class Overworld extends Phaser.Scene {
         super({key: "Overworld"});
         this.player = args.player;
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
-        this.scale = 4;
+        this.gamescale = 3;
         
         //main loop vars
         this.fps = 60;
@@ -16,14 +16,6 @@ class Overworld extends Phaser.Scene {
 
         //debug
         this.showdebug = true;
-    }
-
-    preload(){
-        this.loadscreen();
-        this.load.image('backgroundtiles', 'assets/backgroundtiles_extruded.png');
-        this.load.atlas('players', 'assets/players.png', 'assets/players.json');
-        this.load.image('shadows', 'assets/playersprites/shadows/0.png');
-        this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
     }
 
     loadscreen(){
@@ -77,15 +69,23 @@ class Overworld extends Phaser.Scene {
         });
     }
 
+    preload(){
+        this.loadscreen();
+        this.load.image('backgroundtiles', 'assets/backgroundtiles_extruded.png');
+        this.load.atlas('players', 'assets/players.png', 'assets/players.json');
+        this.load.image('shadows', 'assets/playersprites/shadows/0.png');
+        this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
+    }
+
     create(){
         this.createanims();
         this.players = this.physics.add.group();
         //map data
         this.map = this.make.tilemap({key: 'map'});
         this.tileset = this.map.addTilesetImage('backgroundtiles');
-        this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0).setScale(this.scale);
-        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0).setScale(this.scale);
-        this.layer3 = this.map.createStaticLayer('Tile Layer 3', this.tileset, 0, 0).setScale(this.scale);
+        this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0)
+        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0)
+        this.layer3 = this.map.createStaticLayer('Tile Layer 3', this.tileset, 0, 0)
         
         this.createplayer(this.player);
         this.initialplayers.forEach(player=>{
@@ -93,6 +93,9 @@ class Overworld extends Phaser.Scene {
         })
 
         //camera
+        //this.cameras.main.setZoom(this.gamescale);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+        this.cameras.main.startFollow(this.player.sprite);
         this.cursors = this.input.keyboard.createCursorKeys();
         this.controlConfig = {
             camera: this.cameras.main,
@@ -100,13 +103,11 @@ class Overworld extends Phaser.Scene {
             right: this.cursors.right,
             up: this.cursors.up,
             down: this.cursors.down,
-            speed: this.player.speed
+            speed: this.player.speed,
+            zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+            zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
         }
-        this.controls = new Phaser.Cameras.Controls.FixedKeyControl(this.controlConfig);
-        this.cameras.main.setBounds(0, 0, this.map.widthInPixels*this.scale, this.map.heightInPixels*this.scale);
-        this.cameras.main.roundPixels = true;
-        this.cameras.main.scrollX = this.player.pos.x;
-        this.cameras.main.scrollY = this.player.pos.y;
+        this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.controlConfig);
         this.input.keyboard.on('keyup', e=>{    
             if (e.keyCode >= 37 && e.keyCode <= 40) {        
                 socket.emit('stop', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++, time: Date.now()});
@@ -174,7 +175,11 @@ class Overworld extends Phaser.Scene {
         });
         //DEBUG TEXT
         if (this.showdebug){ 
-            this.debugtext = this.add.text(0, 0, '', { font: '20px Courier', fill: '#ff0000', backgroundColor: 'rgba(0, 0, 0, .6)' }, this.debuggroup).setDepth(1).setScrollFactor(0);
+            this.debugtext = this.add.text(0, 0, '', { 
+                font: '20px Courier', 
+                fill: '#ff0000', 
+                backgroundColor: 'rgba(0, 0, 0, .6)' }, 
+                this.debuggroup).setDepth(1).setScrollFactor(0);
         }
     }
     mp(){
@@ -235,7 +240,7 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.add.sprite(data.pos.x+this.cameras.main.width/2, data.pos.y+this.cameras.main.height/2, 'players', `${this.mp()[data.class]}/0`).setInteractive().setScale(this.scale);
+        data.sprite = this.physics.add.sprite(data.pos.x+this.cameras.main.width/2, data.pos.y+this.cameras.main.height/2, 'players', `${this.mp()[data.class]}/0`).setInteractive();
         if (data.name === this.player.name){
             this.player.sprite = data.sprite;
             this.player.sprite.x = this.cameras.main.width/2;
@@ -247,48 +252,14 @@ class Overworld extends Phaser.Scene {
             data.sprite.class = data.class;
             data.sprite.speed = data.speed;
         }
-        //TO DO, render this shit on top of the main sprite.
-        data.sprite.shadows = this.add.sprite(data.sprite.x, data.sprite.y+data.sprite.height*data.sprite.scaleY, 'shadows').setScale(this.scale).setScrollFactor(0);
-        data.sprite.name = this.make.text({
-            x: data.sprite.x - (data.sprite.width * data.sprite.scaleX)/2,
-            y: data.sprite.y - data.sprite.height * data.sprite.scaleY,
-            text: data.name,
-            style: {
-                font: '20px Lucida Console',
-                fill: '#dddddd',
-            }
-        }).setShadow(2, 2, 'rgba(0,0,0,1', 0).setScrollFactor(0);
-        data.sprite.on('pointerdown', ()=>{
-            const targetted = data.sprite.scaleX == this.scale ? true : false;
-            const scale = targetted ? this.scale+4 : this.scale;
-            this.tweens.add({
-                targets: [data.sprite],
-                scaleX: scale,
-                scaleY: scale,
-                duration: 500
-            })
-            this.tweens.add({
-                targets: this.cameras.main,
-                zoom: this.scale/scale,
-                duration: 500
-            })
-            this.tweens.add({
-                targets: [data.sprite.shadows],
-                scaleX: scale,
-                scaleY: scale,
-                duration: 500,
-                x: data.sprite.x, 
-                y: data.sprite.y+data.sprite.height*(scale)
-            })
-        })
     }
 
     mapconstraints() {
         return {
             left: 0,
-            right: this.map.widthInPixels*this.scale -this.cameras.main.width,
+            right: this.map.widthInPixels*this.gamescale -this.cameras.main.width,
             top: 0,
-            bottom: this.map.heightInPixels*this.scale -this.cameras.main.height
+            bottom: this.map.heightInPixels*this.gamescale -this.cameras.main.height
         }
     }
 
@@ -310,46 +281,45 @@ Tweens {
         this.debugtext.setText(template);
     }
 
-    render(){
+    update(time, delta){
         this.showdebug ? this.displaydebug() : null;
-        //local player
+        this.player.sprite.body.setVelocity(0);
+        this.controls.update(delta);
         if (this.cursors.left.isDown){
+            this.player.sprite.body.setVelocityX(-64)
+            this.player.pos.x = this.player.sprite.x;
             socket.emit('move', {dir: 'left', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
-            this.player.sprite.flipX = false;
-            if (this.player.facing != 'left'){
-                this.player.sprite.anims.play(`${this.player.class}left`);
-                this.player.facing = 'left';
-            }
         } else if (this.cursors.right.isDown){
+            this.player.sprite.body.setVelocityX(64)
+            this.player.pos.x = this.player.sprite.x;
             socket.emit('move', {dir: 'right', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
-            this.player.sprite.flipX = true;
-            if (this.player.facing != 'right'){
-                this.player.sprite.anims.play(`${this.player.class}left`);
-                this.player.facing = 'right';
-            }
-        } else if (this.cursors.down.isDown){
-            socket.emit('move', {dir: 'down', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
-            if (this.player.facing != 'down'){
-                this.player.sprite.anims.play(`${this.player.class}down`);
-                this.player.facing = 'down';
-            }
-        } else if (this.cursors.up.isDown){
-            socket.emit('move', {dir: 'up', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
-            if (this.player.facing != 'up'){
-                this.player.sprite.anims.play(`${this.player.class}up`);
-                this.player.facing = 'up';
-            }
         }
-    }
-    //game loop
-
-    update(time){
-        this.now = Date.now();
-        this.delta = this.now - this.then;
-        if (this.delta > this.interval) {
-            this.then = this.now - (this.delta % this.interval)
-            this.controls.update(this.delta)
-            this.render();
+        if (this.cursors.down.isDown){
+            this.player.sprite.body.setVelocityY(64)
+            this.player.pos.y = this.player.sprite.y;
+            socket.emit('move', {dir: 'down', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
+        } else if (this.cursors.up.isDown){
+            this.player.sprite.body.setVelocityY(-64)
+            this.player.pos.y = this.player.sprite.y;
+            socket.emit('move', {dir: 'up', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
+        }
+        //update animations
+        if (this.cursors.left.isDown){
+            this.player.sprite.flipX = false;
+            this.player.sprite.anims.play(`${this.player.class}left`);
+            this.player.facing = 'left';
+        } else if (this.cursors.right.isDown){
+            this.player.sprite.flipX = true;
+            this.player.sprite.anims.play(`${this.player.class}left`);
+            this.player.facing = 'right';
+        } else if (this.cursors.down.isDown){
+            this.player.sprite.anims.play(`${this.player.class}down`);
+            this.player.facing = 'down';
+        } else if (this.cursors.up.isDown){
+            this.player.sprite.anims.play(`${this.player.class}up`);
+            this.player.facing = 'up';
+        } else {
+            this.player.sprite.anims.stop();
         }
     }
 }

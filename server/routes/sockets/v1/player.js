@@ -55,7 +55,7 @@ const move = (socket, data) => {
     player.pos.set("x", data.x);
     player.pos.set("y", data.y);
     if (messageQueue[player.name].lastMessageId == data.messageId - 1) {
-        socket.broadcast.emit('move', player);
+        SocketsV1.emit('move', player);
         messageQueue[player.name].lastMessageId++;
     } else {
         data.action = 'move';
@@ -70,14 +70,13 @@ const move = (socket, data) => {
 }
 
 const stop = (socket, data) => {
-    console.log('Stop took:', Date.now()-data.time);
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     player.dir = data.dir;
     player.pos.set("x", data.x);
     player.pos.set("y", data.y);
     if (messageQueue[player.name].lastMessageId == data.messageId - 1) {
-        socket.broadcast.emit('stop', player);
+        SocketsV1.emit('stop', player);
         messageQueue[player.name].lastMessageId++;
     } else {
         data.action = 'stop';
