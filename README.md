@@ -1,4 +1,5 @@
 # zealotry
+* Currently using Phaser 3 version 3.16.1
 ## Windows Install/Setup Guide
 1. install node
 2. install mongodb

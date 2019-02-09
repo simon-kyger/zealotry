@@ -273,7 +273,7 @@ this.player {
 Camera {
     scrollX: ${this.cameras.main.scrollX}
     scrollY: ${this.cameras.main.scrollY}
-    zoomfactorX: ${this.cameras.main.zoom}
+    zoom: ${this.cameras.main.zoom}
 }
 Tweens {
     active: ${this.tweens._active.length}
