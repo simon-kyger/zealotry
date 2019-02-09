@@ -349,10 +349,9 @@ const loadgame = data => {
 	const config = {
 		type: Phaser.WEBGL,
 		scale: {
-			mode: Phaser.Scale.RESIZE,
-			width: `100%`,
-			height: `100%`,
-			zoom: 100,
+			mode: Phaser.Scale.NONE,
+			width: `1920`,
+			height: `1080`,
 		},
 		physics: {
 			default: 'arcade',

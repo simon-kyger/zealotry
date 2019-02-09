@@ -180,6 +180,7 @@ class Overworld extends Phaser.Scene {
                 fill: '#ff0000', 
                 backgroundColor: 'rgba(0, 0, 0, .6)' }, 
                 this.debuggroup).setDepth(1).setScrollFactor(0);
+            this.debugtext.fixedToCamera = true;
         }
     }
     mp(){
@@ -245,7 +246,6 @@ class Overworld extends Phaser.Scene {
             this.player.sprite = data.sprite;
             this.player.sprite.x = this.cameras.main.width/2;
             this.player.sprite.y = this.cameras.main.height/2;
-            this.player.sprite.setScrollFactor(0);
             this.player.sprite.fixedToCamera = true;
         } else {
             this.players.add(data.sprite);
@@ -266,9 +266,9 @@ class Overworld extends Phaser.Scene {
     displaydebug() {
         let template = `
 ----------------------------DEBUG-----------------------------
-this.players[0] {
-    x: ${this.players.getChildren()[0] ? this.players.getChildren()[0].x : null}  
-    y: ${this.players.getChildren()[0] ? this.players.getChildren()[0].y : null}  
+this.player {
+    x: ${this.player.sprite.x ? this.player.sprite.x : null}  
+    y: ${this.player.sprite.y ? this.player.sprite.y : null}  
 }
 Camera {
     scrollX: ${this.cameras.main.scrollX}
@@ -286,40 +286,46 @@ Tweens {
         this.player.sprite.body.setVelocity(0);
         this.controls.update(delta);
         if (this.cursors.left.isDown){
-            this.player.sprite.body.setVelocityX(-64)
-            this.player.pos.x = this.player.sprite.x;
+            this.player.sprite.body.setVelocityX(-this.player.speed)
+            //this.player.pos.x = this.player.sprite.x;
             socket.emit('move', {dir: 'left', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
         } else if (this.cursors.right.isDown){
-            this.player.sprite.body.setVelocityX(64)
-            this.player.pos.x = this.player.sprite.x;
+            this.player.sprite.body.setVelocityX(this.player.speed)
+            //this.player.pos.x = this.player.sprite.x;
             socket.emit('move', {dir: 'right', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
         }
         if (this.cursors.down.isDown){
-            this.player.sprite.body.setVelocityY(64)
-            this.player.pos.y = this.player.sprite.y;
+            this.player.sprite.body.setVelocityY(this.player.speed)
+            //this.player.pos.y = this.player.sprite.y;
             socket.emit('move', {dir: 'down', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
         } else if (this.cursors.up.isDown){
-            this.player.sprite.body.setVelocityY(-64)
-            this.player.pos.y = this.player.sprite.y;
+            this.player.sprite.body.setVelocityY(-this.player.speed)
+            //this.player.pos.y = this.player.sprite.y;
             socket.emit('move', {dir: 'up', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
         }
         //update animations
         if (this.cursors.left.isDown){
-            this.player.sprite.flipX = false;
-            this.player.sprite.anims.play(`${this.player.class}left`);
-            this.player.facing = 'left';
+            this.player.sprite.flipX = false;            
+            if (this.player.facing != `left`){
+                this.player.sprite.anims.play(`${this.player.class}left`);
+                this.player.facing = 'left';
+            }
         } else if (this.cursors.right.isDown){
-            this.player.sprite.flipX = true;
-            this.player.sprite.anims.play(`${this.player.class}left`);
-            this.player.facing = 'right';
+            if (this.player.facing != `right`){
+                this.player.sprite.flipX = true;
+                this.player.sprite.anims.play(`${this.player.class}left`);
+                this.player.facing = 'right';
+            }
         } else if (this.cursors.down.isDown){
-            this.player.sprite.anims.play(`${this.player.class}down`);
-            this.player.facing = 'down';
+            if (this.player.facing != `down`){
+                this.player.sprite.anims.play(`${this.player.class}down`);
+                this.player.facing = 'down';
+            }
         } else if (this.cursors.up.isDown){
-            this.player.sprite.anims.play(`${this.player.class}up`);
-            this.player.facing = 'up';
-        } else {
-            this.player.sprite.anims.stop();
-        }
+            if (this.player.facing != `up`){
+                this.player.sprite.anims.play(`${this.player.class}up`);
+                this.player.facing = 'up';
+            }
+        } 
     }
 }
