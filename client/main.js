@@ -360,7 +360,10 @@ const loadgame = data => {
 		render:{
 			pixelArt: true
 		},
-		scene: [new Overworld(data)],
+		scene: [
+			new Overworld(data),
+			new Debugscene(data)
+		]
 	}
 	const game = new Phaser.Game(config);
 }

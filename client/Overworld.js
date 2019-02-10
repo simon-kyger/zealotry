@@ -1,7 +1,7 @@
 class Overworld extends Phaser.Scene {
     constructor(args){
         //setup and variable initializations
-        super({key: "Overworld"});
+        super({key: "Overworld", active: true});
         this.player = args.player;
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
         this.gamescale = 4;
@@ -78,6 +78,7 @@ class Overworld extends Phaser.Scene {
     }
 
     create(){
+        this.scene.launch('UI')
         this.createanims();
         this.players = this.physics.add.group();
         //map data
@@ -170,15 +171,6 @@ class Overworld extends Phaser.Scene {
                 }
             });
         });
-        //DEBUG TEXT
-        if (this.showdebug){ 
-            this.debugtext = this.add.text(0, 0, '', { 
-                font: '20px Courier', 
-                fill: '#ff0000', 
-                backgroundColor: 'rgba(0, 0, 0, .6)' }, 
-                this.debuggroup).setDepth(1).setScrollFactor(0);
-            this.debugtext.fixedToCamera = true;
-        }
     }
     mp(){
         //TODO
@@ -261,27 +253,11 @@ class Overworld extends Phaser.Scene {
         }
     }
 
-    displaydebug() {
-        let template = `
-----------------------------DEBUG-----------------------------
-this.player {
-    x: ${this.player.sprite.x ? this.player.sprite.x : null}  
-    y: ${this.player.sprite.y ? this.player.sprite.y : null}  
-}
-Camera {
-    scrollX: ${this.cameras.main.scrollX}
-    scrollY: ${this.cameras.main.scrollY}
-    zoom: ${this.cameras.main.zoom}
-}
-Tweens {
-    active: ${this.tweens._active.length}
-}
-        `;
-        this.debugtext.setText(template);
-    }
-
     update(time, delta){
-        this.showdebug ? this.displaydebug() : null;
+        this.events.emit('debug', {
+            player: this.player,
+            cameras: this.cameras,
+        })
         this.player.sprite.body.setVelocity(0);
         this.controls.update(delta);
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 2, 10))
@@ -327,5 +303,42 @@ Tweens {
                 this.player.facing = 'up';
             }
         } 
+    }
+}
+
+class Debugscene extends Phaser.Scene {
+    constructor(args){
+        //setup and variable initializations
+        super({key: "Debugscene", active: true});
+    }
+    createdebug(){
+        this.debugtext = this.add.text(0, 0, '', { 
+            font: '20px Monospace', 
+            fill: '#ff0000', 
+            backgroundColor: 'rgba(0, 0, 0, .6)' 
+        },this.debuggroup).setDepth(1).setScrollFactor(0);
+        this.debugtext.fixedToCamera = true;
+    }
+    drawdebug(data){
+        const template = `
+----------------------------DEBUG-----------------------------
+CURRENT CONTROLS: UP DOWN LEFT RIGHT ARROWS, Q/E == ZOOM
+this.player {
+    x: ${data.player.sprite.x ? data.player.sprite.x : null}  
+    y: ${data.player.sprite.y ? data.player.sprite.y : null}  
+}
+Camera {
+    scrollX: ${data.cameras.main.scrollX}
+    scrollY: ${data.cameras.main.scrollY}
+    zoom: ${data.cameras.main.zoom}
+}`;
+        this.debugtext.setText(template);
+    }
+    create(){
+        this.createdebug();
+        const overworld = this.scene.get('Overworld');
+        overworld.events.on('debug', data=>{
+            this.drawdebug(data);
+        })
     }
 }
