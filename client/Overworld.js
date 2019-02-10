@@ -121,10 +121,7 @@ class Overworld extends Phaser.Scene {
         })
         socket.on('removeplayer', data=>{
             this.players.getChildren().forEach((player, i)=>{
-                if(player.name == data.name){
-                    player.sprite.destroy();
-                    player.sprite.shadows.destroy();
-                    player.sprite.name.destroy();
+                if(player._id == data._id){
                     player.destroy();
                 }
             })
@@ -132,7 +129,7 @@ class Overworld extends Phaser.Scene {
         socket.on('move', data=> {
             let self = this;
             this.players.getChildren().forEach(player=>{
-                if (player.name.text == data.name){ //TO DO THIS IS AWFUL LOL
+                if (player._id == data._id){
                     //player.setPosition(data.pos.x+self.cameras.main.width/2, data.pos.y+self.cameras.main.height/2);
                     player.x = data.pos.x + self.cameras.main.width/2;
                     player.y = data.pos.y + self.cameras.main.height/2;
@@ -163,12 +160,12 @@ class Overworld extends Phaser.Scene {
             });
         });
         socket.on('stop', data=> {
-            let self = this;
             this.players.getChildren().forEach(player=>{
-                if (player.name.text == data.name){ //TO DO THIS IS AWFUL LOL
-                    player.x = data.pos.x + self.cameras.main.width/2;
-                    player.y = data.pos.y + self.cameras.main.height/2;
+                if (player._id == data._id){
+                    player.x = data.pos.x + this.cameras.main.width/2;
+                    player.y = data.pos.y + this.cameras.main.height/2;
                     player.anims.stop();
+                    console.log('stopping char');
                     player.facing = 'idle';
                 }
             });
@@ -242,13 +239,14 @@ class Overworld extends Phaser.Scene {
     }
     createplayer(data){
         data.sprite = this.physics.add.sprite(data.pos.x+this.cameras.main.width/2, data.pos.y+this.cameras.main.height/2, 'players', `${this.mp()[data.class]}/0`).setInteractive();
-        if (data.name === this.player.name){
+        if (data._id === this.player._id){
             this.player.sprite = data.sprite;
             this.player.sprite.x = this.cameras.main.width/2;
             this.player.sprite.y = this.cameras.main.height/2;
             this.player.sprite.fixedToCamera = true;
         } else {
             this.players.add(data.sprite);
+            data.sprite._id = data._id;
             data.sprite.class = data.class;
             data.sprite.speed = data.speed;
         }
