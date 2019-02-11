@@ -7,11 +7,9 @@ class Overworld extends Phaser.Scene {
         this.gamescale = 4;
         
         //main loop vars
+        this.lag = 0;
         this.fps = 60;
-        this.interval = 1000 / this.fps;
-        this.then = Date.now();
-        this.now;
-        this.delta;
+        this.physicsstep = 1000 / this.fps;
         this.messageId = 0;
 
         //debug
@@ -253,32 +251,30 @@ class Overworld extends Phaser.Scene {
         }
     }
 
-    update(time, delta){
-        this.events.emit('debug', {
-            player: this.player,
-            cameras: this.cameras,
-        })
+    phys(delta){
         this.player.sprite.body.setVelocity(0);
         this.controls.update(delta);
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 2, 10))
         if (this.cursors.left.isDown){
             this.player.sprite.body.setVelocityX(-this.player.speed)
-            //this.player.pos.x = this.player.sprite.x;
-            socket.emit('move', {dir: 'left', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
+            this.player.dir = 'left'
         } else if (this.cursors.right.isDown){
             this.player.sprite.body.setVelocityX(this.player.speed)
             //this.player.pos.x = this.player.sprite.x;
-            socket.emit('move', {dir: 'right', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
+            this.player.dir = 'right'
         }
         if (this.cursors.down.isDown){
             this.player.sprite.body.setVelocityY(this.player.speed)
             //this.player.pos.y = this.player.sprite.y;
-            socket.emit('move', {dir: 'down', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
+            this.player.dir = 'down'
         } else if (this.cursors.up.isDown){
             this.player.sprite.body.setVelocityY(-this.player.speed)
             //this.player.pos.y = this.player.sprite.y;
-            socket.emit('move', {dir: 'up', state: true, x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
+            this.player.dir = 'up'
         }
+    }
+
+    renderplayer(){
         //update animations
         if (this.cursors.left.isDown){
             this.player.sprite.flipX = false;            
@@ -302,6 +298,40 @@ class Overworld extends Phaser.Scene {
                 this.player.sprite.anims.play(`${this.player.class}up`);
                 this.player.facing = 'up';
             }
-        } 
+        }
+    }
+
+    renderdebug(){
+        this.events.emit('debug', {
+            player: this.player,
+            cameras: this.cameras,
+        })
+    }
+
+    render(){
+        this.renderdebug();
+        this.renderplayer(); 
+    }
+
+    net(){
+        if (this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.down.isDown || this.cursors.up.isDown){
+            socket.emit('move', {
+                dir: this.player.dir, 
+                state: true, 
+                x: this.cameras.main.scrollX, 
+                y: this.cameras.main.scrollY, 
+                messageId: this.messageId++
+            });
+        }
+    }
+
+    update(time, delta){
+        this.lag+=delta;
+        while (this.lag >= this.physicsstep){
+            this.phys(this.physicsstep)
+            this.lag -= this.physicsstep;
+        }
+        this.render();
+        this.net();
     }
 }
