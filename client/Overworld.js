@@ -71,7 +71,6 @@ class Overworld extends Phaser.Scene {
         this.loadscreen();
         this.load.image('backgroundtiles', 'assets/backgroundtiles_extruded.png');
         this.load.atlas('players', 'assets/players.png', 'assets/players.json');
-        this.load.image('shadows', 'assets/playersprites/shadows/0.png');
         this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
     }
 
@@ -307,10 +306,17 @@ class Overworld extends Phaser.Scene {
             cameras: this.cameras,
         })
     }
+    renderui(){
+        this.events.emit('updatehp', {
+            currenthp: this.player.currenthp,
+            maxhp: this.player.maxhp
+        })
+    }
 
     render(){
         this.renderdebug();
-        this.renderplayer(); 
+        this.renderplayer();
+        this.renderui();
     }
 
     net(){

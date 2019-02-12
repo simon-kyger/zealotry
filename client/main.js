@@ -362,7 +362,8 @@ const loadgame = data => {
 		},
 		scene: [
 			new Overworld(data),
-			new Debugscene(data)
+			new Debug_Scene(data),
+			new Player_Resources_Scene
 		]
 	}
 	const game = new Phaser.Game(config);

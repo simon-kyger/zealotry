@@ -27,6 +27,12 @@ try {
         dir: {
             type: String
         },
+        currenthp: {
+            type: Number
+        },
+        maxhp: {
+            type: Number
+        },
         speed: {
             type: Number
         },
