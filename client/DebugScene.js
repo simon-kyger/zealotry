@@ -12,17 +12,19 @@ class Debugscene extends Phaser.Scene {
         this.debugtext.fixedToCamera = true;
     }
     drawdebug(data){
+        let p = data && data.player && data.player.sprite //evalutes to the first undefined bullshit then stops without going further
+        let c = data && data.cameras && data.cameras.main
         const template = `
 ----------------------------DEBUG-----------------------------
-CURRENT CONTROLS: UP DOWN LEFT RIGHT ARROWS, Q/E == ZOOM
+CURRENT CONTROLS: WASD MOVEMENT, Q/E == ZOOM
 this.player {
-    x: ${data.player.sprite.x ? data.player.sprite.x : null}  
-    y: ${data.player.sprite.y ? data.player.sprite.y : null}  
+    x: ${p.x}  
+    y: ${p.y}  
 }
 Camera {
-    scrollX: ${data.cameras.main.scrollX}
-    scrollY: ${data.cameras.main.scrollY}
-    zoom: ${data.cameras.main.zoom}
+    scrollX: ${c.scrollX}
+    scrollY: ${c.scrollY}
+    zoom: ${c.zoom}
 }`;
         this.debugtext.setText(template);
     }

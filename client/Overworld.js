@@ -7,7 +7,7 @@ class Overworld extends Phaser.Scene {
         this.gamescale = 4;
         
         //main loop vars
-        this.lag = 0;
+        this.accumulator = 0;
         this.fps = 60;
         this.physicsstep = 1000 / this.fps;
         this.messageId = 0;
@@ -95,20 +95,20 @@ class Overworld extends Phaser.Scene {
         this.cameras.main.setZoom(this.gamescale);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.cameras.main.startFollow(this.player.sprite);
-        this.cursors = this.input.keyboard.createCursorKeys();
         this.controlConfig = {
             camera: this.cameras.main,
-            left: this.cursors.left,
-            right: this.cursors.right,
-            up: this.cursors.up,
-            down: this.cursors.down,
+            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
             speed: this.player.speed,
             zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
             zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
+            zoomSpeed: 0.2,
         }
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.controlConfig);
         this.input.keyboard.on('keyup', e=>{    
-            if (e.keyCode >= 37 && e.keyCode <= 40) {        
+            if ([65, 87, 83, 68].includes(e.keyCode)) {        
                 socket.emit('stop', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
                 this.player.sprite.anims.stop();
                 this.player.sprite.anims.currentFrame = 0;
@@ -255,19 +255,19 @@ class Overworld extends Phaser.Scene {
         this.player.sprite.body.setVelocity(0);
         this.controls.update(delta);
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 2, 10))
-        if (this.cursors.left.isDown){
+        if (this.controls.left.isDown){
             this.player.sprite.body.setVelocityX(-this.player.speed)
             this.player.dir = 'left'
-        } else if (this.cursors.right.isDown){
+        } else if (this.controls.right.isDown){
             this.player.sprite.body.setVelocityX(this.player.speed)
             //this.player.pos.x = this.player.sprite.x;
             this.player.dir = 'right'
         }
-        if (this.cursors.down.isDown){
+        if (this.controls.down.isDown){
             this.player.sprite.body.setVelocityY(this.player.speed)
             //this.player.pos.y = this.player.sprite.y;
             this.player.dir = 'down'
-        } else if (this.cursors.up.isDown){
+        } else if (this.controls.up.isDown){
             this.player.sprite.body.setVelocityY(-this.player.speed)
             //this.player.pos.y = this.player.sprite.y;
             this.player.dir = 'up'
@@ -276,24 +276,24 @@ class Overworld extends Phaser.Scene {
 
     renderplayer(){
         //update animations
-        if (this.cursors.left.isDown){
+        if (this.controls.left.isDown){
             this.player.sprite.flipX = false;            
             if (this.player.facing != `left`){
                 this.player.sprite.anims.play(`${this.player.class}left`);
                 this.player.facing = 'left';
             }
-        } else if (this.cursors.right.isDown){
+        } else if (this.controls.right.isDown){
             if (this.player.facing != `right`){
                 this.player.sprite.flipX = true;
                 this.player.sprite.anims.play(`${this.player.class}left`);
                 this.player.facing = 'right';
             }
-        } else if (this.cursors.down.isDown){
+        } else if (this.controls.down.isDown){
             if (this.player.facing != `down`){
                 this.player.sprite.anims.play(`${this.player.class}down`);
                 this.player.facing = 'down';
             }
-        } else if (this.cursors.up.isDown){
+        } else if (this.controls.up.isDown){
             if (this.player.facing != `up`){
                 this.player.sprite.anims.play(`${this.player.class}up`);
                 this.player.facing = 'up';
@@ -314,7 +314,7 @@ class Overworld extends Phaser.Scene {
     }
 
     net(){
-        if (this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.down.isDown || this.cursors.up.isDown){
+        if (this.controls.left.isDown || this.controls.right.isDown || this.controls.down.isDown || this.controls.up.isDown){
             socket.emit('move', {
                 dir: this.player.dir, 
                 state: true, 
@@ -326,10 +326,10 @@ class Overworld extends Phaser.Scene {
     }
 
     update(time, delta){
-        this.lag+=delta;
-        while (this.lag >= this.physicsstep){
+        this.accumulator+=delta;
+        while (this.accumulator >= this.physicsstep){
+            this.accumulator -= this.physicsstep;
             this.phys(this.physicsstep)
-            this.lag -= this.physicsstep;
         }
         this.render();
         this.net();
