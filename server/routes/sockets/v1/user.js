@@ -116,15 +116,20 @@ function createCharacter(socket, data) {
         character.speed = 100;
         character.currenthp = 100;
         character.maxhp = 100;
+        character.currentend = 100;
+        character.maxend = 100;
+        character.currentmana = 100;
+        character.maxmana = 100;
+        
 		switch(user.realm){
             case 'angel':
-                character.pos = { x: 16000*4 -1920, y: 16000*4 -950};
+                character.pos = { x: 15600, y: 15800};
                 break;
             case 'human':
-                character.pos = { x : 0, y : 0 };
+                character.pos = { x : 480, y : 275 };
                 break;
             case 'demon':
-                character.pos = { x: 16000*4 -1920, y: 0};
+                character.pos = { x: 15600, y: 275 };
                 break;    
         }
         character.user_id = user._id;

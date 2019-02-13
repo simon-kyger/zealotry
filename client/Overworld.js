@@ -227,11 +227,9 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.physics.add.sprite(data.pos.x+this.cameras.main.width/2, data.pos.y+this.cameras.main.height/2, 'players', `${this.mp()[data.class]}/0`).setInteractive();
+        data.sprite = this.physics.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive();
         if (data._id === this.player._id){
             this.player.sprite = data.sprite;
-            this.player.sprite.x = this.cameras.main.width/2;
-            this.player.sprite.y = this.cameras.main.height/2;
             this.player.sprite.fixedToCamera = true;
         } else {
             this.players.add(data.sprite);
@@ -307,9 +305,13 @@ class Overworld extends Phaser.Scene {
         })
     }
     renderui(){
-        this.events.emit('updatehp', {
+        this.events.emit('updateresources', {
             currenthp: this.player.currenthp,
-            maxhp: this.player.maxhp
+            maxhp: this.player.maxhp,
+            currentend: this.player.currentend,
+            maxend: this.player.maxend,
+            currentmana: this.player.currentmana,
+            maxmana: this.player.maxmana
         })
     }
 

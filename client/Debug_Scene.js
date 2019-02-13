@@ -3,7 +3,7 @@ class Debug_Scene extends Phaser.Scene {
         //setup and variable initializations
         super({key: "Debug_Scene", active: true});
     }
-    createdebug(){
+    creategraphic(){
         this.debugtext = this.add.text(0, 0, '', { 
             font: '20px Monospace', 
             fill: '#ff0000', 
@@ -29,7 +29,7 @@ Camera {
         this.debugtext.setText(template);
     }
     create(){
-        this.createdebug();
+        this.creategraphic();
         this.scene.get('Overworld').events.on('debug', data=>{
             this.drawdebug(data);
         })

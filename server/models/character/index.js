@@ -33,6 +33,18 @@ try {
         maxhp: {
             type: Number
         },
+        currentend: {
+            type: Number
+        },
+        maxend: {
+            type: Number
+        },
+        currentmana: {
+            type: Number
+        },
+        maxmana: {
+            type: Number
+        },
         speed: {
             type: Number
         },
