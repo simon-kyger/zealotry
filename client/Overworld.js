@@ -81,9 +81,9 @@ class Overworld extends Phaser.Scene {
         //map data
         this.map = this.make.tilemap({key: 'map'});
         this.tileset = this.map.addTilesetImage('backgroundtiles');
-        this.layer = this.map.createStaticLayer('Tile Layer 1', this.tileset, 0, 0)
-        this.layer2 = this.map.createStaticLayer('Tile Layer 2', this.tileset, 0, 0)
-        this.layer3 = this.map.createStaticLayer('Tile Layer 3', this.tileset, 0, 0)
+        this.layer = this.map.createDynamicLayer('Tile Layer 1', this.tileset, 0, 0)
+        this.layer2 = this.map.createDynamicLayer('Tile Layer 2', this.tileset, 0, 0)
+        this.layer3 = this.map.createDynamicLayer('Tile Layer 3', this.tileset, 0, 0)
         
         this.createplayer(this.player);
         this.initialplayers.forEach(player=>{
