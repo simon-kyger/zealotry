@@ -1,28 +1,78 @@
 class Player_Resources_Scene extends Phaser.Scene {
     constructor(args){
-        //setup and variable initializations
         super({key: "Player_Resources_Scene", active: true});
-        this.width = 200;
-        this.height = 20;
-        this.elements = 3;
+        this.barwidth = 200;
+        this.barheight = 20;
+        this.elements = 4;
     }
     creategraphic(){
-        this.hpbar = this.add.graphics().setDepth(1).setScrollFactor(0);
-        this.hpbar.fillStyle(0xff0000,1);
-        this.endbar = this.add.graphics().setDepth(1).setScrollFactor(0);
-        this.endbar.fillStyle(0x00ff00,1);
-        this.manabar = this.add.graphics().setDepth(1).setScrollFactor(0);
-        this.manabar.fillStyle(0x0000ff,1);
+        const {width, height} = this.sys.game.canvas;
+        this.targetbar = this.add.graphics();
+        this.hpbar = this.add.graphics();
+        this.endbar = this.add.graphics()
+        this.manabar = this.add.graphics()
+        this.border = this.add.graphics().lineStyle(1, 0x000000);
+        this.targetname = this.add.text(0, 0, '', {
+            font: '16px Segoe UI',
+            fill: '#CCCCCC',
+            align: 'center'
+        })
+        this.hppercent = this.add.text(0, this.barheight, '', { 
+            font: '16px Segoe UI', 
+            fill: '#CCCCCC', 
+        })
+        this.endpercent = this.add.text(0, this.barheight*2, '', { 
+            font: '16px Segoe UI', 
+            fill: '#CCCCCC', 
+        })
+        this.manapercent = this.add.text(0, this.barheight*3, '', { 
+            font: '16px Segoe UI', 
+            fill: '#CCCCCC', 
+        })
+      
+        this.container = new Draggable_Container(
+            this, 
+            width/2-this.barwidth/2, 
+            height-this.barheight*this.elements, 
+            this.barwidth, 
+            this.barheight*this.elements, 
+            [this.targetbar, this.targetname, this.hpbar,this.endbar,this.manabar, this.border, this.hppercent, this.endpercent, this.manapercent]
+        )
     }
     draw(data){
-        const {currenthp, maxhp, currentmana, maxmana, currentend, maxend} = data;
+        const {currenthp, maxhp, currentmana, maxmana, currentend, maxend, target} = data;
         const hpmod = currenthp / maxhp;
         const manamod = currentmana / maxmana;
         const endmod = currentend / maxend;
-        const {width, height} = this.sys.game.canvas;
-        this.hpbar.fillRect(width/2-this.width/2, height-this.height*this.elements, this.width*hpmod, height)
-        this.endbar.fillRect(width/2-this.width/2, height-this.height*(this.elements-1), this.width*hpmod, height)
-        this.manabar.fillRect(width/2-this.width/2, height-this.height*(this.elements-2), this.width*hpmod, height)
+        const targetmod = target ? target.currenthp / target.maxhp : null;
+
+        this.targetbar.clear();
+        this.targetbar.fillGradientStyle(0x000000, 0x4B0082, 0x000000, 0x4B0082);
+        this.targetbar.fillRect(0, 0, this.barwidth*targetmod, this.barheight)
+
+        this.hpbar.clear();
+        this.hpbar.fillGradientStyle(0x000000, 0xFF0000, 0x000000, 0xFF0000);
+        this.hpbar.fillRect(0, this.barheight, this.barwidth*hpmod, this.barheight)
+        
+        this.endbar.clear();
+        this.endbar.fillGradientStyle(0x000000, 0x006400, 0x000000, 0x006400);
+        this.endbar.fillRect(0, this.barheight*2, this.barwidth*endmod, this.barheight)
+
+        this.manabar.clear();
+        this.manabar.fillGradientStyle(0x000000, 0x0000FF, 0x000000, 0x0000FF);
+        this.manabar.fillRect(0, this.barheight*3, this.barwidth*manamod, this.barheight);
+
+        this.border.strokeRect(0, 0, this.barwidth, this.barheight*this.elements);
+
+        if (target){
+            this.targetname.setText(`${target.name}`)
+            this.targetname.x = this.barwidth / target.name.length
+        } else {
+            this.targetname.setText(`${''}`);
+        }
+        this.hppercent.setText(`${hpmod*100}`);
+        this.endpercent.setText(`${endmod*100}`);
+        this.manapercent.setText(`${manamod*100}`);
     }
     create(){
         this.creategraphic();

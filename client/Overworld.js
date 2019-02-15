@@ -114,6 +114,16 @@ class Overworld extends Phaser.Scene {
                 this.player.facing = 'idle';
             }
         })
+        this.scale.on(`resize`, game =>{
+            const {width, height} = game;
+            this.cameras.resize(width, height);
+        })
+
+        //clears target if you click on nothing
+        this.input.on('pointerdown', (p, obj, x, y)=>{
+            if (obj.length == 0) this.player.target = null;
+        })
+
         socket.on('newplayer', data=>{
             this.createplayer(data);
         })
@@ -228,6 +238,12 @@ class Overworld extends Phaser.Scene {
     }
     createplayer(data){
         data.sprite = this.physics.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive();
+        
+        //binds target to the actual server data object on click (not the actual sprite)
+        data.sprite.on('pointerdown', ()=>{
+            this.player.target = data;
+        })
+
         if (data._id === this.player._id){
             this.player.sprite = data.sprite;
             this.player.sprite.fixedToCamera = true;
@@ -311,7 +327,8 @@ class Overworld extends Phaser.Scene {
             currentend: this.player.currentend,
             maxend: this.player.maxend,
             currentmana: this.player.currentmana,
-            maxmana: this.player.maxmana
+            maxmana: this.player.maxmana,
+            target: this.player.target ? this.player.target : null
         })
     }
 
@@ -335,6 +352,7 @@ class Overworld extends Phaser.Scene {
 
     update(time, delta){
         this.accumulator+=delta;
+        this.accumulator > 50 ? this.accumulator = 0 : null;
         while (this.accumulator >= this.physicsstep){
             this.accumulator -= this.physicsstep;
             this.phys(this.physicsstep)
