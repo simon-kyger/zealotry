@@ -114,10 +114,6 @@ class Overworld extends Phaser.Scene {
                 this.player.facing = 'idle';
             }
         })
-        this.scale.on(`resize`, game =>{
-            const {width, height} = game;
-            this.cameras.resize(width, height);
-        })
 
         //clears target if you click on nothing
         this.input.on('pointerdown', (p, obj, x, y)=>{
@@ -237,7 +233,12 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.physics.add.sprite(data.pos.x, data.pos.y, 'players', `${this.mp()[data.class]}/0`).setInteractive();
+        data.sprite = this.physics.add.sprite(
+            data.pos.x + this.cameras.main.scrollX, 
+            data.pos.y + this.cameras.main.scrollY
+            , 'players', 
+            `${this.mp()[data.class]}/0`)
+        data.sprite.setInteractive();
         
         //binds target to the actual server data object on click (not the actual sprite)
         data.sprite.on('pointerdown', ()=>{
