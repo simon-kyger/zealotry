@@ -120,6 +120,15 @@ class Overworld extends Phaser.Scene {
             if (obj.length == 0) this.player.target = null;
         })
 
+        //TODO:
+        //the following code breaks everything multiplayer wise (positions get thrown around like crazy)
+        //it unfortunately is the right thing to do though so that players with a bigger monitor won't have
+        //more of an advantage
+        // this.scale.on(`resize`, game =>{	
+        //     const {width, height} = game;	
+        //     this.cameras.resize(width, height);	
+        // })
+
         socket.on('newplayer', data=>{
             this.createplayer(data);
         })
