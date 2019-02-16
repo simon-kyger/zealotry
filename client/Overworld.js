@@ -75,7 +75,6 @@ class Overworld extends Phaser.Scene {
     }
 
     create(){
-        this.scene.launch('UI')
         this.createanims();
         this.players = this.physics.add.group();
         //map data
@@ -112,6 +111,9 @@ class Overworld extends Phaser.Scene {
                 this.player.sprite.anims.stop();
                 this.player.sprite.anims.currentFrame = 0;
                 this.player.facing = 'idle';
+            }
+            if (e.keyCode == 27){
+                this.scene.wake('Options_Scene');
             }
         })
 
@@ -361,6 +363,7 @@ class Overworld extends Phaser.Scene {
     }
 
     update(time, delta){
+        if (this.scene.isActive('Options_Scene')) return;
         this.accumulator+=delta;
         this.accumulator > 50 ? this.accumulator = 0 : null;
         while (this.accumulator >= this.physicsstep){

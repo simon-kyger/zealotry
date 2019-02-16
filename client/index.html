@@ -1,12 +1,25 @@
 <html>
+
+<!--Third Party-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
 <script src="./js/lib/phaser.js"></script>
 
+<!--Abstracts-->
 <script src='/Draggable_Container.js'></script>
+
+<!--Scenes-->
+<script src='/Options_Scene.js'></script>
+<script src='/Options_Button_Scene.js'></script>
 <script src='/Debug_Scene.js'></script>
 <script src='/Player_Resources_Scene.js'></script>
+
+<!--MainGame-->
 <script src='/Overworld.js'></script>
+
+<!--DOM-->
 <script src='/main.js'></script>
+
+<!--Styles-->
 <style>
     body {
         margin: 0;
@@ -61,6 +74,7 @@
     }
     .tipoftheday{
         font-size:20; 
+        padding-top:60;
         text-shadow: 0 0 50px white;
         text-decoration: underline;
         color: white

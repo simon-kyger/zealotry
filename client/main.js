@@ -1,12 +1,3 @@
-const socket = io({transports: ['websocket']});
-
-socket.on(`helloworld`, (data)=>{
-	console.log(`we're connected.`);
-	socket.emit('loginreq');
-});
-
-let gameUser;
-
 const randomtip = () => {
 	const tips = [
 		`When creating a character, if the img isn't loading, don't pick to test with.`,
@@ -15,6 +6,15 @@ const randomtip = () => {
 	]
 	return tips[Math.floor(Math.random()*tips.length)];
 }
+
+const socket = io({transports: ['websocket']});
+
+socket.on(`helloworld`, (data)=>{
+	console.log(`we're connected.`);
+	socket.emit('loginreq');
+});
+
+let gameUser;
 
 const loginpage = (down) => {
 	document.body.innerHTML = ``;
@@ -368,7 +368,9 @@ const loadgame = data => {
 		scene: [
 			new Overworld(data),
 			new Debug_Scene(data),
-			new Player_Resources_Scene
+			new Player_Resources_Scene,
+			new Options_Button_Scene,
+			new Options_Scene
 		]
 	}
 	const game = new Phaser.Game(config);

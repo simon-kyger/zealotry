@@ -75,9 +75,12 @@ class Player_Resources_Scene extends Phaser.Scene {
         this.manapercent.setText(`${manamod*100}`);
     }
     create(){
-        this.creategraphic();
+        let graphics = this.creategraphic();
         this.scene.get('Overworld').events.on('updateresources', data=>{
             this.draw(data);
+        })
+        this.scene.get('Overworld').events.on('resetUI', ()=>{
+            graphics = this.creategraphic();
         })
     }
 }
