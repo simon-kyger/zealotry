@@ -143,6 +143,7 @@ class Overworld extends Phaser.Scene {
             })
             for (let key in this.nameplates){
                 if (key == data._id){
+                    this.nameplates[key].destroy();
                     delete this.nameplates[key];
                 }
             }
