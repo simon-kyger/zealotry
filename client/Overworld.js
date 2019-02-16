@@ -14,6 +14,8 @@ class Overworld extends Phaser.Scene {
 
         //debug
         this.showdebug = true;
+        //config
+        this.shownameplatesboolean = true;
     }
 
     loadscreen(){
@@ -274,6 +276,8 @@ class Overworld extends Phaser.Scene {
             fill: '#CCCCCC',
             align: 'center'
         }).setResolution(10);
+
+        data.nametext.setVisible(this.shownameplatesboolean);
         
         this.nameplates[data._id] = data.nametext;
 
