@@ -77,6 +77,7 @@ class Overworld extends Phaser.Scene {
     create(){
         this.createanims();
         this.players = this.physics.add.group();
+        this.nameplates = {};
         //map data
         this.map = this.make.tilemap({key: 'map'});
         this.tileset = this.map.addTilesetImage('backgroundtiles');
@@ -140,14 +141,23 @@ class Overworld extends Phaser.Scene {
                     player.destroy();
                 }
             })
+            for (let key in this.nameplates){
+                if (key == data._id){
+                    delete this.nameplates[key];
+                }
+            }
         });
         socket.on('move', data=> {
             let self = this;
             this.players.getChildren().forEach(player=>{
                 if (player._id == data._id){
-                    //player.setPosition(data.pos.x+self.cameras.main.width/2, data.pos.y+self.cameras.main.height/2);
-                    player.x = data.pos.x + self.cameras.main.width/2;
-                    player.y = data.pos.y + self.cameras.main.height/2;
+                    //update player sprite
+                    this.tweens.add({
+                        targets: player,
+                        x: data.pos.x + this.cameras.main.width/2,
+                        y: data.pos.y + this.cameras.main.height/2,
+                        duration: 50
+                    })
                     if (data.dir == 'left'){
                         player.flipX = false;
                         if (player.facing != 'left'){
@@ -170,7 +180,14 @@ class Overworld extends Phaser.Scene {
                             player.play(`${player.class}up`);
                             player.facing = 'up';
                         }
-                    } 
+                    }
+                    //update player nametags
+                    this.tweens.add({
+                        targets: this.nameplates[player._id],
+                        x: data.pos.x + this.cameras.main.width/2 - this.nameplates[player._id].width/2,
+                        y: data.pos.y + this.cameras.main.height/2 - this.nameplates[player._id].height*3,
+                        duration: 50
+                    })
                 }
             });
         });
@@ -250,7 +267,15 @@ class Overworld extends Phaser.Scene {
             , 'players', 
             `${this.mp()[data.class]}/0`)
         data.sprite.setInteractive();
+
+        data.nametext = this.add.text(data.pos.x, data.pos.y, data.name, {
+            font: `6px Segoe UI`,
+            fill: '#CCCCCC',
+            align: 'center'
+        }).setResolution(10);
         
+        this.nameplates[data._id] = data.nametext;
+
         //binds target to the actual server data object on click (not the actual sprite)
         data.sprite.on('pointerdown', ()=>{
             this.player.target = data;
@@ -259,6 +284,7 @@ class Overworld extends Phaser.Scene {
         if (data._id === this.player._id){
             this.player.sprite = data.sprite;
             this.player.sprite.fixedToCamera = true;
+            this.player.nametext = data.nametext;
         } else {
             this.players.add(data.sprite);
             data.sprite._id = data._id;
@@ -324,6 +350,8 @@ class Overworld extends Phaser.Scene {
                 this.player.facing = 'up';
             }
         }
+        this.nameplates[this.player._id].x = this.player.sprite.x - this.nameplates[this.player._id].width/2,
+        this.nameplates[this.player._id].y = this.player.sprite.y - this.nameplates[this.player._id].height*3
     }
 
     renderdebug(){
