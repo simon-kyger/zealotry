@@ -24,7 +24,6 @@ class Ability_Bar_Scene extends Phaser.Scene {
     }
     draw(data){
         const {gcd, value} = data;
-        console.log(gcd);
         const targetmod = gcd / value
         this.gcdbar.clear();
         this.gcdbar.fillStyle(0xFFFF00);

@@ -12,7 +12,7 @@ class Debug_Scene extends Phaser.Scene {
         this.debugtext.fixedToCamera = true;
     }
     drawdebug(data){
-        let p = data && data.player && data.player.sprite //evalutes to the first undefined bullshit then stops without going further
+        let p = data && data.player
         let c = data && data.cameras && data.cameras.main
         const template = `
 ----------------------------DEBUG-----------------------------

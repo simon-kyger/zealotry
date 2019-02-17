@@ -13,9 +13,8 @@ export function init(socket) {
     socket.on('playgame', data => playGame(socket, data));
     socket.on('move', data => move(socket, data));  
     socket.on('stop', data => stop(socket, data));
+    socket.on('ability1', data => ability1(socket, data));
 }
-
-let messageQueue = {};
 
 export function playGame(socket, data){
     socket.emit(SocketsV1.CHARACTER_CREATE_FAIL, {
@@ -31,21 +30,24 @@ export function playGame(socket, data){
             player: result,
             players: otherplayers
         });
-        messageQueue[result.name] = {
-            lastMessageId: 0,
-            queue : []
-        }
     })
     .catch( tempErrorHandler );
 
 }
 
-const action = (socket, data) => {
-    if (data.action === 'move') {
-        move(socket,data);
-    } else if (data.action === 'stop') {
-        stop(socket,data);
-    }
+const ability1 = (socket, data) => {
+    let player = Server.findPlayerBySocket(socket) || null;
+    let target = Server.findPlayerById(data._id)
+    
+    if (!player || !target) 
+        return;
+    target.currenthp -= player.abilities.meleeattack.value;
+    if (target.currenthp < 0) 
+        target.currenthp = 0;
+    SocketsV1.emit('ability1', {
+        player: player,
+        target: target
+    });
 }
 
 const move = (socket, data) => {
@@ -54,40 +56,15 @@ const move = (socket, data) => {
     player.dir = data.dir;
     player.pos.set("x", data.x);
     player.pos.set("y", data.y);
-    if (messageQueue[player.name].lastMessageId == data.messageId - 1) {
-        SocketsV1.emit('move', player);
-        messageQueue[player.name].lastMessageId++;
-    } else {
-        data.action = 'move';
-        messageQueue[player.name].queue.push(data);
-        messageQueue[player.name].queue.forEach((item, i) => {
-            if (item.messageId == data.messageId -1 ) {
-                messageQueue[player.name].queue.splice(i,1);
-                action(socket, item);
-            }
-        });
-    }
+    SocketsV1.emit('move', player);
 }
-
 const stop = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     player.dir = data.dir;
     player.pos.set("x", data.x);
     player.pos.set("y", data.y);
-    if (messageQueue[player.name].lastMessageId == data.messageId - 1) {
-        SocketsV1.emit('stop', player);
-        messageQueue[player.name].lastMessageId++;
-    } else {
-        data.action = 'stop';
-        messageQueue[player.name].queue.push(data);
-        messageQueue[player.name].queue.forEach( (item,i) => {
-            if (item.messageId == data.messageId -1 ) {
-                messageQueue[player.name].queue.splice(i,1);
-                action(socket, item);
-            }
-        });
-    }    
+    SocketsV1.emit('stop', player);
 }
 
 const tempErrorHandler = error => {

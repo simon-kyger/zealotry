@@ -99,7 +99,7 @@ class Overworld extends Phaser.Scene {
         //camera
         this.cameras.main.setZoom(this.gamescale);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-        this.cameras.main.startFollow(this.player.sprite);
+        this.cameras.main.startFollow(this.player);
         this.controlConfig = {
             camera: this.cameras.main,
             left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
@@ -113,9 +113,13 @@ class Overworld extends Phaser.Scene {
         }
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.controlConfig);
         this.input.keyboard.on('keyup', e=>{    
-            if ([65, 87, 83, 68].includes(e.keyCode)) {        
-                socket.emit('stop', {dir: 'idle', x: this.cameras.main.scrollX, y: this.cameras.main.scrollY, messageId: this.messageId++});
-                this.player.sprite.anims.stop();
+            if ([65, 87, 83, 68].includes(e.keyCode)) {       
+                socket.emit('stop', {
+                    dir: 'idle', 
+                    x: this.cameras.main.scrollX, 
+                    y: this.cameras.main.scrollY, 
+                    messageId: this.messageId++});
+                this.player.anims.stop();
             }
             if (e.keyCode == 27){
                 this.scene.wake('Options_Scene');
@@ -124,12 +128,17 @@ class Overworld extends Phaser.Scene {
         this.input.keyboard.on('keydown', e=>{
             e.preventDefault();
             if ([49].includes(e.keyCode) && !this.player.currentqueue){
+                if (!this.player.target)
+                    return
                 this.player.currentqueue = Object.keys(this.player.abilities)[0]
-
+                
                 this.GCD.timer = this.time.addEvent({
                     delay: this.GCD.value,
                     callback: ()=>{
                         this.player.currentqueue = '';
+                        socket.emit('ability1', {
+                            _id: this.player.target._id
+                        });
                     }
                 });
             }
@@ -168,6 +177,7 @@ class Overworld extends Phaser.Scene {
         socket.on('move', data=> {
             let self = this;
             this.players.getChildren().forEach(player=>{
+                if (player._id == this.player._id) return;
                 if (player._id == data._id){
                     //update player sprite
                     this.tweens.add({
@@ -200,15 +210,26 @@ class Overworld extends Phaser.Scene {
             });
         });
         socket.on('stop', data=> {
+            if (this.player._id == data._id) return;
             this.players.getChildren().forEach(player=>{
                 if (player._id == data._id){
                     player.x = data.pos.x + this.cameras.main.width/2;
                     player.y = data.pos.y + this.cameras.main.height/2;
                     player.anims.stop();
-                    console.log('stopped');
                 }
             });
         });
+        socket.on('ability1', data=>{
+            if (data.target._id == this.player._id){
+                this.player.currenthp = data.target.currenthp;
+                return;
+            }
+            this.players.getChildren().forEach(player=>{
+                if (player._id == data.target._id){
+                    player.currenthp = data.target.currenthp;
+                }
+            })
+        })
     }
     mp(){
         //TODO
@@ -288,38 +309,43 @@ class Overworld extends Phaser.Scene {
         })
     }
     createplayer(data){
-        data.sprite = this.physics.add.sprite(
+        let sprite = this.physics.add.sprite(
             data.pos.x + this.cameras.main.scrollX, 
             data.pos.y + this.cameras.main.scrollY
             , 'players', 
             `${this.mp()[data.class]}/0`)
-        data.sprite.setInteractive();
+        sprite.setInteractive();
 
-        data.nametext = this.add.text(data.pos.x, data.pos.y, data.name, {
+        sprite.nametext = this.add.text(data.pos.x, data.pos.y, data.name, {
             font: `6px Segoe UI`,
             fill: '#CCCCCC',
             align: 'center'
         }).setResolution(10);
 
-        data.nametext.setVisible(this.shownameplatesboolean);
+        sprite.nametext.setVisible(this.shownameplatesboolean);
         
-        this.nameplates[data._id] = data.nametext;
-
-        //binds target to the actual server data object on click (not the actual sprite)
-        data.sprite.on('pointerdown', ()=>{
-            this.player.target = data;
-        })
+        this.nameplates[data._id] = sprite.nametext;
 
         if (data._id === this.player._id){
-            this.player.sprite = data.sprite;
-            this.player.sprite.fixedToCamera = true;
-            this.player.nametext = data.nametext;
-        } else {
-            this.players.add(data.sprite);
-            data.sprite._id = data._id;
-            data.sprite.class = data.class;
-            data.sprite.speed = data.speed;
+            sprite.fixedToCamera = true;
+            this.player = sprite;
         }
+        this.players.add(sprite);
+
+        sprite._id = data._id;
+        sprite.class = data.class;
+        sprite.speed = data.speed;
+        sprite.currenthp = data.currenthp;
+        sprite.maxhp = data.maxhp;
+        sprite.currentend = data.currentend;
+        sprite.maxend = data.maxend;
+        sprite.currentmana = data.currentmana;
+        sprite.maxmana = data.maxmana;
+        sprite.name = data.name;
+        sprite.abilities = data.abilities;
+        sprite.on('pointerdown', ()=>{
+            this.player.target = sprite;
+        })
     }
 
     mapconstraints() {
@@ -332,22 +358,22 @@ class Overworld extends Phaser.Scene {
     }
 
     phys(delta){
-        this.player.sprite.body.setVelocity(0);
+        this.player.body.setVelocity(0);
         this.controls.update(delta);
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 1, 10))
         if (this.controls.left.isDown){
-            this.player.sprite.body.setVelocityX(-this.player.speed)
+            this.player.body.setVelocityX(-this.player.speed)
             this.player.dir = 'left';
         } else if (this.controls.right.isDown){
-            this.player.sprite.body.setVelocityX(this.player.speed)
+            this.player.body.setVelocityX(this.player.speed)
             this.player.dir = 'right'
         }
         if (this.controls.down.isDown){
             this.player.dir = 'down'
-            this.player.sprite.body.setVelocityY(this.player.speed)
+            this.player.body.setVelocityY(this.player.speed)
         } else if (this.controls.up.isDown){
             this.player.dir = 'up'
-            this.player.sprite.body.setVelocityY(-this.player.speed)
+            this.player.body.setVelocityY(-this.player.speed)
         }
     }
 
@@ -355,22 +381,22 @@ class Overworld extends Phaser.Scene {
         //update animations
 
         if (this.player.currentqueue){
-            this.player.sprite.play(`${this.player.class}attack`,true);
+            this.player.play(`${this.player.class}attack`,true);
         } else if (this.controls.left.isDown){
-            this.player.sprite.flipX = false;
-            this.player.sprite.anims.play(`${this.player.class}left`,true);
+            this.player.flipX = false;
+            this.player.anims.play(`${this.player.class}left`,true);
         } else if (this.controls.right.isDown){
-            this.player.sprite.flipX = true;
-            this.player.sprite.anims.play(`${this.player.class}left`,true);
+            this.player.flipX = true;
+            this.player.anims.play(`${this.player.class}left`,true);
         } else if (this.controls.down.isDown){
-            this.player.sprite.anims.play(`${this.player.class}down`,true);
+            this.player.anims.play(`${this.player.class}down`,true);
         } else if (this.controls.up.isDown){
-            this.player.sprite.anims.play(`${this.player.class}up`,true);
+            this.player.anims.play(`${this.player.class}up`,true);
         } else {
-            this.player.sprite.anims.stop()
+            this.player.anims.stop()
         }
-        this.nameplates[this.player._id].x = this.player.sprite.x - this.nameplates[this.player._id].width/2,
-        this.nameplates[this.player._id].y = this.player.sprite.y - this.nameplates[this.player._id].height*3
+        this.nameplates[this.player._id].x = this.player.x - this.nameplates[this.player._id].width/2,
+        this.nameplates[this.player._id].y = this.player.y - this.nameplates[this.player._id].height*3
     }
 
     renderdebug(){

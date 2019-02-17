@@ -126,6 +126,12 @@ export function findPlayerBySocket(socket) {
     return null;
 }
 
+export function findPlayerById(id){
+    let player = players.find(player=> player._id == id)
+    if (player)
+        return player;
+}
+
 /**
  * Export a default containing the primary methods
  */
@@ -139,5 +145,6 @@ export default {
     getIo,  
     userLoggedIn,           // TODO : MOVE
     getUsernameBySocket,    // TODO : MOVE
-    findPlayerBySocket      // TODO : MOVE
+    findPlayerBySocket,      // TODO : MOVE
+    findPlayerById
 }
