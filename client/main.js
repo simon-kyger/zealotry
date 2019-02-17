@@ -370,7 +370,8 @@ const loadgame = data => {
 			new Debug_Scene(data),
 			new Player_Resources_Scene,
 			new Options_Button_Scene,
-			new Options_Scene
+			new Options_Scene,
+			new Ability_Bar_Scene
 		]
 	}
 	const game = new Phaser.Game(config);

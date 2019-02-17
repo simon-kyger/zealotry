@@ -16,7 +16,9 @@ class Overworld extends Phaser.Scene {
         this.showdebug = true;
         //config
         this.shownameplatesboolean = true;
-        this.GCD = 1000;
+        this.GCD = {
+            value: 1000
+        }
     }
 
     loadscreen(){
@@ -120,13 +122,16 @@ class Overworld extends Phaser.Scene {
             }
         })
         this.input.keyboard.on('keydown', e=>{
+            e.preventDefault();
             if ([49].includes(e.keyCode) && !this.player.currentqueue){
                 this.player.currentqueue = Object.keys(this.player.abilities)[0]
-                this.player.isAttacking = true;
-                setTimeout(()=>{
-                    this.player.currentqueue = '';
-                    this.player.isAttacking = false;
-                }, this.GCD)
+
+                this.GCD.timer = this.time.addEvent({
+                    delay: this.GCD.value,
+                    callback: ()=>{
+                        this.player.currentqueue = '';
+                    }
+                });
             }
         })
 
@@ -265,7 +270,7 @@ class Overworld extends Phaser.Scene {
                         end: 10,
                         prefix: `${this.mp()[key]}/`
                     }),
-                    frameRate: 4,
+                    frameRate: 2,
                     repeat: 0
                 },
                 {
@@ -349,7 +354,7 @@ class Overworld extends Phaser.Scene {
     renderplayer(){
         //update animations
 
-        if (this.player.isAttacking){
+        if (this.player.currentqueue){
             this.player.sprite.play(`${this.player.class}attack`,true);
         } else if (this.controls.left.isDown){
             this.player.sprite.flipX = false;
@@ -383,6 +388,10 @@ class Overworld extends Phaser.Scene {
             currentmana: this.player.currentmana,
             maxmana: this.player.maxmana,
             target: this.player.target ? this.player.target : null
+        })
+        this.events.emit('updateabilities',{
+            gcd: this.GCD.timer ? Math.floor(this.GCD.timer.getProgress() * 1000) : 1000, //it starts in sub 1 levels 
+            value: this.GCD.value
         })
     }
 

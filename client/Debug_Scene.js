@@ -16,7 +16,12 @@ class Debug_Scene extends Phaser.Scene {
         let c = data && data.cameras && data.cameras.main
         const template = `
 ----------------------------DEBUG-----------------------------
-CURRENT CONTROLS: WASD MOVEMENT, Q/E == ZOOM, ESC == OPTIONS
+CURRENT CONTROLS: 
+WASD: MOVEMENT 
+Q/E:  ZOOM
+ESC:  OPTIONS
+1:    MELEE (animation only)
+
 this.player {
     x: ${p.x}  
     y: ${p.y}  

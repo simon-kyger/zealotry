@@ -4,5 +4,9 @@
         "barheight": 40,
         "elements": 4
     },
-    "shownameplatesboolean": false
+    "shownameplatesboolean": false,
+    "ability_bar": {
+        "barwidth": 800,
+        "barheight": 6
+    }
 }

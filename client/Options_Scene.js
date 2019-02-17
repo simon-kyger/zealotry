@@ -136,6 +136,9 @@ class Options_Scene extends Phaser.Scene {
                 const PRSc = this.scene.get('Player_Resources_Scene').container;
                 PRSc.x = PRSc.defaultposition.x
                 PRSc.y = PRSc.defaultposition.y
+                const ABSc = this.scene.get('Ability_Bar_Scene').container;
+                ABSc.x = ABSc.defaultposition.x
+                ABSc.y = ABSc.defaultposition.y
             });
         container.input.hitArea.x += width/2;
         container.input.hitArea.y += height/2;
