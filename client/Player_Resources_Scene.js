@@ -1,11 +1,15 @@
 class Player_Resources_Scene extends Phaser.Scene {
     constructor(args){
         super({key: "Player_Resources_Scene", active: true});
-        this.barwidth = 200;
-        this.barheight = 20;
-        this.elements = 4;
+    }
+    preload(){
+        this.load.json('CFG', 'CFG.json');
     }
     creategraphic(){
+        const {player_resources} = this.cache.json.get('CFG');
+        this.barwidth = player_resources.barwidth;
+        this.barheight = player_resources.barheight;
+        this.elements = player_resources.elements;
         const {width, height} = this.sys.game.canvas;
         this.targetbar = this.add.graphics();
         this.hpbar = this.add.graphics();

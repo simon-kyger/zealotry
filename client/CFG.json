@@ -1,0 +1,8 @@
+{
+    "player_resources": {
+        "barwidth": 200,
+        "barheight": 40,
+        "elements": 4
+    },
+    "shownameplatesboolean": false
+}

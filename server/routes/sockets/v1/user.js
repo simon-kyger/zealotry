@@ -112,6 +112,13 @@ function createCharacter(socket, data) {
             up: false,
             down: false 
         }
+        character.abilities = {
+            meleeattack: {
+                value: 10,
+                speed: 10
+            }
+        }
+        character.currentqueue = '';
         character.dir = 'down';
         character.speed = 100;
         character.currenthp = 100;

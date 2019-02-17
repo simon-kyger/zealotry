@@ -48,6 +48,13 @@ try {
         speed: {
             type: Number
         },
+        abilities: {
+            meleeattack: {
+                value: Number,
+                speed: Number
+            }
+        },
+        currentqueue: String,
         user_id : {
             type: mongoose.Schema.ObjectId
         }
