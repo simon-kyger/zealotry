@@ -136,6 +136,8 @@ class Overworld extends Phaser.Scene {
                     delay: this.GCD.value,
                     callback: ()=>{
                         this.player.currentqueue = '';
+                        if (!this.player.target) // required if player switches targets mid cast
+                            return
                         socket.emit('ability1', {
                             _id: this.player.target._id
                         });
