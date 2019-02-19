@@ -5,13 +5,7 @@ class Overworld extends Phaser.Scene {
         this.player = args.player;
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
         this.gamescale = 4;
-        
-        //main loop vars
-        this.accumulator = 0;
         this.fps = 60;
-        this.physicsstep = 1000 / this.fps;
-        this.messageId = 0;
-
         //debug
         this.showdebug = true;
         //config
@@ -109,7 +103,7 @@ class Overworld extends Phaser.Scene {
             speed: this.player.speed,
             zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
             zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-            zoomSpeed: 0.2,
+            zoomSpeed: 1/this.fps,
         }
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.controlConfig);
         this.input.keyboard.on('keyup', e=>{    
@@ -126,6 +120,7 @@ class Overworld extends Phaser.Scene {
             }
         })
         this.input.keyboard.on('keydown', e=>{
+            if ([116].includes(e.keyCode)) return //prevent refresh from being disabled for debug purposes
             e.preventDefault();
             if ([49].includes(e.keyCode) && !this.player.currentqueue){
                 if (!this.player.target)
@@ -139,7 +134,8 @@ class Overworld extends Phaser.Scene {
                         if (!this.player.target) // required if player switches targets mid cast
                             return
                         socket.emit('ability1', {
-                            _id: this.player.target._id
+                            _id: this.player.target._id,
+                            shane: Date.now()
                         });
                     }
                 });
@@ -188,6 +184,7 @@ class Overworld extends Phaser.Scene {
                         y: data.pos.y + this.cameras.main.height/2,
                         duration: 50
                     })
+                    player.setDepth(player.y);
                     if (data.dir == 'left'){
                         player.flipX = false;
                         player.anims.play(`${player.class}left`, true);
@@ -222,10 +219,12 @@ class Overworld extends Phaser.Scene {
             });
         });
         socket.on('ability1', data=>{
-            if (data.target._id == this.player._id){
+            const timefromservertoclient = Date.now() - data.shane.timefromservertoclient
+            console.log(`time from client to server: ${data.shane.timefromclienttoserver}`)
+            console.log(`time from server to client: ${timefromservertoclient}`)
+            console.log(`ability1 roundtrip time: ${data.shane.timefromclienttoserver + timefromservertoclient}`)
+            if (data._id == this.player._id)
                 this.player.currenthp = data.target.currenthp;
-                return;
-            }
             this.players.getChildren().forEach(player=>{
                 if (player._id == data.target._id){
                     player.currenthp = data.target.currenthp;
@@ -364,18 +363,18 @@ class Overworld extends Phaser.Scene {
         this.controls.update(delta);
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 1, 10))
         if (this.controls.left.isDown){
-            this.player.body.setVelocityX(-this.player.speed)
+            this.player.body.setVelocityX(-this.player.speed*delta)
             this.player.dir = 'left';
         } else if (this.controls.right.isDown){
-            this.player.body.setVelocityX(this.player.speed)
+            this.player.body.setVelocityX(this.player.speed*delta)
             this.player.dir = 'right'
         }
         if (this.controls.down.isDown){
             this.player.dir = 'down'
-            this.player.body.setVelocityY(this.player.speed)
+            this.player.body.setVelocityY(this.player.speed*delta)
         } else if (this.controls.up.isDown){
             this.player.dir = 'up'
-            this.player.body.setVelocityY(-this.player.speed)
+            this.player.body.setVelocityY(-this.player.speed*delta)
         }
     }
 
@@ -397,6 +396,7 @@ class Overworld extends Phaser.Scene {
         } else {
             this.player.anims.stop()
         }
+        this.player.setDepth(this.player.y);
         this.nameplates[this.player._id].x = this.player.x - this.nameplates[this.player._id].width/2,
         this.nameplates[this.player._id].y = this.player.y - this.nameplates[this.player._id].height*3
     }
@@ -443,12 +443,7 @@ class Overworld extends Phaser.Scene {
 
     update(time, delta){
         if (this.scene.isActive('Options_Scene')) return;
-        this.accumulator+=delta;
-        this.accumulator > 50 ? this.accumulator = 0 : null;
-        while (this.accumulator >= this.physicsstep){
-            this.accumulator -= this.physicsstep;
-            this.phys(this.physicsstep)
-        }
+        this.phys(delta)
         this.render();
         this.net();
     }

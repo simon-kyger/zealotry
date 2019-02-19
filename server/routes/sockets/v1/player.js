@@ -12,7 +12,6 @@ export function init(socket) {
     // Clean all this up later
     socket.on('playgame', data => playGame(socket, data));
     socket.on('move', data => move(socket, data));  
-    socket.on('stop', data => stop(socket, data));
     socket.on('ability1', data => ability1(socket, data));
 }
 
@@ -36,6 +35,7 @@ export function playGame(socket, data){
 }
 
 const ability1 = (socket, data) => {
+    const timefromclienttoserver = Date.now() - data.shane;
     let player = Server.findPlayerBySocket(socket) || null;
     let target = Server.findPlayerById(data._id)
     
@@ -45,8 +45,11 @@ const ability1 = (socket, data) => {
     if (target.currenthp < 0) 
         target.currenthp = 0;
     SocketsV1.emit('ability1', {
-        player: player,
-        target: target
+        target: target,
+        shane: {
+            timefromclienttoserver: timefromclienttoserver,
+            timefromservertoclient: Date.now()
+        }
     });
 }
 
@@ -57,14 +60,6 @@ const move = (socket, data) => {
     player.pos.set("x", data.x);
     player.pos.set("y", data.y);
     SocketsV1.emit('move', player);
-}
-const stop = (socket, data) => {
-    let player = Server.findPlayerBySocket(socket) || null;
-    if (!player) return;
-    player.dir = data.dir;
-    player.pos.set("x", data.x);
-    player.pos.set("y", data.y);
-    SocketsV1.emit('stop', player);
 }
 
 const tempErrorHandler = error => {

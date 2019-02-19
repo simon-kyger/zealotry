@@ -120,7 +120,7 @@ function createCharacter(socket, data) {
         }
         character.currentqueue = '';
         character.dir = 'down';
-        character.speed = 100;
+        character.speed = 15;
         character.currenthp = 100;
         character.maxhp = 100;
         character.currentend = 100;
