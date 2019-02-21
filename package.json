@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec \"babel-node index.js\"",
-    "build": "babel-cli index.js -d serverbuild",
+    "build": "npm run babel index.js -d serverbuild",
     "exe": "node ./serverbuild/index.js",
     "prestart": "npm run build",
     "start": "npm run build && npm run exe",
@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/simon-kyger/zealotry#readme",
   "dependencies": {
+    "babel": "^6.23.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
