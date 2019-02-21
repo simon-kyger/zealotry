@@ -8,7 +8,7 @@
     "build": "babel index.js -d serverbuild",
     "exe": "node ./serverbuild/index.js",
     "prestart": "npm run build",
-    "start": "npm run exe",
+    "start": "npm run build && npm run exe",
     "dbstartwin": "mongod --dbpath ./data",
     "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev",
     "startallwin": "npm run dbstartwin & npm run dev",
