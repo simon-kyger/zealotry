@@ -13,9 +13,6 @@ class Overworld extends Phaser.Scene {
         this.GCD = {
             value: 1000
         }
-        this.HURT = {
-            value: 500
-        }
     }
 
     loadscreen(){
@@ -189,18 +186,17 @@ class Overworld extends Phaser.Scene {
                         duration: 50
                     })
                     player.setDepth(player.y);
+                    data.dir == 'right' ? player.flipX = true : player.flipX = false;
                     if (data.dir == 'left'){
-                        player.flipX = false;
                         player.anims.play(`${player.class}left`, true);
                     } else if (data.dir == 'right'){
-                        player.flipX = true;
                         player.anims.play(`${player.class}left`, true);
                     } else if (data.dir == 'down'){
                         player.anims.play(`${player.class}down`, true);
                     } else if (data.dir == 'up'){
                         player.anims.play(`${player.class}up`, true);
                     } else {
-                        player.anims.play(`${player.class}stand`, true);
+                        player.anims.stop();
                     }
                     //update player nametags
                     this.tweens.add({
@@ -227,16 +223,9 @@ class Overworld extends Phaser.Scene {
             console.log(`time from client to server: ${data.shane.timefromclienttoserver}`)
             console.log(`time from server to client: ${timefromservertoclient}`)
             console.log(`ability1 roundtrip time: ${data.shane.timefromclienttoserver + timefromservertoclient}`)
-            if (data._id == this.player._id){
+            if (data.target._id == this.player._id){
                 this.player.currenthp = data.target.currenthp;
                 this.player.hurt = true;
-                this.HURT.timer = this.time.addEvent({
-                    delay: this.HURT.value,
-                    callback: ()=>{
-                        this.player.hurt = false;
-                    }
-                });
-                return;
             }
             this.players.getChildren().forEach(player=>{
                 if (player._id == data.target._id){
@@ -244,10 +233,14 @@ class Overworld extends Phaser.Scene {
                     player.anims.stop();
                     player.play(`${player.class}hurt`, true);
                     player.hurt = true;
-                    this.HURT.timer = this.time.addEvent({
-                        delay: this.HURT.value,
+                    this.time.addEvent({
+                        delay: 500,
                         callback: ()=>{
                             player.hurt = false;
+                            player.dir == 'right' ? player.flipX = true : null;
+                            player.dir == 'left' ? player.flipX = false : null;
+                            player.anims.stop();
+                            player.anims.play(`${player.class}${player.dir == `right` ? `left` : player.dir}`, true)
                         }
                     });
                 }
@@ -345,7 +338,7 @@ class Overworld extends Phaser.Scene {
                         prefix: `${this.mp()[key]}/`
                     }),
                     frameRate: 4,
-                    repeat: -1
+                    repeat: 0
                 },
             ];
             config.forEach(anim=> this.anims.create(anim));
@@ -429,7 +422,7 @@ class Overworld extends Phaser.Scene {
         } else if (this.controls.up.isDown){
             this.player.anims.play(`${this.player.class}up`,true);
         } else {
-            this.player.anims.play(`${this.player.class}stand`, true);
+            this.player.anims.stop();
         }
 
         this.player.setDepth(this.player.y);
