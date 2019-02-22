@@ -13,6 +13,9 @@ class Overworld extends Phaser.Scene {
         this.GCD = {
             value: 1000
         }
+        this.HURT = {
+            value: 500
+        }
     }
 
     loadscreen(){
@@ -72,6 +75,7 @@ class Overworld extends Phaser.Scene {
         this.load.atlas('players', 'assets/players.png', 'assets/players.json');
         this.load.tilemapTiledJSON('map', 'assets/zealotrymap.json');
         this.load.json('CFG', 'CFG.json');
+        
     }
 
     create(){
@@ -196,7 +200,7 @@ class Overworld extends Phaser.Scene {
                     } else if (data.dir == 'up'){
                         player.anims.play(`${player.class}up`, true);
                     } else {
-                        player.anims.stop();
+                        player.anims.play(`${player.class}stand`, true);
                     }
                     //update player nametags
                     this.tweens.add({
@@ -223,11 +227,29 @@ class Overworld extends Phaser.Scene {
             console.log(`time from client to server: ${data.shane.timefromclienttoserver}`)
             console.log(`time from server to client: ${timefromservertoclient}`)
             console.log(`ability1 roundtrip time: ${data.shane.timefromclienttoserver + timefromservertoclient}`)
-            if (data._id == this.player._id)
+            if (data._id == this.player._id){
                 this.player.currenthp = data.target.currenthp;
+                this.player.hurt = true;
+                this.HURT.timer = this.time.addEvent({
+                    delay: this.HURT.value,
+                    callback: ()=>{
+                        this.player.hurt = false;
+                    }
+                });
+                return;
+            }
             this.players.getChildren().forEach(player=>{
                 if (player._id == data.target._id){
                     player.currenthp = data.target.currenthp;
+                    player.anims.stop();
+                    player.play(`${player.class}hurt`, true);
+                    player.hurt = true;
+                    this.HURT.timer = this.time.addEvent({
+                        delay: this.HURT.value,
+                        callback: ()=>{
+                            player.hurt = false;
+                        }
+                    });
                 }
             })
         })
@@ -255,6 +277,16 @@ class Overworld extends Phaser.Scene {
     createanims(){
         Object.keys(this.mp()).forEach(key=>{
             let config = [
+                {
+                    key: `${key}stand`,
+                    frames: this.anims.generateFrameNames('players', {
+                        start: 7,
+                        end: 7,
+                        prefix: `${this.mp()[key]}/`
+                    }),
+                    frameRate: 8,
+                    repeat: -1
+                },
                 {
                     key: `${key}down`,
                     frames: this.anims.generateFrameNames('players', {
@@ -304,7 +336,17 @@ class Overworld extends Phaser.Scene {
                     }),
                     frameRate: 4,
                     repeat: -1
-                }
+                },
+                {
+                    key: `${key}hurt`,
+                    frames: this.anims.generateFrameNames('players', {
+                        start: 11,
+                        end: 11,
+                        prefix: `${this.mp()[key]}/`
+                    }),
+                    frameRate: 4,
+                    repeat: -1
+                },
             ];
             config.forEach(anim=> this.anims.create(anim));
         })
@@ -332,18 +374,9 @@ class Overworld extends Phaser.Scene {
             this.player = sprite;
         }
         this.players.add(sprite);
-
-        sprite._id = data._id;
-        sprite.class = data.class;
-        sprite.speed = data.speed;
-        sprite.currenthp = data.currenthp;
-        sprite.maxhp = data.maxhp;
-        sprite.currentend = data.currentend;
-        sprite.maxend = data.maxend;
-        sprite.currentmana = data.currentmana;
-        sprite.maxmana = data.maxmana;
-        sprite.name = data.name;
-        sprite.abilities = data.abilities;
+        for (let k in data){
+            sprite[k] = data[k]
+        }
         sprite.on('pointerdown', ()=>{
             this.player.target = sprite;
         })
@@ -383,6 +416,8 @@ class Overworld extends Phaser.Scene {
 
         if (this.player.currentqueue){
             this.player.play(`${this.player.class}attack`,true);
+        } else if (this.player.hurt){
+            this.player.play(`${this.player.class}hurt`,true)
         } else if (this.controls.left.isDown){
             this.player.flipX = false;
             this.player.anims.play(`${this.player.class}left`,true);
@@ -394,8 +429,9 @@ class Overworld extends Phaser.Scene {
         } else if (this.controls.up.isDown){
             this.player.anims.play(`${this.player.class}up`,true);
         } else {
-            this.player.anims.stop()
+            this.player.anims.play(`${this.player.class}stand`, true);
         }
+
         this.player.setDepth(this.player.y);
         this.nameplates[this.player._id].x = this.player.x - this.nameplates[this.player._id].width/2,
         this.nameplates[this.player._id].y = this.player.y - this.nameplates[this.player._id].height*3
