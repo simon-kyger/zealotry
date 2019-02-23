@@ -2,7 +2,7 @@ import SocketsV1 from './index';
 import { socketControllerHandler } from '../../../util/controllerHandler';
 import UserController from '../../../controllers/user';
 import CharacterController from '../../../controllers/character';
-import Server from '../../../index';
+import Server from '../../../main';
 
 export const NEW_PLAYER = "newplayer";
 export const PLAY_GAME = "playgame";

@@ -1,6 +1,6 @@
 import * as UserSockets from './user';
 import * as PlayerSockets from './player';
-import Server from '../../../';
+import Server from '../../../main';
 import { platform } from 'os';
 
 export const LOGIN_REQUIRED = "loginreq";

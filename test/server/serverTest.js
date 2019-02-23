@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { config } from '../../configs';
+import { config } from '../../server/configs';
 import Server from '../../server';
 
 // To Be Mocked or re-wired

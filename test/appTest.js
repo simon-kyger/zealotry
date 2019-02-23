@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import mockery from 'mockery';
 import request from 'supertest';
-import { config } from '../configs';
+import { config } from '../server/configs';
 import Server from '../server';
 
 
