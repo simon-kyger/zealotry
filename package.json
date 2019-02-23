@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec \"babel-node index.js\"",
     "build": "babel -d serverbuild ./server",
+    "clean": "rm -rf ./serverbuild",
     "exe": "node ./serverbuild/index.js",
     "prestart": "npm run build",
     "start": "npm run build && npm run exe",

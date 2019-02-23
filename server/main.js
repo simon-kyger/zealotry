@@ -4,7 +4,6 @@ import http from 'http';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import * as Routes from './routes';
-import * as Game from './game';
 
 let app,
     server,
@@ -68,7 +67,6 @@ export function start( callback ) {
     // Start the server
     server.listen(port, () => {
         console.log(`${new Date().toLocaleString()} : Express server listening on - http://${hostname}:${port}`);
-        //Game.start();
         callback(server);
     });
 
@@ -84,7 +82,6 @@ export function stop( callback ) {
     callback = (callback && typeof callback === 'function')? callback : ()=>{};
 
     server.close(() => {
-        Game.endLoop();
         callback();
     });
 
