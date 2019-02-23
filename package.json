@@ -4,7 +4,7 @@
   "description": "A multiplayer action pvp game.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec \"babel-node index.js\"",
+    "dev": "nodemon --exec \"babel-node ./server/index.js\"",
     "build": "babel -d serverbuild ./server",
     "clean": "rm -rf ./serverbuild",
     "exe": "node ./serverbuild/index.js",
