@@ -1,6 +1,7 @@
-# zealotry
+# zealotry.io
+* Currently using Phaser 3 version 3.16.1
 * Currently live @ http://zealotry.herokuapp.com/
-** Currently using Phaser 3 version 3.16.1
+    >When creating a character, please choose ones that load a graphic! The other characters are **not** yet implemented.
 ## Windows Install/Setup Guide
 1. install node
 2. install mongodb
