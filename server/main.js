@@ -29,6 +29,7 @@ export function create(config) {
     io = getIo();
 
     // Define the database connection
+    console.log(`config`, config);
     mongoose.connect(config.dburl + '/' + config.dbname);
     
     // Set up the server's environment
