@@ -1,5 +1,6 @@
 # zealotry
-* Currently using Phaser 3 version 3.16.1
+* Currently live @ http://zealotry.herokuapp.com/
+** Currently using Phaser 3 version 3.16.1
 ## Windows Install/Setup Guide
 1. install node
 2. install mongodb
@@ -8,7 +9,8 @@ https://user-images.githubusercontent.com/13419651/38953587-3514c5b0-431d-11e8-8
 4. pull project in
 5. create subdirectory in root called "data" example: ../zealotry/data
 6. npm install
-7. npm run startallwin
+7. npm install babel-cli -g
+8. npm run startallwin
 
 ## Testing
 * To run tests use the command

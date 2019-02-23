@@ -10,9 +10,9 @@
     "exe": "node ./serverbuild/index.js",
     "prestart": "npm install -g babel-cli",
     "start": "npm run build && npm run exe",
-    "dbstartwin": "mongod --dbpath ./data",
+    "db": "mongod --dbpath ./data",
     "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev",
-    "startallwin": "npm run dbstartwin & npm run dev",
+    "startallwin": "npm run db & npm run dev",
     "test": "mocha --compilers js:babel-register --require babel-polyfill --recursive",
     "test-coverage": "nyc --reporter=text mocha --compilers js:babel-register --require babel-polyfill --recursive",
     "test-coverage-html": "nyc --reporter=html mocha --compilers js:babel-register --require babel-polyfill --recursive"
