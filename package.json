@@ -5,11 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec \"babel-node ./server/index.js\"",
-    "build": "npm run babeldep && babel -d serverbuild ./server",
+    "build": "babel -d serverbuild ./server",
     "clean": "rm -rf ./serverbuild",
     "exe": "node ./serverbuild/index.js",
-    "prestart": "npm run build",
-    "babeldep": "npm install -g babel-cli",
+    "prestart": "npm install -g babel-cli",
     "start": "npm run build && npm run exe",
     "dbstartwin": "mongod --dbpath ./data",
     "help": "echo To run normally npm run dev. To run with socket debugging: DEBUG=* npm run dev",
