@@ -1,4 +1,4 @@
-import Character from '../models/Character';
+import Character from '../models/character';
 
 // Just as a mongoose 
 // reminder, .exec() on find
