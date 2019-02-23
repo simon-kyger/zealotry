@@ -1,4 +1,4 @@
-import User from '../models/User';
+import User from '../models/user';
 
 // Just as a mongoose 
 // reminder, .exec() on find
