@@ -28,6 +28,7 @@ class Ability_Bar_Scene extends Phaser.Scene {
         this.gcdbar.clear();
         this.gcdbar.fillStyle(0xFFFF00);
         this.gcdbar.fillRect(0, 0, this.barwidth*targetmod, this.barheight)
+        this.border.clear();
         this.border.strokeRect(0, 0, this.barwidth, this.barheight);
     }
     create(){

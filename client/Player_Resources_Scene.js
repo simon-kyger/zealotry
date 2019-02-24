@@ -65,7 +65,8 @@ class Player_Resources_Scene extends Phaser.Scene {
         this.manabar.clear();
         this.manabar.fillGradientStyle(0x000000, 0x0000FF, 0x000000, 0x0000FF);
         this.manabar.fillRect(0, this.barheight*3, this.barwidth*manamod, this.barheight);
-
+        
+        this.border.clear();
         this.border.strokeRect(0, 0, this.barwidth, this.barheight*this.elements);
 
         if (target){
@@ -79,12 +80,12 @@ class Player_Resources_Scene extends Phaser.Scene {
         this.manapercent.setText(`${manamod*100}`);
     }
     create(){
-        let graphics = this.creategraphic();
+        this.gfx = this.creategraphic();
         this.scene.get('Overworld').events.on('updateresources', data=>{
             this.draw(data);
         })
         this.scene.get('Overworld').events.on('resetUI', ()=>{
-            graphics = this.creategraphic();
+            this.gfx = this.creategraphic();
         })
     }
 }
