@@ -6,6 +6,7 @@ class Overworld extends Phaser.Scene {
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
         this.gamescale = 4;
         this.fps = 60;
+        this.physicstimestep = 1/this.fps; //~16ms
         //debug
         this.showdebug = true;
         //config
@@ -95,58 +96,8 @@ class Overworld extends Phaser.Scene {
         this.cameras.main.setZoom(this.gamescale);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.cameras.main.startFollow(this.player);
-        this.controlConfig = {
-            camera: this.cameras.main,
-            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-            speed: this.player.speed,
-            zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
-            zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-            zoomSpeed: 1/this.fps,
-        }
-        this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.controlConfig);
-        this.input.keyboard.on('keyup', e=>{    
-            if ([65, 87, 83, 68].includes(e.keyCode)) {       
-                socket.emit('stop', {
-                    dir: 'idle', 
-                    x: this.cameras.main.scrollX, 
-                    y: this.cameras.main.scrollY, 
-                    messageId: this.messageId++});
-                this.player.anims.stop();
-            }
-            if (e.keyCode == 27){
-                this.scene.wake('Options_Scene');
-            }
-        })
-        this.input.keyboard.on('keydown', e=>{
-            if ([116].includes(e.keyCode)) return //prevent refresh from being disabled for debug purposes
-            e.preventDefault();
-            if ([49].includes(e.keyCode) && !this.player.currentqueue){
-                if (!this.player.target)
-                    return
-                this.player.currentqueue = Object.keys(this.player.abilities)[0]
-                
-                this.GCD.timer = this.time.addEvent({
-                    delay: this.GCD.value,
-                    callback: ()=>{
-                        this.player.currentqueue = '';
-                        if (!this.player.target) // required if player switches targets mid cast
-                            return
-                        socket.emit('ability1', {
-                            _id: this.player.target._id,
-                            shane: Date.now()
-                        });
-                    }
-                });
-            }
-        })
-
-        //clears target if you click on nothing
-        this.input.on('pointerdown', (p, obj, x, y)=>{
-            if (obj.length == 0) this.player.target = null;
-        })
+        this.setcontrols(this.cache.json.get('CFG').controls);
+        this.createkeylisteners(this.KEYBOARD);
 
         //TODO:
         //the following code breaks everything multiplayer wise (positions get thrown around like crazy)
@@ -247,6 +198,132 @@ class Overworld extends Phaser.Scene {
             })
         })
     }
+    /**
+     *  
+     * Creates Listeners for all key and mouse input for the game
+     * Also sanitizes input before passing it off to be handled by handlegamekey();
+     * @param {Object} keyboard Keyboard object which is currently mapped from CFG json. 
+     */
+    createkeylisteners(keyboard){
+        this.input.keyboard.on('keydown', e=>{
+            //prevent f5 and f12 from being disabled for debug purposes
+            if ([116,123].includes(e.keyCode)) 
+                return 
+            
+            //prevent usual behavior
+            e.preventDefault();
+            
+            //is this a key we care about.  if it is assign the keyboard state, otherwise gtfo
+            let ret = true;
+            let gamekey;
+            for (let key in keyboard){
+                if (keyboard[key].keyCode == e.keyCode){
+                    keyboard[key].state = true;
+                    gamekey = key;
+                    ret = false;
+                }
+            }
+            if (ret) return;
+
+            this.handlegamekey(gamekey, true);
+        })
+        this.input.keyboard.on('keyup', e=>{
+            //prevent f5 and f12 from being disabled for debug purposes
+            if ([116,123].includes(e.keyCode)) 
+                return 
+            
+            //prevent usual behavior
+            e.preventDefault();
+            
+            //is this a key we care about.  if it is assign the keyboard state, otherwise gtfo
+            let ret = true;
+            let gamekey;
+            for (let key in this.KEYBOARD){
+                if (keyboard[key].keyCode == e.keyCode){
+                    keyboard[key].state = true;
+                    gamekey = key;
+                    ret = false;
+                }
+            }
+            if (ret) return;
+            
+            this.handlegamekey(gamekey, false);
+        })
+
+        //clears target if you click on nothing
+        this.input.on('pointerdown', (p, obj, x, y)=>{
+            if (obj.length == 0) this.player.target = null;
+        })
+    }
+    /**
+     * Handles all key down or key up presses of "game" keys.  This has already been sanitized
+     * of other keys nonrelevant to the game.  See createkeylisteners() for all keys before santization.
+     * @param {String} key a "game only" key that has been issued either up or down
+     * @param {Boolean} val true is the button is pressed, false the button is released
+     */
+    handlegamekey(key, val){
+        if (key == 'ability1' && val && !this.player.currentqueue){
+            if (!this.player.target)
+                return
+            this.player.currentqueue = Object.keys(this.player.abilities)[0]
+            
+            this.GCD.timer = this.time.addEvent({
+                delay: this.GCD.value,
+                callback: ()=>{
+                    this.player.currentqueue = '';
+                    if (!this.player.target) // required if player switches targets mid cast
+                        return
+                    socket.emit('ability1', {
+                        _id: this.player.target._id,
+                        shane: Date.now()
+                    });
+                }
+            });
+        }
+        if ((key == 'up') || (key =='down') || (key == 'left') || (key == 'right')){
+            if (val){
+                socket.emit(`move`, {
+                    dir: this.player.dir,
+                    x: this.cameras.main.scrollX,
+                    y: this.cameras.main.scrollY,
+                })
+            } else {
+                socket.emit(`stop`, {
+                    dir: this.player.dir,
+                    x: this.cameras.main.scrollX,
+                    y: this.cameras.main.scrollY,
+                })
+            }
+        }
+        if (key == 'toggleconfig' && !val)
+            this.scene.wake('Options_Scene')
+    }
+    /**
+     * Sets all the controls based upon a structure passed and can modify them at runtime
+     * @param {Object} controls 
+     *                          
+     */
+    setcontrols(controls){
+        this.KEYBOARD = {
+            ability1: this.input.keyboard.addKey(controls.ability1.keyCode),
+            camera: this.cameras.main,
+            left: this.input.keyboard.addKey(controls.left.keyCode),
+            right: this.input.keyboard.addKey(controls.right.keyCode),
+            up: this.input.keyboard.addKey(controls.up.keyCode),
+            down: this.input.keyboard.addKey(controls.down.keyCode),
+            toggleconfig: this.input.keyboard.addKey(controls.toggleconfig.keyCode),
+            //TODO: these should be taken out if player is not a GM
+            zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+            zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
+            zoomSpeed: this.physicstimestep / 1000,
+        }
+        this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.KEYBOARD);
+    }
+    /**
+     * A hash lookup for relating classes to sprite names (the names originally were)
+     * ff6 sprites, but in this game, they have different names the game will refer
+     * to them by.
+     */
     mp(){
         //TODO
         return {
@@ -267,6 +344,9 @@ class Overworld extends Phaser.Scene {
             'Ghost': 'ghost'
         }
     }
+    /**
+     * Creates every animation type for every key value pair in the mapping via this.mp()
+     */
     createanims(){
         Object.keys(this.mp()).forEach(key=>{
             let config = [
@@ -344,6 +424,10 @@ class Overworld extends Phaser.Scene {
             config.forEach(anim=> this.anims.create(anim));
         })
     }
+    /**
+     * Creates a player sprite, agnostic if it is the local player, or foreign.
+     * @param {Object} data Player data
+     */
     createplayer(data){
         let sprite = this.physics.add.sprite(
             data.pos.x + this.cameras.main.scrollX, 
@@ -374,16 +458,10 @@ class Overworld extends Phaser.Scene {
             this.player.target = sprite;
         })
     }
-
-    mapconstraints() {
-        return {
-            left: 0,
-            right: this.map.widthInPixels*this.gamescale -this.cameras.main.width,
-            top: 0,
-            bottom: this.map.heightInPixels*this.gamescale -this.cameras.main.height
-        }
-    }
-
+    /**
+     * The physics being handled upon both the local player and their camera
+     * @param {Float} delta The multiplier to normalize all vector based movements
+     */
     phys(delta){
         this.player.body.setVelocity(0);
         this.controls.update(delta);
@@ -403,10 +481,14 @@ class Overworld extends Phaser.Scene {
             this.player.body.setVelocityY(-this.player.speed*delta)
         }
     }
-
+    /**
+     * Rendering queue of the local player and their respective nameplate.
+     * Ignores foreign players
+     * The purpose of this is for interpolation. So that the player doesn't have to wait
+     * for the servers response to render the player in a new state.
+     * If the client is notified.
+     */
     renderplayer(){
-        //update animations
-
         if (this.player.currentqueue){
             this.player.play(`${this.player.class}attack`,true);
         } else if (this.player.hurt){
@@ -430,12 +512,19 @@ class Overworld extends Phaser.Scene {
         this.nameplates[this.player._id].y = this.player.y - this.nameplates[this.player._id].height*3
     }
 
+    /**
+     * Sends messages to the Debug_Scene with helpful data for debugging.
+     */
     renderdebug(){
         this.events.emit('debug', {
             player: this.player,
             cameras: this.cameras,
         })
     }
+
+    /**
+     * Sends messages to all UI scenes with helpful data for player convenience
+     */
     renderui(){
         this.events.emit('updateresources', {
             currenthp: this.player.currenthp,
@@ -452,28 +541,18 @@ class Overworld extends Phaser.Scene {
         })
     }
 
-    render(){
+    /**
+     * The Game Loop.
+     * @param {Float} time Total time requestanimationframe has been running
+     * @param {Float} delta Time difference since the time it took to loop the most previous time.
+     */
+    update(time, delta){
+        while(delta > this.physicstimestep){
+            this.phys(this.physicstimestep)
+            delta -= this.physicstimestep;
+        }
         this.renderdebug();
         this.renderplayer();
         this.renderui();
-    }
-
-    net(){
-        if (this.controls.left.isDown || this.controls.right.isDown || this.controls.down.isDown || this.controls.up.isDown){
-            socket.emit('move', {
-                dir: this.player.dir, 
-                state: true, 
-                x: this.cameras.main.scrollX, 
-                y: this.cameras.main.scrollY, 
-                messageId: this.messageId++
-            });
-        }
-    }
-
-    update(time, delta){
-        if (this.scene.isActive('Options_Scene')) return;
-        this.phys(delta)
-        this.render();
-        this.net();
     }
 }

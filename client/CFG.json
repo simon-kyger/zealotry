@@ -1,4 +1,30 @@
 {
+    "controls": {
+        "up": {
+            "keyCode": 87, 
+            "state": false   
+        },
+        "down": {
+            "keyCode": 83, 
+            "state:": false
+        },
+        "left": {
+            "keyCode": 65, 
+            "state": false
+        },
+        "right": {
+            "keyCode": 68, 
+            "state:": false
+        },
+        "ability1": {
+            "keyCode": 49,
+            "state": false
+        },
+        "toggleconfig": {
+            "keyCode": 27,
+            "state": false
+        }
+    },
     "player_resources": {
         "barwidth": 200,
         "barheight": 40,
