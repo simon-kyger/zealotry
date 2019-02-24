@@ -5,8 +5,6 @@ class Overworld extends Phaser.Scene {
         this.player = args.player;
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
         this.gamescale = 4;
-        this.fps = 60;
-        this.physicstimestep = 1/this.fps; //~16ms
         //debug
         this.showdebug = true;
         //config
@@ -315,7 +313,7 @@ class Overworld extends Phaser.Scene {
             //TODO: these should be taken out if player is not a GM
             zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
             zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-            zoomSpeed: this.physicstimestep / 1000,
+            zoomSpeed: controls.zoom.speed,
         }
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.KEYBOARD);
     }
@@ -462,23 +460,23 @@ class Overworld extends Phaser.Scene {
      * The physics being handled upon both the local player and their camera
      * @param {Float} delta The multiplier to normalize all vector based movements
      */
-    phys(delta){
+    phys(){
         this.player.body.setVelocity(0);
-        this.controls.update(delta);
+        this.controls.update();
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 1, 10))
         if (this.controls.left.isDown){
-            this.player.body.setVelocityX(-this.player.speed*delta)
+            this.player.body.setVelocityX(-this.player.speed)
             this.player.dir = 'left';
         } else if (this.controls.right.isDown){
-            this.player.body.setVelocityX(this.player.speed*delta)
+            this.player.body.setVelocityX(this.player.speed)
             this.player.dir = 'right'
         }
         if (this.controls.down.isDown){
             this.player.dir = 'down'
-            this.player.body.setVelocityY(this.player.speed*delta)
+            this.player.body.setVelocityY(this.player.speed)
         } else if (this.controls.up.isDown){
             this.player.dir = 'up'
-            this.player.body.setVelocityY(-this.player.speed*delta)
+            this.player.body.setVelocityY(-this.player.speed)
         }
     }
     /**
@@ -547,10 +545,7 @@ class Overworld extends Phaser.Scene {
      * @param {Float} delta Time difference since the time it took to loop the most previous time.
      */
     update(time, delta){
-        while(delta > this.physicstimestep){
-            this.phys(this.physicstimestep)
-            delta -= this.physicstimestep;
-        }
+        this.phys()
         this.renderdebug();
         this.renderplayer();
         this.renderui();

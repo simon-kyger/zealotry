@@ -23,6 +23,9 @@
         "toggleconfig": {
             "keyCode": 27,
             "state": false
+        },
+        "zoom": {
+            "speed": 0.02
         }
     },
     "player_resources": {
