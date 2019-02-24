@@ -170,7 +170,7 @@ class Options_Scene extends Phaser.Scene {
             .setSize(width, height)
             .setInteractive()
             .on('pointerdown', (p, x, y) => {
-                this.scene.sleep(this);
+                this.events.emit('closeoptions')
             });
         container.input.hitArea.x += width/2;
         container.input.hitArea.y += height/2;

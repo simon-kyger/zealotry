@@ -4,6 +4,7 @@ class Options_Button_Scene extends Phaser.Scene {
         this.width = 80;
         this.height = 32;
         this.borderthickness = 8;
+        this.state = true;
     }
     create(){
         const {width, height} = this.sys.game.canvas;
@@ -33,9 +34,16 @@ class Options_Button_Scene extends Phaser.Scene {
             .setSize(this.width, this.height)
             .setInteractive()
             .on('pointerdown', (p, x, y) => {
-                this.scene.wake('Options_Scene');
+                this.sleepwakescene();
             });
         this.container.input.hitArea.x += this.width/2;
         this.container.input.hitArea.y += this.height/2;
+        this.scene.get('Options_Scene').events.on('closeoptions', ()=>{
+            this.sleepwakescene();
+        })
+    }
+    sleepwakescene(){
+        this.state ? this.scene.wake('Options_Scene') : this.scene.sleep('Options_Scene')
+        this.state = !this.state;
     }
 }
