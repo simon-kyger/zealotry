@@ -54,10 +54,9 @@ const ability1 = (socket, data) => {
 const move = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
-    player.dir = data.dir;
+    player.velocity = data.velocity;
     player.pos.set('x', data.x);
     player.pos.set('y', data.y);
-    console.log(player.dir);
     SocketsV1.emit('move', player);
 }
 

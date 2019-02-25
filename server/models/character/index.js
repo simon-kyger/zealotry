@@ -24,7 +24,7 @@ try {
             type: Map,
             of: Boolean
         },
-        dir: {
+        velocity: {
             type: Object
         },
         currenthp: {

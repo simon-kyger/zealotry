@@ -114,6 +114,10 @@ class Overworld extends Phaser.Scene {
                 if(player._id == data._id){
                     player.destroy();
                 }
+                if (this.player.target._id == player._id){
+                    this.player.target = null;
+                    this.player.stick = null;
+                }
             })
             for (let key in this.nameplates){
                 if (key == data._id){
@@ -129,16 +133,16 @@ class Overworld extends Phaser.Scene {
                     player.x = data.pos.x + this.cameras.main.width/2
                     player.y = data.pos.y + this.cameras.main.height/2
                     //update physics
-                    if (data.dir.x > 0){
+                    if (data.velocity.x > 0){
                         player.setVelocityX(player.speed)
-                    } else if (data.dir.x < 0){
+                    } else if (data.velocity.x < 0){
                         player.setVelocityX(-player.speed)
                     } else {
                         player.setVelocityX(0)
                     }
-                    if (data.dir.y > 0){
+                    if (data.velocity.y > 0){
                         player.setVelocityY(player.speed)
-                    } else if (data.dir.y < 0){
+                    } else if (data.velocity.y < 0){
                         player.setVelocityY(-player.speed)
                     } else {
                         player.setVelocityY(0)
@@ -146,15 +150,15 @@ class Overworld extends Phaser.Scene {
 
                     //update animations
                     player.setDepth(player.y);
-                    if (data.dir.x < 0){
+                    if (data.velocity.x < 0){
                         player.flipX = false;
                         player.anims.play(`${player.class}left`, true);
-                    } else if (data.dir.x > 0){
+                    } else if (data.velocity.x > 0){
                         player.flipX = true;
                         player.anims.play(`${player.class}left`, true);
-                    } else if (data.dir.y > 0){
+                    } else if (data.velocity.y > 0){
                         player.anims.play(`${player.class}down`, true);
-                    } else if (data.dir.y < 0){
+                    } else if (data.velocity.y < 0){
                         player.anims.play(`${player.class}up`, true);
                     } else {
                         player.anims.stop();
@@ -295,37 +299,32 @@ class Overworld extends Phaser.Scene {
             });
         }
         //on movement, we dont care if the key was up or down, the update loop will handle setting
-        //the vector .dir to the correct direction to send to the server.
+        //the vector .velocity to the correct direction to send to the server.
         if ((key == 'up') || (key =='down') || (key == 'left') || (key == 'right')){
+            this.player.stick = null;
             if (val){
-                if (key == 'up') {
-                    this.player.dir.y = -1;
-                } else if (key == 'down') {
-                    this.player.dir.y = 1;
-                } else if (key == 'left') {
-                    this.player.dir.x = -1;
-                } else if (key == 'right') { 
-                    this.player.dir.x = 1;
-                }
-            } else {
-                if (key == 'up') {
-                    this.player.dir.y = 0;
-                } else if (key == 'down') {
-                    this.player.dir.y = 0;
-                } else if (key == 'left') {
-                    this.player.dir.x = 0;
-                } else if (key == 'right') { 
-                    this.player.dir.x = 0;
-                }
+                if (key == 'up') this.player.body.velocity.y = -this.player.speed;
+                else if (key == 'down') this.player.body.velocity.y = this.player.speed;
+                if (key == 'left') this.player.body.velocity.x = -this.player.speed;
+                else if (key == 'right') this.player.body.velocity.x = this.player.speed;
+            }
+            if (!val){
+                if (key == 'up') this.player.body.setVelocityY(0);
+                else if (key == 'down') this.player.body.setVelocityY(0);
+                if (key == 'left') this.player.body.setVelocityX(0);
+                else if (key == 'right') this.player.body.setVelocityX(0);
             }
             socket.emit(`move`, {
-                dir: this.player.dir,
+                velocity: this.player.body.velocity,
                 x: this.player.x - this.cameras.main.width/2,
                 y: this.player.y - this.cameras.main.height/2,
             })
         }
         if (key == 'toggleconfig' && !val)
             this.scene.wake('Options_Scene')
+        if (key == 'stick' && val && this.player.target && (this.player.target._id != this.player._id)){
+            this.player.stick = this.player.target
+        }
     }
     /**
      * Sets all the controls based upon a structure passed and can modify them at runtime
@@ -340,12 +339,14 @@ class Overworld extends Phaser.Scene {
             right: this.input.keyboard.addKey(controls.right.keyCode),
             up: this.input.keyboard.addKey(controls.up.keyCode),
             down: this.input.keyboard.addKey(controls.down.keyCode),
+            stick: this.input.keyboard.addKey(controls.stick.keyCode),
             toggleconfig: this.input.keyboard.addKey(controls.toggleconfig.keyCode),
             //TODO: these should be taken out if player is not a GM
             zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
             zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
             zoomSpeed: controls.zoom.speed,
         }
+        this.player.stickdistance = controls.stick.distance;
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(this.KEYBOARD);
     }
     /**
@@ -483,9 +484,6 @@ class Overworld extends Phaser.Scene {
         } else {
             this.players.add(sprite);
         }
-        sprite.dir = new Phaser.Math.Vector2;
-        sprite.dir.x = data.dir.x;
-        sprite.dir.y = data.dir.y;
         for (let k in data){
             sprite[k] = data[k]
         }
@@ -514,6 +512,21 @@ class Overworld extends Phaser.Scene {
         } else {
             this.player.body.setVelocityY(0)
         }
+
+        if (this.player.stick){
+            const target = this.player.stick;
+            const distance = this.player.stickdistance;
+            if (target.x+distance < this.player.x){
+                this.player.body.setVelocityX(-this.player.speed)
+            } else if (target.x-distance > this.player.x){
+                this.player.body.setVelocityX(this.player.speed)
+            }
+            if (target.y+distance < this.player.y){
+                this.player.body.setVelocityY(-this.player.speed)
+            } else if (target.y-distance > this.player.y){
+                this.player.body.setVelocityY(this.player.speed)
+            }
+        }
         
         this.players.getChildren().forEach(player=>{
             this.nameplates[player._id].x = player.x - this.nameplates[player._id].width/2,
@@ -534,15 +547,15 @@ class Overworld extends Phaser.Scene {
             this.player.play(`${this.player.class}attack`,true);
         } else if (this.player.hurt){
             this.player.play(`${this.player.class}hurt`,true)
-        } else if (this.controls.left.isDown){
+        } else if (this.player.body.velocity.x < 0){
             this.player.flipX = false;
             this.player.anims.play(`${this.player.class}left`,true);
-        } else if (this.controls.right.isDown){
+        } else if (this.player.body.velocity.x > 0){
             this.player.flipX = true;
             this.player.anims.play(`${this.player.class}left`,true);
-        } else if (this.controls.down.isDown){
+        } else if (this.player.body.velocity.y > 0){
             this.player.anims.play(`${this.player.class}down`,true);
-        } else if (this.controls.up.isDown){
+        } else if (this.player.body.velocity.y < 0){
             this.player.anims.play(`${this.player.class}up`,true);
         } else {
             this.player.anims.stop();

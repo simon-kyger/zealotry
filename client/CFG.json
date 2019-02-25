@@ -1,5 +1,10 @@
 {
     "controls": {
+        "stick": {
+            "keyCode": 192,
+            "state": false,
+            "distance": 15
+        },
         "up": {
             "keyCode": 87, 
             "state": false   

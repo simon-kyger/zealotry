@@ -119,7 +119,7 @@ function createCharacter(socket, data) {
             }
         }
         character.currentqueue = '';
-        character.dir = {
+        character.velocity = {
             x: 0,
             y: 0,
         };
