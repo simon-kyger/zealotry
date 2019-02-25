@@ -57,8 +57,9 @@ const move = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     player.dir = data.dir;
-    player.pos.set("x", data.x);
-    player.pos.set("y", data.y);
+    player.pos.set('x', data.x);
+    player.pos.set('y', data.y);
+    console.log(player.dir);
     SocketsV1.emit('move', player);
 }
 

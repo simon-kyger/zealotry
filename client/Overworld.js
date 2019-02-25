@@ -123,26 +123,37 @@ class Overworld extends Phaser.Scene {
             }
         });
         socket.on('move', data=> {
-            let self = this;
             this.players.getChildren().forEach(player=>{
-                if (player._id == this.player._id) return;
                 if (player._id == data._id){
-                    //update player sprite
-                    this.tweens.add({
-                        targets: player,
-                        x: data.pos.x + this.cameras.main.width/2,
-                        y: data.pos.y + this.cameras.main.height/2,
-                        duration: 50
-                    })
+                    //override its current x and y positions (in case of lags)
+                    player.x = data.pos.x + this.cameras.main.width/2
+                    player.y = data.pos.y + this.cameras.main.height/2
+                    //update physics
+                    if (data.dir.x > 0){
+                        player.setVelocityX(player.speed)
+                    } else if (data.dir.x < 0){
+                        player.setVelocityX(-player.speed)
+                    } else {
+                        player.setVelocityX(0)
+                    }
+                    if (data.dir.y > 0){
+                        player.setVelocityY(player.speed)
+                    } else if (data.dir.y < 0){
+                        player.setVelocityY(-player.speed)
+                    } else {
+                        player.setVelocityY(0)
+                    }
+
+                    //update animations
                     player.setDepth(player.y);
-                    data.dir == 'right' ? player.flipX = true : player.flipX = false;
-                    if (data.dir == 'left'){
+                    data.dir.x > 0 ? player.flipX = true : player.flipX = false;
+                    if (data.dir.x < 0){
                         player.anims.play(`${player.class}left`, true);
-                    } else if (data.dir == 'right'){
+                    } else if (data.dir.x > 0){
                         player.anims.play(`${player.class}left`, true);
-                    } else if (data.dir == 'down'){
+                    } else if (data.dir.y > 0){
                         player.anims.play(`${player.class}down`, true);
-                    } else if (data.dir == 'up'){
+                    } else if (data.dir.y < 0){
                         player.anims.play(`${player.class}up`, true);
                     } else {
                         player.anims.stop();
@@ -157,21 +168,7 @@ class Overworld extends Phaser.Scene {
                 }
             });
         });
-        socket.on('stop', data=> {
-            if (this.player._id == data._id) return;
-            this.players.getChildren().forEach(player=>{
-                if (player._id == data._id){
-                    player.x = data.pos.x + this.cameras.main.width/2;
-                    player.y = data.pos.y + this.cameras.main.height/2;
-                    player.anims.stop();
-                }
-            });
-        });
         socket.on('ability1', data=>{
-            const timefromservertoclient = Date.now() - data.shane.timefromservertoclient
-            console.log(`time from client to server: ${data.shane.timefromclienttoserver}`)
-            console.log(`time from server to client: ${timefromservertoclient}`)
-            console.log(`ability1 roundtrip time: ${data.shane.timefromclienttoserver + timefromservertoclient}`)
             if (data.target._id == this.player._id){
                 this.player.currenthp = data.target.currenthp;
                 this.player.hurt = true;
@@ -186,10 +183,21 @@ class Overworld extends Phaser.Scene {
                         delay: 500,
                         callback: ()=>{
                             player.hurt = false;
-                            player.dir == 'right' ? player.flipX = true : null;
-                            player.dir == 'left' ? player.flipX = false : null;
+                            player.dir.x > 0 ? player.flipX = true : null;
+                            player.dir.x < 0 ? player.flipX = false : null;
                             player.anims.stop();
-                            player.anims.play(`${player.class}${player.dir == `right` ? `left` : player.dir}`, true)
+                            if (player.dir.x > 0){
+                                player.flipX = true;
+                                player.anims.play(`${player.class}left`, true)
+                            } else if (player.dir.x < 0){
+                                player.flipX = false;
+                                player.anims.play(`${player.class}left`, true)
+                            }
+                            if (player.dir.y > 0){
+                                player.anims.play(`${player.class}down`, true)
+                            } else if (player.dir.y < 0){
+                                player.anims.play(`${player.class}up`, true)
+                            }
                         }
                     });
                 }
@@ -238,7 +246,7 @@ class Overworld extends Phaser.Scene {
             let gamekey;
             for (let key in this.KEYBOARD){
                 if (keyboard[key].keyCode == e.keyCode){
-                    keyboard[key].state = true;
+                    keyboard[key].state = false;
                     gamekey = key;
                     ret = false;
                 }
@@ -278,20 +286,35 @@ class Overworld extends Phaser.Scene {
                 }
             });
         }
+        //on movement, we dont care if the key was up or down, the update loop will handle setting
+        //the vector .dir to the correct direction to send to the server.
         if ((key == 'up') || (key =='down') || (key == 'left') || (key == 'right')){
             if (val){
-                socket.emit(`move`, {
-                    dir: this.player.dir,
-                    x: this.cameras.main.scrollX,
-                    y: this.cameras.main.scrollY,
-                })
+                if (key == 'up') {
+                    this.player.dir.y = -1;
+                } else if (key == 'down') {
+                    this.player.dir.y = 1;
+                } else if (key == 'left') {
+                    this.player.dir.x = -1;
+                } else if (key == 'right') { 
+                    this.player.dir.x = 1;
+                }
             } else {
-                socket.emit(`stop`, {
-                    dir: this.player.dir,
-                    x: this.cameras.main.scrollX,
-                    y: this.cameras.main.scrollY,
-                })
+                if (key == 'up') {
+                    this.player.dir.y = 0;
+                } else if (key == 'down') {
+                    this.player.dir.y = 0;
+                } else if (key == 'left') {
+                    this.player.dir.x = 0;
+                } else if (key == 'right') { 
+                    this.player.dir.x = 0;
+                }
             }
+            socket.emit(`move`, {
+                dir: this.player.dir,
+                x: this.player.x - this.cameras.main.width/2,
+                y: this.player.y - this.cameras.main.height/2,
+            })
         }
         if (key == 'toggleconfig' && !val)
             this.scene.wake('Options_Scene')
@@ -428,9 +451,9 @@ class Overworld extends Phaser.Scene {
      */
     createplayer(data){
         let sprite = this.physics.add.sprite(
-            data.pos.x + this.cameras.main.scrollX, 
-            data.pos.y + this.cameras.main.scrollY
-            , 'players', 
+            data.pos.x, 
+            data.pos.y, 
+            'players', 
             `${this.mp()[data.class]}/0`)
         sprite.setInteractive();
 
@@ -447,8 +470,14 @@ class Overworld extends Phaser.Scene {
         if (data._id === this.player._id){
             sprite.fixedToCamera = true;
             this.player = sprite;
+            this.player.x+= this.cameras.main.width/2;
+            this.player.y+= this.cameras.main.height/2
+        } else {
+            this.players.add(sprite);
         }
-        this.players.add(sprite);
+        sprite.dir = new Phaser.Math.Vector2;
+        sprite.dir.x = data.dir.x;
+        sprite.dir.y = data.dir.y;
         for (let k in data){
             sprite[k] = data[k]
         }
@@ -461,22 +490,21 @@ class Overworld extends Phaser.Scene {
      * @param {Float} delta The multiplier to normalize all vector based movements
      */
     phys(){
-        this.player.body.setVelocity(0);
         this.controls.update();
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 1, 10))
         if (this.controls.left.isDown){
             this.player.body.setVelocityX(-this.player.speed)
-            this.player.dir = 'left';
         } else if (this.controls.right.isDown){
             this.player.body.setVelocityX(this.player.speed)
-            this.player.dir = 'right'
+        } else {
+            this.player.body.setVelocityX(0)
         }
         if (this.controls.down.isDown){
-            this.player.dir = 'down'
             this.player.body.setVelocityY(this.player.speed)
         } else if (this.controls.up.isDown){
-            this.player.dir = 'up'
             this.player.body.setVelocityY(-this.player.speed)
+        } else {
+            this.player.body.setVelocityY(0)
         }
     }
     /**
@@ -504,6 +532,7 @@ class Overworld extends Phaser.Scene {
         } else {
             this.player.anims.stop();
         }
+
 
         this.player.setDepth(this.player.y);
         this.nameplates[this.player._id].x = this.player.x - this.nameplates[this.player._id].width/2,

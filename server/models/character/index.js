@@ -25,7 +25,7 @@ try {
             of: Boolean
         },
         dir: {
-            type: String
+            type: Object
         },
         currenthp: {
             type: Number
