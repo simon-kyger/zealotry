@@ -169,6 +169,13 @@ class Overworld extends Phaser.Scene {
                 }
             });
         });
+        socket.on('queueattack', data=>{
+            this.players.getChildren().forEach(player=>{
+                if(player._id == data){
+                    player.play(`${player.class}attack`, true);
+                }
+            })
+        })
         socket.on('ability1', data=>{
             if (data.target._id == this.player._id){
                 this.player.currenthp = data.target.currenthp;
@@ -180,12 +187,13 @@ class Overworld extends Phaser.Scene {
                         this.player.anims.play(`${this.player.class}stand`, true)
                     }
                 });
-                return;
+            }
+            if (data.attacker._id == this.player._id){
+                this.player.anims.play(`${this.player.class}stand`, true)
             }
             this.players.getChildren().forEach(player=>{
                 if (player._id == data.target._id){
                     player.currenthp = data.target.currenthp;
-                    player.anims.stop();
                     player.play(`${player.class}hurt`, true);
                     player.hurt = true;
                     this.time.addEvent({
@@ -195,6 +203,9 @@ class Overworld extends Phaser.Scene {
                             player.anims.play(`${player.class}stand`, true)
                         }
                     });
+                }
+                if (data.attacker._id == player._id){
+                    player.anims.play(`${player.class}stand`, true)
                 }
             })
         })
@@ -267,7 +278,9 @@ class Overworld extends Phaser.Scene {
             if (!this.player.target)
                 return
             this.player.currentqueue = Object.keys(this.player.abilities)[0]
-            
+            socket.emit('queueattack', {
+                id: this.player._id
+            })
             this.GCD.timer = this.time.addEvent({
                 delay: this.GCD.value,
                 callback: ()=>{

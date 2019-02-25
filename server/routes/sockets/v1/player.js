@@ -13,6 +13,7 @@ export function init(socket) {
     socket.on('playgame', data => playGame(socket, data));
     socket.on('move', data => move(socket, data));  
     socket.on('ability1', data => ability1(socket, data));
+    socket.on('queueattack', data => queueattack(socket, data));
 }
 
 export function playGame(socket, data){
@@ -46,10 +47,7 @@ const ability1 = (socket, data) => {
         target.currenthp = 0;
     SocketsV1.emit('ability1', {
         target: target,
-        shane: {
-            timefromclienttoserver: timefromclienttoserver,
-            timefromservertoclient: Date.now()
-        }
+        attacker: player
     });
 }
 
@@ -61,6 +59,12 @@ const move = (socket, data) => {
     player.pos.set('y', data.y);
     console.log(player.dir);
     SocketsV1.emit('move', player);
+}
+
+const queueattack = (socket, data) => {
+    let player = Server.findPlayerBySocket(socket) || null;
+    if (!player) return;
+    SocketsV1.emit('queueattack', player._id);
 }
 
 const tempErrorHandler = error => {
