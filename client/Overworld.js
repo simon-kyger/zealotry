@@ -146,10 +146,11 @@ class Overworld extends Phaser.Scene {
 
                     //update animations
                     player.setDepth(player.y);
-                    data.dir.x > 0 ? player.flipX = true : player.flipX = false;
                     if (data.dir.x < 0){
+                        player.flipX = false;
                         player.anims.play(`${player.class}left`, true);
                     } else if (data.dir.x > 0){
+                        player.flipX = true;
                         player.anims.play(`${player.class}left`, true);
                     } else if (data.dir.y > 0){
                         player.anims.play(`${player.class}down`, true);
@@ -172,6 +173,14 @@ class Overworld extends Phaser.Scene {
             if (data.target._id == this.player._id){
                 this.player.currenthp = data.target.currenthp;
                 this.player.hurt = true;
+                this.time.addEvent({
+                    delay: 500,
+                    callback: ()=>{
+                        this.player.hurt = false;
+                        this.player.anims.play(`${this.player.class}stand`, true)
+                    }
+                });
+                return;
             }
             this.players.getChildren().forEach(player=>{
                 if (player._id == data.target._id){
@@ -183,21 +192,7 @@ class Overworld extends Phaser.Scene {
                         delay: 500,
                         callback: ()=>{
                             player.hurt = false;
-                            player.dir.x > 0 ? player.flipX = true : null;
-                            player.dir.x < 0 ? player.flipX = false : null;
-                            player.anims.stop();
-                            if (player.dir.x > 0){
-                                player.flipX = true;
-                                player.anims.play(`${player.class}left`, true)
-                            } else if (player.dir.x < 0){
-                                player.flipX = false;
-                                player.anims.play(`${player.class}left`, true)
-                            }
-                            if (player.dir.y > 0){
-                                player.anims.play(`${player.class}down`, true)
-                            } else if (player.dir.y < 0){
-                                player.anims.play(`${player.class}up`, true)
-                            }
+                            player.anims.play(`${player.class}stand`, true)
                         }
                     });
                 }
@@ -374,8 +369,8 @@ class Overworld extends Phaser.Scene {
                 {
                     key: `${key}stand`,
                     frames: this.anims.generateFrameNames('players', {
-                        start: 7,
-                        end: 7,
+                        start: 1,
+                        end: 1,
                         prefix: `${this.mp()[key]}/`
                     }),
                     frameRate: 8,
@@ -506,6 +501,13 @@ class Overworld extends Phaser.Scene {
         } else {
             this.player.body.setVelocityY(0)
         }
+        
+        this.players.getChildren().forEach(player=>{
+            this.nameplates[player._id].x = player.x - this.nameplates[player._id].width/2,
+            this.nameplates[player._id].y = player.y - this.nameplates[player._id].height*3
+        })
+        this.nameplates[this.player._id].x = this.player.x - this.nameplates[this.player._id].width/2,
+        this.nameplates[this.player._id].y = this.player.y - this.nameplates[this.player._id].height*3
     }
     /**
      * Rendering queue of the local player and their respective nameplate.
@@ -533,10 +535,7 @@ class Overworld extends Phaser.Scene {
             this.player.anims.stop();
         }
 
-
         this.player.setDepth(this.player.y);
-        this.nameplates[this.player._id].x = this.player.x - this.nameplates[this.player._id].width/2,
-        this.nameplates[this.player._id].y = this.player.y - this.nameplates[this.player._id].height*3
     }
 
     /**
