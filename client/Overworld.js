@@ -114,7 +114,7 @@ class Overworld extends Phaser.Scene {
                 if(player._id == data._id){
                     player.destroy();
                 }
-                if (this.player.target._id == player._id){
+                if (this.player.target && (this.player.target._id == player._id)){
                     this.player.target = null;
                     this.player.stick = null;
                 }
@@ -498,20 +498,6 @@ class Overworld extends Phaser.Scene {
     phys(){
         this.controls.update();
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 1, 10))
-        if (this.controls.left.isDown){
-            this.player.body.setVelocityX(-this.player.speed)
-        } else if (this.controls.right.isDown){
-            this.player.body.setVelocityX(this.player.speed)
-        } else {
-            this.player.body.setVelocityX(0)
-        }
-        if (this.controls.down.isDown){
-            this.player.body.setVelocityY(this.player.speed)
-        } else if (this.controls.up.isDown){
-            this.player.body.setVelocityY(-this.player.speed)
-        } else {
-            this.player.body.setVelocityY(0)
-        }
 
         if (this.player.stick){
             const target = this.player.stick;
