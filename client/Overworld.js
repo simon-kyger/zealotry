@@ -163,13 +163,7 @@ class Overworld extends Phaser.Scene {
                     } else {
                         player.anims.stop();
                     }
-                    //update player nametags
-                    this.tweens.add({
-                        targets: this.nameplates[player._id],
-                        x: data.pos.x - this.nameplates[player._id].width/2,
-                        y: data.pos.y - this.nameplates[player._id].height*3,
-                        duration: 50
-                    })
+                    
                 }
             });
         });
@@ -302,18 +296,11 @@ class Overworld extends Phaser.Scene {
         //the vector .velocity to the correct direction to send to the server.
         if ((key == 'up') || (key =='down') || (key == 'left') || (key == 'right')){
             this.player.stick = null;
-            if (val){
-                if (key == 'up') this.player.body.velocity.y = -this.player.speed;
-                else if (key == 'down') this.player.body.velocity.y = this.player.speed;
-                if (key == 'left') this.player.body.velocity.x = -this.player.speed;
-                else if (key == 'right') this.player.body.velocity.x = this.player.speed;
-            }
-            if (!val){
-                if (key == 'up') this.player.body.setVelocityY(0);
-                else if (key == 'down') this.player.body.setVelocityY(0);
-                if (key == 'left') this.player.body.setVelocityX(0);
-                else if (key == 'right') this.player.body.setVelocityX(0);
-            }
+            this.player.body.setVelocity(0)
+            if (this.KEYBOARD.up.isDown) this.player.body.velocity.y = -this.player.speed;
+            else if (this.KEYBOARD.down.isDown) this.player.body.velocity.y = this.player.speed;
+            if (this.KEYBOARD.left.isDown) this.player.body.velocity.x = -this.player.speed;
+            else if (this.KEYBOARD.right.isDown) this.player.body.velocity.x = this.player.speed;
             socket.emit(`move`, {
                 velocity: this.player.body.velocity,
                 x: this.player.x,
@@ -496,21 +483,6 @@ class Overworld extends Phaser.Scene {
     phys(){
         this.controls.update();
         this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, 1, 10))
-
-        if (this.player.stick){
-            const target = this.player.stick;
-            const distance = this.player.stickdistance;
-            if (target.x+distance < this.player.x){
-                this.player.body.setVelocityX(-this.player.speed)
-            } else if (target.x-distance > this.player.x){
-                this.player.body.setVelocityX(this.player.speed)
-            }
-            if (target.y+distance < this.player.y){
-                this.player.body.setVelocityY(-this.player.speed)
-            } else if (target.y-distance > this.player.y){
-                this.player.body.setVelocityY(this.player.speed)
-            }
-        }
         
         this.players.getChildren().forEach(player=>{
             this.nameplates[player._id].x = player.x - this.nameplates[player._id].width/2,
