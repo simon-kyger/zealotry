@@ -130,8 +130,8 @@ class Overworld extends Phaser.Scene {
             this.players.getChildren().forEach(player=>{
                 if (player._id == data._id){
                     //override its current x and y positions (in case of lags)
-                    player.x = data.pos.x + this.cameras.main.width/2
-                    player.y = data.pos.y + this.cameras.main.height/2
+                    player.x = data.pos.x
+                    player.y = data.pos.y
                     //update physics
                     if (data.velocity.x > 0){
                         player.setVelocityX(player.speed)
@@ -166,8 +166,8 @@ class Overworld extends Phaser.Scene {
                     //update player nametags
                     this.tweens.add({
                         targets: this.nameplates[player._id],
-                        x: data.pos.x + this.cameras.main.width/2 - this.nameplates[player._id].width/2,
-                        y: data.pos.y + this.cameras.main.height/2 - this.nameplates[player._id].height*3,
+                        x: data.pos.x - this.nameplates[player._id].width/2,
+                        y: data.pos.y - this.nameplates[player._id].height*3,
                         duration: 50
                     })
                 }
@@ -316,8 +316,8 @@ class Overworld extends Phaser.Scene {
             }
             socket.emit(`move`, {
                 velocity: this.player.body.velocity,
-                x: this.player.x - this.cameras.main.width/2,
-                y: this.player.y - this.cameras.main.height/2,
+                x: this.player.x,
+                y: this.player.y,
             })
         }
         if (key == 'toggleconfig' && !val)
@@ -479,8 +479,6 @@ class Overworld extends Phaser.Scene {
         if (data._id === this.player._id){
             sprite.fixedToCamera = true;
             this.player = sprite;
-            this.player.x+= this.cameras.main.width/2;
-            this.player.y+= this.cameras.main.height/2
         } else {
             this.players.add(sprite);
         }
