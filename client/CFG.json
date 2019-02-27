@@ -3,7 +3,7 @@
         "stick": {
             "keyCode": 192,
             "state": false,
-            "distance": 15
+            "distance": 30
         },
         "up": {
             "keyCode": 87, 

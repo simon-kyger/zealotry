@@ -321,6 +321,14 @@ class Overworld extends Phaser.Scene {
             })
         }
     }
+
+    /**
+     * Makes the local player follow the player arg passed in
+     * Threshold is set by this.player.stickdistance which is set in the CFG / key controls
+     * Also communicates to the server on an interval of every 500ms to update movement
+     * for other players to see this player is following someone
+     * @param {Arcade Sprite Object} player 
+     */
     follow(player){
         if (this.followtimer)
             this.followtimer.remove(false);
@@ -330,20 +338,40 @@ class Overworld extends Phaser.Scene {
         }
         
         this.physics.moveToObject(this.player, player, this.player.speed)
+        let toggle = true;
         this.followtimer = this.time.addEvent({
             callbackScope: this,
             delay: 500,
             loop: true,
             callback: ()=>{
-                this.physics.moveToObject(this.player, player, this.player.speed)
-                if (Phaser.Math.Distance.Between(this.player.x, this.player.y, player.x, player.y) < 50){
-                    this.player.body.stop()    
+                const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, player.x, player.y)
+                if (dist < this.player.stickdistance){
+                    this.player.body.stop()  
+                    toggle = false;
+                    socket.emit('move', {
+                        velocity: this.player.body.velocity,
+                        x: this.player.x,
+                        y: this.player.y        
+                    })
+                } else if (dist > this.player.stickdistance){
+                    this.physics.moveTo(
+                        this.player, 
+                        player.x, 
+                        player.y, 
+                        this.player.speed
+                    ) //TODO FIX INTERPOLATION
+                    toggle = true;
                 }
-                socket.emit('move', {
-                    velocity: this.player.body.velocity,
-                    x: this.player.x,
-                    y: this.player.y        
-                })
+                //if (this.player.body.isMoving)
+                //doesn't work ... moveToObject doesnt update isMoving boolean
+                //I made a post about it here: https://phaser.discourse.group/t/physics-body-ismoving-doesnt-get-update-from-movetoobject/1426
+                if (toggle){
+                    socket.emit('move', {
+                        velocity: this.player.body.velocity,
+                        x: this.player.x,
+                        y: this.player.y        
+                    })
+                }
             },
         })
     }
