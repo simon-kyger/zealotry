@@ -116,7 +116,7 @@ class Overworld extends Phaser.Scene {
                 }
                 if (this.player.target && (this.player.target._id == player._id)){
                     this.player.target = null;
-                    this.player.stick = null;
+                    this.player.stickid = null;
                 }
             })
             for (let key in this.nameplates){
@@ -292,10 +292,12 @@ class Overworld extends Phaser.Scene {
                 }
             });
         }
+
         //on movement, we dont care if the key was up or down, the update loop will handle setting
         //the vector .velocity to the correct direction to send to the server.
         if ((key == 'up') || (key =='down') || (key == 'left') || (key == 'right')){
-            this.player.stick = null;
+            this.player.stickid = null;
+            this.follow(null);
             this.player.body.setVelocity(0)
             if (this.KEYBOARD.up.isDown) this.player.body.velocity.y = -this.player.speed;
             else if (this.KEYBOARD.down.isDown) this.player.body.velocity.y = this.player.speed;
@@ -307,11 +309,43 @@ class Overworld extends Phaser.Scene {
                 y: this.player.y,
             })
         }
+
         if (key == 'toggleconfig' && !val)
             this.scene.wake('Options_Scene')
         if (key == 'stick' && val && this.player.target && (this.player.target._id != this.player._id)){
-            this.player.stick = this.player.target
+            this.player.stickid = this.player.target._id;
+            this.players.getChildren().forEach(player=>{
+                if (player._id == this.player.stickid){
+                    this.follow(player);
+                }
+            })
         }
+    }
+    follow(player){
+        if (this.followtimer)
+            this.followtimer.remove(false);
+        if (!player){
+            this.player.body.stop();
+            return;
+        }
+        
+        this.physics.moveToObject(this.player, player, this.player.speed)
+        this.followtimer = this.time.addEvent({
+            callbackScope: this,
+            delay: 500,
+            loop: true,
+            callback: ()=>{
+                this.physics.moveToObject(this.player, player, this.player.speed)
+                if (Phaser.Math.Distance.Between(this.player.x, this.player.y, player.x, player.y) < 50){
+                    this.player.body.stop()    
+                }
+                socket.emit('move', {
+                    velocity: this.player.body.velocity,
+                    x: this.player.x,
+                    y: this.player.y        
+                })
+            },
+        })
     }
     /**
      * Sets all the controls based upon a structure passed and can modify them at runtime
