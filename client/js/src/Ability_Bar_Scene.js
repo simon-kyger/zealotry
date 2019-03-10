@@ -1,4 +1,6 @@
-class Ability_Bar_Scene extends Phaser.Scene {
+
+import Draggable_Container from '/js/src/Draggable_Container.js';
+export default class Ability_Bar_Scene extends Phaser.Scene {
     constructor(args){
         super({key: "Ability_Bar_Scene", active: true});
     }
@@ -33,7 +35,7 @@ class Ability_Bar_Scene extends Phaser.Scene {
     }
     create(){
         let graphics = this.creategraphic();
-        this.scene.get('Overworld').events.on('updateabilities', data=>{
+        this.scene.get('Overworld_Scene').events.on('updateabilities', data=>{
             this.draw(data);
         })
     }

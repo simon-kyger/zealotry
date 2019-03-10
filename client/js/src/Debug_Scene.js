@@ -1,4 +1,4 @@
-class Debug_Scene extends Phaser.Scene {
+export default class Debug_Scene extends Phaser.Scene {
     constructor(args){
         //setup and variable initializations
         super({key: "Debug_Scene", active: true});
@@ -35,7 +35,7 @@ Camera {
     }
     create(){
         this.creategraphic();
-        this.scene.get('Overworld').events.on('debug', data=>{
+        this.scene.get('Overworld_Scene').events.on('debug', data=>{
             this.drawdebug(data);
         })
     }

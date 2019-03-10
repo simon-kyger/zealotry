@@ -1,3 +1,13 @@
+//third party dependencies can be found in index.html (for now)
+//scenes
+import Ability_Bar_Scene from '/js/src/Ability_Bar_Scene.js';
+import Options_Scene from '/js/src/Options_Scene.js';
+import Options_Button_Scene from '/js/src/Options_Button_Scene.js';
+import Debug_Scene from '/js/src/Debug_Scene.js';
+import Player_Resources_Scene from '/js/src/Player_Resources_Scene.js';
+//mainscene
+import Overworld_Scene from '/js/src/Overworld_Scene.js';
+
 const randomtip = () => {
 	const tips = [
 		`When creating a character, if the img isn't loading, don't pick to test with.`,
@@ -32,7 +42,7 @@ const loginpage = (down) => {
 					<main id='login' align='center' class='zdef'>			
 						<div class='tipoftheday'>${randomtip()}</div>
 						<div style='font-size: 100'>zealotry.io</div>
-						<img src="kefka.gif" style='width:100; height:100'>
+						<img src="./assets/kefka.gif" style='width:100; height:100'>
 						<div style='display: flex;'>
 							<div style='flex:1;'></div>
 							<form style='font-size: 30; flex:1'>
@@ -366,7 +376,7 @@ const loadgame = data => {
 			pixelArt: true
 		},
 		scene: [
-			new Overworld(data),
+			new Overworld_Scene(data, socket),
 			new Debug_Scene(data),
 			new Player_Resources_Scene,
 			new Options_Button_Scene,

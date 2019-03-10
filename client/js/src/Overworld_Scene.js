@@ -1,7 +1,7 @@
-class Overworld extends Phaser.Scene {
-    constructor(args){
+export default class Overworld_Scene extends Phaser.Scene {
+    constructor(args, socket){
         //setup and variable initializations
-        super({key: "Overworld", active: true});
+        super({key: "Overworld_Scene", active: true});
         this.player = args.player;
         this.initialplayers = args.players; // doesnt actually work with race conditions, should make a getter on create
         this.gamescale = 4;
@@ -12,6 +12,7 @@ class Overworld extends Phaser.Scene {
         this.GCD = {
             value: 1000
         }
+        this.socket = socket;
     }
 
     loadscreen(){
@@ -106,10 +107,10 @@ class Overworld extends Phaser.Scene {
         //     this.cameras.resize(width, height);	
         // })
 
-        socket.on('newplayer', data=>{
+        this.socket.on('newplayer', data=>{
             this.createplayer(data);
         })
-        socket.on('removeplayer', data=>{
+        this.socket.on('removeplayer', data=>{
             this.players.getChildren().forEach((player, i)=>{
                 if(player._id == data._id){
                     player.destroy();
@@ -126,7 +127,7 @@ class Overworld extends Phaser.Scene {
                 }
             }
         });
-        socket.on('move', data=> {
+        this.socket.on('move', data=> {
             this.players.getChildren().forEach(player=>{
                 if (player._id == data._id){
                     //override its current x and y positions (in case of lags)
@@ -167,14 +168,14 @@ class Overworld extends Phaser.Scene {
                 }
             });
         });
-        socket.on('queueattack', data=>{
+        this.socket.on('queueattack', data=>{
             this.players.getChildren().forEach(player=>{
                 if(player._id == data){
                     player.play(`${player.class}attack`, true);
                 }
             })
         })
-        socket.on('ability1', data=>{
+        this.socket.on('ability1', data=>{
             if (data.target._id == this.player._id){
                 this.player.currenthp = data.target.currenthp;
                 this.player.hurt = true;
@@ -276,7 +277,7 @@ class Overworld extends Phaser.Scene {
             if (!this.player.target)
                 return
             this.player.currentqueue = Object.keys(this.player.abilities)[0]
-            socket.emit('queueattack', {
+            this.socket.emit('queueattack', {
                 id: this.player._id
             })
             this.GCD.timer = this.time.addEvent({
@@ -285,7 +286,7 @@ class Overworld extends Phaser.Scene {
                     this.player.currentqueue = '';
                     if (!this.player.target) // required if player switches targets mid cast
                         return
-                    socket.emit('ability1', {
+                    this.socket.emit('ability1', {
                         _id: this.player.target._id,
                         shane: Date.now()
                     });
@@ -303,7 +304,7 @@ class Overworld extends Phaser.Scene {
             else if (this.KEYBOARD.down.isDown) this.player.body.velocity.y = this.player.speed;
             if (this.KEYBOARD.left.isDown) this.player.body.velocity.x = -this.player.speed;
             else if (this.KEYBOARD.right.isDown) this.player.body.velocity.x = this.player.speed;
-            socket.emit(`move`, {
+            this.socket.emit(`move`, {
                 velocity: this.player.body.velocity,
                 x: this.player.x,
                 y: this.player.y,
@@ -348,7 +349,7 @@ class Overworld extends Phaser.Scene {
                 if (dist < this.player.stickdistance){
                     this.player.body.stop()  
                     toggle = false;
-                    socket.emit('move', {
+                    this.socket.emit('move', {
                         velocity: this.player.body.velocity,
                         x: this.player.x,
                         y: this.player.y        
@@ -366,7 +367,7 @@ class Overworld extends Phaser.Scene {
                 //doesn't work ... moveToObject doesnt update isMoving boolean
                 //I made a post about it here: https://phaser.discourse.group/t/physics-body-ismoving-doesnt-get-update-from-movetoobject/1426
                 if (toggle){
-                    socket.emit('move', {
+                    this.socket.emit('move', {
                         velocity: this.player.body.velocity,
                         x: this.player.x,
                         y: this.player.y        

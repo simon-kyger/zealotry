@@ -1,4 +1,4 @@
-class Options_Scene extends Phaser.Scene {
+export default class Options_Scene extends Phaser.Scene {
     constructor(){
         super({
             key: "Options_Scene", 
@@ -61,7 +61,7 @@ class Options_Scene extends Phaser.Scene {
             .setInteractive()
             .on('pointerdown', (p, x, y) => {
                 this.shownameplatesboolean = !this.shownameplatesboolean;
-                let overworld = this.scene.get('Overworld');
+                let overworld = this.scene.get('Overworld_Scene');
                 const nameplates = overworld.nameplates;
                 overworld.shownameplatesboolean = this.shownameplatesboolean;
                 for (let key in nameplates){

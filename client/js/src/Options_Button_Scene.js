@@ -1,4 +1,4 @@
-class Options_Button_Scene extends Phaser.Scene {
+export default class Options_Button_Scene extends Phaser.Scene {
     constructor(){
         super({key: "Options_Button_Scene", active: true});
         this.width = 80;

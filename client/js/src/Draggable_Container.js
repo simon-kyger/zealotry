@@ -1,4 +1,4 @@
-class Draggable_Container extends Phaser.GameObjects.Container {  
+export default class Draggable_Container extends Phaser.GameObjects.Container {  
     constructor(scene, x, y, width, height, children){
         super(scene, x, y, children)
         this.x = x;

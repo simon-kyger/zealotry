@@ -1,4 +1,5 @@
-class Player_Resources_Scene extends Phaser.Scene {
+import Draggable_Container from '/js/src/Draggable_Container.js';
+export default class Player_Resources_Scene extends Phaser.Scene {
     constructor(args){
         super({key: "Player_Resources_Scene", active: true});
     }
@@ -81,10 +82,10 @@ class Player_Resources_Scene extends Phaser.Scene {
     }
     create(){
         this.gfx = this.creategraphic();
-        this.scene.get('Overworld').events.on('updateresources', data=>{
+        this.scene.get('Overworld_Scene').events.on('updateresources', data=>{
             this.draw(data);
         })
-        this.scene.get('Overworld').events.on('resetUI', ()=>{
+        this.scene.get('Overworld_Scene').events.on('resetUI', ()=>{
             this.gfx = this.creategraphic();
         })
     }
