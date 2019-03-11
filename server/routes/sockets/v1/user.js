@@ -112,12 +112,6 @@ function createCharacter(socket, data) {
             up: false,
             down: false 
         }
-        character.abilities = {
-            meleeattack: {
-                value: 10,
-                speed: 10
-            }
-        }
         character.currentqueue = '';
         character.velocity = {
             x: 0,
@@ -130,7 +124,39 @@ function createCharacter(socket, data) {
         character.maxend = 100;
         character.currentmana = 100;
         character.maxmana = 100;
-        
+        switch(character.class){
+            case 'Warrior':
+                character.abilities = [
+                    `meleeattack`,
+                ]
+                break;
+            case 'Rogue':
+                break;
+            case 'Bard':
+                break;
+            case 'Engineer':
+                break;
+            case 'Doctor':
+                break;
+            case 'Paladin':
+                break;
+            case 'Zealot':
+                break;
+            case 'Seraph':
+                break;
+            case 'Spirit':
+                break;
+            case 'Skeleton':
+                break;
+            case 'Shadow':
+                break;
+            case 'Banshee':
+                break;
+            case 'Succubus':
+                break;
+            case 'Ghost':
+                break;
+        }
 		switch(user.realm){
             case 'angel':
                 character.pos = { x: 15600, y: 15800};

@@ -175,6 +175,18 @@ export default class Overworld_Scene extends Phaser.Scene {
                 }
             })
         })
+        this.socket.on('outofrange', data=>{
+            if (data.attacker._id == this.player._id){
+                this.player.anims.play(`${this.player.class}stand`, true)
+                return;
+            }
+            this.players.getChildren().forEach(player=>{
+                if (data.attacker._id == player._id){
+                    player.anims.play(`${player.class}stand`, true)
+                    return;
+                }
+            })
+        })
         this.socket.on('ability1', data=>{
             if (data.target._id == this.player._id){
                 this.player.currenthp = data.target.currenthp;
@@ -276,7 +288,7 @@ export default class Overworld_Scene extends Phaser.Scene {
         if (key == 'ability1' && val && !this.player.currentqueue){
             if (!this.player.target)
                 return
-            this.player.currentqueue = Object.keys(this.player.abilities)[0]
+            this.player.currentqueue = key;
             this.socket.emit('queueattack', {
                 id: this.player._id
             })
@@ -288,7 +300,6 @@ export default class Overworld_Scene extends Phaser.Scene {
                         return
                     this.socket.emit('ability1', {
                         _id: this.player.target._id,
-                        shane: Date.now()
                     });
                 }
             });

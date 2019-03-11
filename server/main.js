@@ -130,6 +130,31 @@ export function findPlayerById(id){
         return player;
 }
 
+export function getAbility(arg){
+    const allAbilities = {
+        meleeattack : {
+            damage: 10,
+            speed: 10,
+            range: 30,
+            execute: function(self, target){
+                const sx = self.pos.get('x');
+                const sy = self.pos.get('y');
+                const tx = target.pos.get('x');
+                const ty = target.pos.get('y');
+                const distance = Math.sqrt((sx-tx)**2 + (sy-ty)**2)
+                if (distance < this.range){
+                    target.currenthp -= this.damage;
+                    if (target.currenthp < 0) 
+                        target.currenthp = 0;
+                    return true;
+                }
+                return false;
+            }
+        }    
+    }
+    return allAbilities[arg]
+}
+
 /**
  * Export a default containing the primary methods
  */
@@ -144,5 +169,6 @@ export default {
     userLoggedIn,           // TODO : MOVE
     getUsernameBySocket,    // TODO : MOVE
     findPlayerBySocket,      // TODO : MOVE
-    findPlayerById
+    findPlayerById,
+    getAbility
 }

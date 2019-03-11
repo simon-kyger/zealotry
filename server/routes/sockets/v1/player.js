@@ -36,19 +36,26 @@ export function playGame(socket, data){
 }
 
 const ability1 = (socket, data) => {
-    const timefromclienttoserver = Date.now() - data.shane;
     let player = Server.findPlayerBySocket(socket) || null;
     let target = Server.findPlayerById(data._id)
     
     if (!player || !target) 
         return;
-    target.currenthp -= player.abilities.meleeattack.value;
-    if (target.currenthp < 0) 
-        target.currenthp = 0;
-    SocketsV1.emit('ability1', {
-        target: target,
-        attacker: player
-    });
+        
+    const rangecheck = Server.getAbility(player.abilities[0]).execute(player, target);
+    if (rangecheck){
+        SocketsV1.emit('ability1', {
+            target: target,
+            attacker: player,
+            rangecheck: rangecheck
+        });
+    } else {
+        SocketsV1.emit('outofrange', {
+            target: target,
+            attacker: player,
+            rangecheck: rangecheck
+        });
+    }
 }
 
 const move = (socket, data) => {

@@ -49,10 +49,8 @@ try {
             type: Number
         },
         abilities: {
-            meleeattack: {
-                value: Number,
-                speed: Number
-            }
+            type: Array,
+            of: String
         },
         currentqueue: String,
         user_id : {
