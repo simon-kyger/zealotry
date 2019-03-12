@@ -32,6 +32,7 @@ export function create(config) {
     // Define the database connection
     console.log(`config`, config);
     mongoose.connect(config.dburl + '/' + config.dbname);
+    mongoose.set('useCreateIndex', true);
     
     // Set up the server's environment
     app.set('env', config.env);

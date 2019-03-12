@@ -468,6 +468,7 @@ export default class Overworld_Scene extends Phaser.Scene {
                     frames: this.anims.generateFrameNames('players', {
                         start: 0,
                         end: 2,
+                        frames: [1,2,1,0],
                         prefix: `${this.mp()[key]}/`
                     }),
                     frameRate: 8,
@@ -478,6 +479,7 @@ export default class Overworld_Scene extends Phaser.Scene {
                     frames: this.anims.generateFrameNames('players', {
                         start: 3,
                         end: 5,
+                        frames: [4,5,4,3],
                         prefix: `${this.mp()[key]}/`
                     }),
                     frameRate: 8,
@@ -488,6 +490,7 @@ export default class Overworld_Scene extends Phaser.Scene {
                     frames: this.anims.generateFrameNames('players', {
                         start: 6,
                         end: 8,
+                        frames: [7,8,7,6],
                         prefix: `${this.mp()[key]}/`
                     }),
                     frameRate: 8,
@@ -508,6 +511,7 @@ export default class Overworld_Scene extends Phaser.Scene {
                     frames: this.anims.generateFrameNames('players', {
                         start: 35,
                         end: 37,
+                        frames: [36,37,36,35],
                         prefix: `${this.mp()[key]}/`
                     }),
                     frameRate: 4,
