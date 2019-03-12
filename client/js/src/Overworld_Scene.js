@@ -1,5 +1,5 @@
 export default class Overworld_Scene extends Phaser.Scene {
-    constructor(args, socket){
+    constructor(args, socket, allAbilities){
         //setup and variable initializations
         super({key: "Overworld_Scene", active: true});
         this.player = args.player;
@@ -9,10 +9,12 @@ export default class Overworld_Scene extends Phaser.Scene {
         this.showdebug = true;
         //config
         this.shownameplatesboolean = true;
+        this.socket = socket;
         this.GCD = {
+            timer: null,
             value: 1000
         }
-        this.socket = socket;
+        this.allAbilities = allAbilities;
     }
 
     loadscreen(){
@@ -131,8 +133,8 @@ export default class Overworld_Scene extends Phaser.Scene {
             this.players.getChildren().forEach(player=>{
                 if (player._id == data._id){
                     //override its current x and y positions (in case of lags)
-                    player.x = data.pos.x
-                    player.y = data.pos.y
+                    player.x = data.x
+                    player.y = data.y
                     //update physics
                     if (data.velocity.x > 0){
                         player.setVelocityX(player.speed)
@@ -288,21 +290,31 @@ export default class Overworld_Scene extends Phaser.Scene {
         if (key == 'ability1' && val && !this.player.currentqueue){
             if (!this.player.target)
                 return
-            this.player.currentqueue = key;
-            this.socket.emit('queueattack', {
-                id: this.player._id
-            })
-            this.GCD.timer = this.time.addEvent({
-                delay: this.GCD.value,
-                callback: ()=>{
-                    this.player.currentqueue = '';
-                    if (!this.player.target) // required if player switches targets mid cast
-                        return
-                    this.socket.emit('ability1', {
-                        _id: this.player.target._id,
-                    });
-                }
-            });
+            const rangecheck = this.allAbilities(this.player.abilities[0]).rangecheck(this.player, this.player.target);
+            if (rangecheck){
+                this.socket.emit('queueattack', {
+                    target_id: this.player.target._id,
+                    x: this.player.x,
+                    y: this.player.y
+                })
+                this.player.currentqueue = key;
+                this.GCD.timer = this.time.addEvent({
+                    delay: this.allAbilities(this.player.abilities[0]).speed,
+                    callback: ()=>{
+                        this.player.currentqueue = '';
+                        if (!this.player.target) // required if player switches targets mid cast
+                            return
+                        const secondcheck = this.allAbilities(this.player.abilities[0]).rangecheck(this.player, this.player.target);
+                        if (secondcheck) {
+                            this.socket.emit('ability1', {
+                                target_id: this.player.target._id,
+                                x: this.player.x,
+                                y: this.player.y
+                            });
+                        }
+                    }
+                });
+            }
         }
 
         //on movement, we dont care if the key was up or down, the update loop will handle setting
@@ -521,13 +533,13 @@ export default class Overworld_Scene extends Phaser.Scene {
      */
     createplayer(data){
         let sprite = this.physics.add.sprite(
-            data.pos.x, 
-            data.pos.y, 
+            data.x, 
+            data.y, 
             'players', 
             `${this.mp()[data.class]}/0`)
         sprite.setInteractive();
 
-        sprite.nametext = this.add.text(data.pos.x, data.pos.y, data.name, {
+        sprite.nametext = this.add.text(data.x, data.y, data.name, {
             font: `6px Segoe UI`,
             fill: '#CCCCCC',
             align: 'center'

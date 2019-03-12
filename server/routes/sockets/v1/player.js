@@ -37,23 +37,23 @@ export function playGame(socket, data){
 
 const ability1 = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
-    let target = Server.findPlayerById(data._id)
+    let target = Server.findPlayerById(data.target_id)
     
     if (!player || !target) 
         return;
-        
-    const rangecheck = Server.getAbility(player.abilities[0]).execute(player, target);
+    player.x = data.x;
+    player.y = data.y;
+    const rangecheck = Server.allAbilities(player.abilities[0]).rangecheck(player, target);
     if (rangecheck){
+        Server.allAbilities(player.abilities[0]).execute(player, target);
         SocketsV1.emit('ability1', {
             target: target,
             attacker: player,
-            rangecheck: rangecheck
         });
     } else {
         SocketsV1.emit('outofrange', {
             target: target,
             attacker: player,
-            rangecheck: rangecheck
         });
     }
 }
@@ -62,15 +62,28 @@ const move = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
     if (!player) return;
     player.velocity = data.velocity;
-    player.pos.set('x', data.x);
-    player.pos.set('y', data.y);
+    player.x = data.x;
+    player.y = data.y;
     SocketsV1.emit('move', player);
 }
 
 const queueattack = (socket, data) => {
     let player = Server.findPlayerBySocket(socket) || null;
-    if (!player) return;
-    SocketsV1.emit('queueattack', player._id);
+    let target = Server.findPlayerById(data.target_id)
+    if (!player || !target) 
+        return;
+    player.x = data.x;
+    player.y = data.y;
+    const rangecheck = Server.allAbilities(player.abilities[0]).rangecheck(player, target);
+    if (rangecheck){
+        SocketsV1.emit('queueattack', player._id);
+    } else {
+        SocketsV1.emit('outofrange', {
+            target: target,
+            attacker: player,
+            rangecheck: rangecheck
+        });
+    }
 }
 
 const tempErrorHandler = error => {

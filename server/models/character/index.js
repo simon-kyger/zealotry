@@ -16,13 +16,15 @@ try {
         class: {
             type: String      
         },
-        pos : {
-            type: Map,
-            of: Number
-        },
         move : {
             type: Map,
             of: Boolean
+        },
+        x : {
+            type: Number
+        },
+        y : {
+            type: Number
         },
         velocity: {
             type: Object

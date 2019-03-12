@@ -159,13 +159,16 @@ function createCharacter(socket, data) {
         }
 		switch(user.realm){
             case 'angel':
-                character.pos = { x: 15600, y: 15800};
+                character.x = 15600;
+                character.y = 15800;
                 break;
             case 'human':
-                character.pos = { x : 480, y : 275 };
+                character.x = 480;
+                character.y = 275;
                 break;
             case 'demon':
-                character.pos = { x: 15600, y: 275 };
+                character.x= 15600; 
+                character.y= 275;
                 break;    
         }
         character.user_id = user._id;

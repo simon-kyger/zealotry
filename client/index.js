@@ -1,4 +1,5 @@
 //third party dependencies can be found in index.html (for now)
+import allAbilities from '/js/src/allAbilities.js';
 //scenes
 import Ability_Bar_Scene from '/js/src/Ability_Bar_Scene.js';
 import Options_Scene from '/js/src/Options_Scene.js';
@@ -376,7 +377,7 @@ const loadgame = data => {
 			pixelArt: true
 		},
 		scene: [
-			new Overworld_Scene(data, socket),
+			new Overworld_Scene(data, socket, allAbilities),
 			new Debug_Scene(data),
 			new Player_Resources_Scene,
 			new Options_Button_Scene,
