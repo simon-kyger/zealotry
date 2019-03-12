@@ -2,6 +2,10 @@
   "name": "zealotry",
   "version": "0.0.0",
   "description": "A multiplayer action pvp game.",
+  "engines": {
+    "npm": "6.x",
+    "node": "11.11.0"
+  },
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec \"babel-node ./server/index.js\"",
